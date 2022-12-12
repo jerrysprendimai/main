@@ -3,4 +3,18 @@
     <string name="user">Vartotojas</string>
     <string name="password">Slaptažodis</string>
     <string name="login">Prisijungti</string>
+    <string name="settings"><u>Nustatymai</u></string>
+    <string name="error_login">Klaida:</string>
+    <string name="copyrigth">Copyright ©Jerry-Sprendimai</string>
+    <string name="cancel">Atšaukti</string>
+    <string name="item_save">Išsaugoti</string>
+    <string name="dbURL">URL</string>
+    <string name="dbServer">DB Server</string>
+    <string name="dbNAme">DB Name</string>
+    <string name="dbUser">DB User</string>
+    <string name="dbPassword">DB Password</string>
+    <string name="test_connection">Testuoti</string>
+    <string name="dbA1">Admin User</string>
+    <string name="dbA2">Admin Password</string>
+    <string name="get_settings">Parsisiųsti</string>
 </resources>

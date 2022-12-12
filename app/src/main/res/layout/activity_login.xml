@@ -7,15 +7,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".Login">
+    tools:context=".LoginActivity">
 
     <ImageView
         android:id="@+id/jerryIcon"
-        android:layout_width="140dp"
-        android:layout_height="140dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_gravity="center"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="10dp"
         android:background="@android:color/transparent"
         app:srcCompat="@mipmap/ic_jerry_foreground" />
 
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:backgroundTint="@color/jerry_blue"
+            android:backgroundTint="@color/jerry_light_blue"
             android:drawableStart="@drawable/ic_user"
             android:ems="10"
             android:fontFamily="@font/poppinsmedium"
@@ -36,7 +36,8 @@
             android:inputType="textEmailAddress"
             android:padding="5dp"
             android:textColor="@color/black"
-            android:textColorHint="@color/black" />
+            android:textColorHint="@color/black"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -48,7 +49,7 @@
             android:id="@+id/etPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/jerry_blue"
+            android:backgroundTint="@color/jerry_light_blue"
             android:drawableStart="@drawable/ic_password"
             android:ems="10"
             android:fontFamily="@font/poppinsmedium"
@@ -56,22 +57,52 @@
             android:inputType="textPassword"
             android:padding="5dp"
             android:textColor="@color/black"
-            android:textColorHint="@color/black" />
+            android:textColorHint="@color/black"
+            tools:ignore="SpeakableTextPresentCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/btLogin"
+        android:id="@+id/login_button"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="220dp"
         android:layout_height="35dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/round_button"
         android:clickable="true"
         android:padding="5dp"
         android:text="@string/login"
         android:textColor="@color/white"
         android:textSize="15sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/login_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:fontFamily="@font/poppinsmedium"
+        android:text="@string/settings"
+        android:textColor="@color/jerry_light_blue"
+        android:textSize="15sp"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/login_error_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:fontFamily="@font/poppinsmedium"
+        android:textSize="12sp"
+        android:textStyle="bold|italic"
+        android:visibility="visible"
+        android:textColor="@color/jerry_red"
+        android:text="@string/error_login"
+        android:ems="10">
+    </TextView>
+    <include layout="@layout/footer_layout" />
 </LinearLayout>
