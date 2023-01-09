@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="-20dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginBottom="0dp"
             android:orientation="vertical">
 
             <ScrollView
@@ -173,7 +173,10 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginBottom="50dp"
                         android:backgroundTint="@color/jerry_light_opacity"
                         app:cardCornerRadius="5dp"
                         app:cardElevation="1dp">
