@@ -1,13 +1,17 @@
 package com.example.jerrysprendimai;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     TextInputEditText loginPassword;
     TextView settingsTxt;
     Button buttonLogin;
+    Drawable bacground;
     Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +38,25 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         findViewById(R.id.login_error_msg).setVisibility(View.GONE);
+        findViewById(R.id.progressBar).setVisibility(View.GONE);
         loginUser     = findViewById(R.id.loginUser);
         loginPassword = findViewById(R.id.loginPassword);
         buttonLogin   = findViewById(R.id.loginButton);
+
+        //----------to remove
+        loginUser.setText("admin");
+        loginPassword.setText("admin");
 
         context = this;
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                findViewById(R.id.loginUser).setEnabled(false);
+                findViewById(R.id.loginPassword).setEnabled(false);
+                findViewById(R.id.loginButton).setEnabled(false);
+                bacground = ((Button) findViewById(R.id.loginButton)).getBackground();
+                ((Button) findViewById(R.id.loginButton)).setBackground(getDrawable(R.drawable.button_disabled));
                 new HttpsRequest(context).execute();
             }
         });
@@ -52,6 +68,19 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onSettings(View view) {
         this.startActivity(new Intent((Context) this, SettingsActivity.class));
+    }
+
+    @Override
+    protected void onPostResume() {
+        findViewById(R.id.progressBar).setVisibility(View.GONE);
+        ((TextView) findViewById(R.id.login_error_msg)).setVisibility(View.GONE);
+        ((TextView) findViewById(R.id.login_error_msg)).setText("");
+
+        findViewById(R.id.loginUser).setEnabled(true);
+        findViewById(R.id.loginPassword).setEnabled(true);
+        findViewById(R.id.loginButton).setEnabled(true);
+
+        super.onPostResume();
     }
 
     @Override
@@ -82,7 +111,12 @@ public class LoginActivity extends AppCompatActivity {
             String user = "";
             String passwd = "";
             try {
-                user   = Base64.encodeToString(MCrypt.encrypt(loginUser.getText().toString().getBytes()), Base64.DEFAULT);
+                //---------Hide Keyboard
+                View view = getWindow().getDecorView().findViewById(android.R.id.content);
+                InputMethodManager imm = (InputMethodManager) getSystemService(context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+                user   = Base64.encodeToString(MCrypt.encrypt(loginUser.getText().toString().toLowerCase().getBytes()), Base64.DEFAULT);
                 passwd = Base64.encodeToString(MCrypt.encrypt(loginPassword.getText().toString().getBytes()), Base64.DEFAULT);
 
                 connector = new Connector(context, login_url);
@@ -103,19 +137,30 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(InputStream inputStream) {
             try{
+                findViewById(R.id.loginUser).setEnabled(true);
+                findViewById(R.id.loginPassword).setEnabled(true);
+                findViewById(R.id.loginButton).setEnabled(true);
+                ((Button) findViewById(R.id.loginButton)).setBackground(bacground);
+
                JSONObject object = (JSONObject) connector.getResultJsonArray().get(0);
                String login_status = object.getString("status");
                 if (login_status.equals("1")) {
                     JSONArray userArray = (JSONArray) connector.getResultJsonArray().get(1);
                     JSONObject myObj = userArray.getJSONObject(0);
                     ObjectUser myUser = new ObjectUser(myObj);
+
+                    Intent intent = new Intent(this.context, MenuActivity.class);
+                    intent.putExtra("myUser", myUser);
+                    context.startActivity(intent);
+
                 }else{
-                    Toast.makeText(this.context, "Login Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.context, "Klaida", Toast.LENGTH_SHORT).show();
+                    ((TextView) findViewById(R.id.login_error_msg)).setText(getResources().getString(R.string.no_login));
+                    ((TextView) findViewById(R.id.login_error_msg)).setVisibility(View.VISIBLE);
                 }
             }catch(Exception e){
 
             }
-
             //super.onPostExecute(inputStream);
         }
     }

@@ -6,14 +6,18 @@
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.196" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable-v24/round_button.xml" value="0.2345" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/background.xml" value="0.2345" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/button_disabled.xml" value="0.2765" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/ic_jerry_background.xml" value="0.2345" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/ic_launcher_background.xml" value="0.196" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/save_cancel_background.xml" value="0.2345" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/font/cambay_bold_italic.xml" value="0.39076923076923076" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_login.xml" value="0.33" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_menu.xml" value="0.33" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_settings.xml" value="0.35260416666666666" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_user_show.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/footer_layout.xml" value="0.358695652173913" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_user.xml" value="0.5" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/save_cancel_layout.xml" value="0.358695652173913" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/menu/save_canccel.xml" value="0.365625" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/mipmap-anydpi-v26/ic_jerry.xml" value="0.2345" />

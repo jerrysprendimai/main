@@ -3,7 +3,7 @@
     <string name="user">Vartotojas</string>
     <string name="password">Slaptažodis</string>
     <string name="login">Prisijungti</string>
-    <string name="settings"><u>Nustatymai</u></string>
+    <string name="settings">Nustatymai</string>
     <string name="error_login">Klaida:</string>
     <string name="copyrigth">Copyright ©Jerry-Sprendimai</string>
     <string name="cancel">Atšaukti</string>
@@ -17,4 +17,12 @@
     <string name="dbA1">Admin User</string>
     <string name="dbA2">Admin Password</string>
     <string name="get_settings">Parsisiųsti</string>
+    <string name="users">Vartotojai</string>
+    <string name="no_login">Neteisingas Vartotojo vardas ir/arba slaptažodis</string>
+    <string name="work">Objektai</string>
+    <string name="chat">Chat</string>
+    <string name="dealers">Tiekėjai</string>
+    <string name="user_level">Lygis</string>
+    <string name="user_fname">Vardas</string>
+    <string name="user_lname">Pavardė</string>
 </resources>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:id="@+id/menu_main_containerView"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    tools:context=".MenuActivity">
+
+    <ImageView
+        android:id="@+id/jerryIcon"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="-20dp"
+        android:background="@android:color/transparent"
+        app:srcCompat="@mipmap/ic_jerry_foreground" >
+    </ImageView>
+
+    <ProgressBar
+        android:layout_gravity="center"
+        android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/jerry_blue"
+        android:layout_marginBottom="-50dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginBottom="0dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="-9dp"
+            android:layout_gravity="center">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/main_menu_user_indicator"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                app:cardBackgroundColor="@color/jerry_grey"
+                app:cardElevation="1dp"
+                app:cardCornerRadius="15dp">
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_person_white"
+                    app:tint="@color/white">
+                </ImageView>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="5dp"
+            android:gravity="left">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-8dp">
+                <TextView
+                    android:id="@+id/main_menu_user_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    style="@style/Menu_style"
+                    android:textColor="@color/jerry_dark_grey"
+                    android:hint="_u-s-e-r_">
+                </TextView>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right">
+                <TextView
+                    android:id="@+id/main_menu_user_type_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="10dp"
+                    style="@style/Menu_style"
+                    android:textColor="@color/jerry_dark_grey"
+                    android:hint="user_level">
+                </TextView>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="3dp">
+
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="1dp"
+                android:orientation="vertical">
+
+                <GridLayout
+                    android:id="@+id/menu_gridLayout"
+                    android:layout_margin="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="10dp"
+                    android:alignmentMode="alignBounds"
+                    android:columnCount="2"
+                    android:columnOrderPreserved="false"
+                    android:rowCount="4">
+
+                    <androidx.cardview.widget.CardView
+                        style="@style/Menu_Item_CardView"
+                        android:id="@+id/CardView_main_menu_work">
+                        <LinearLayout
+                            style="@style/Menu_Item_LinearLayout"
+                            android:id="@+id/main_menu_work">
+                            <ImageView
+                                style="@style/Menu_Item_ImageView"
+                                android:src="@drawable/ic_work_white" />
+                            <TextView
+                                style="@style/Menu_Item_EditText"
+                                android:text="@string/work" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        style="@style/Menu_Item_CardView"
+                        android:id="@+id/CardView_main_menu_chat">
+                        <LinearLayout
+                            style="@style/Menu_Item_LinearLayout"
+                            android:id="@+id/main_menu_chat">
+                            <ImageView
+                                style="@style/Menu_Item_ImageView"
+                                android:src="@drawable/ic_chat_white" />
+                            <TextView
+                                style="@style/Menu_Item_EditText"
+                                android:text="@string/chat" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/CardView_main_menu_user"
+                        style="@style/Menu_Item_CardView">
+                        <LinearLayout
+                            style="@style/Menu_Item_LinearLayout"
+                            android:id="@+id/main_menu_user">
+                            <ImageView
+                                style="@style/Menu_Item_ImageView"
+                                android:src="@drawable/ic_persons_white" />
+                            <TextView
+                                style="@style/Menu_Item_EditText"
+                                android:text="@string/users" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/CardView_main_menu_dealers"
+                        style="@style/Menu_Item_CardView">
+                        <LinearLayout
+                            style="@style/Menu_Item_LinearLayout"
+                            android:id="@+id/main_menu_dealers">
+                            <ImageView
+                                style="@style/Menu_Item_ImageView"
+                                android:src="@drawable/ic_dealer_white" />
+                            <TextView
+                                style="@style/Menu_Item_EditText"
+                                android:text="@string/dealers" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/CardView_main_menu_settings"
+                        style="@style/Menu_Item_CardView">
+                        <LinearLayout
+                            style="@style/Menu_Item_LinearLayout"
+                            android:id="@+id/main_menu_settings">
+                            <ImageView
+                                style="@style/Menu_Item_ImageView"
+                                android:src="@drawable/ic_settings_white" />
+                            <TextView
+                                style="@style/Menu_Item_EditText"
+                                android:text="@string/settings" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                </GridLayout>
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+
+</LinearLayout>
