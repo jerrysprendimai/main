@@ -8,7 +8,9 @@ import java.util.Date;
 public class DateHelper {
   public static String get_timestamp_display(String timestamp){
       SimpleDateFormat mysqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
-      SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:SS");
+      SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
+      //SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:SS");
+
       String result = "";
       Date dateObj;
       try {
@@ -21,7 +23,8 @@ public class DateHelper {
   }
   public static String get_current_date_mysql(){
       SimpleDateFormat mysqlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-      SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+      SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+      //SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
       Date currentTime = Calendar.getInstance().getTime();
 
@@ -30,7 +33,8 @@ public class DateHelper {
   }
   public static String get_current_date_disply(){
       SimpleDateFormat mysqlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-      SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+      SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+      //SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
       Date currentTime = Calendar.getInstance().getTime();
 
@@ -38,7 +42,8 @@ public class DateHelper {
       return result;
   }
   public static String get_date_mysql(String date){
-      SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+      SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+      //SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
       SimpleDateFormat mysqlDateFormat   = new SimpleDateFormat("yyyy-MM-dd");
       Date dateObj;
       String result = "";
@@ -51,7 +56,8 @@ public class DateHelper {
       return result;
   }
   public static String get_date_display(String date){
-        SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        //SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         SimpleDateFormat mysqlDateFormat   = new SimpleDateFormat("yyyy-MM-dd");
         Date dateObj;
         String result = "";

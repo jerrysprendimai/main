@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable-v24/divider_list.xml" value="0.339" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.196" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable-v24/round_button.xml" value="0.2345" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/background.xml" value="0.2345" />
@@ -23,7 +24,7 @@
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_user_show.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/bottom_sheet_layout.xml" value="0.365625" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/footer_layout.xml" value="0.358695652173913" />
-        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object.xml" value="0.5" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object.xml" value="0.33" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_user.xml" value="0.5" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/save_cancel_layout.xml" value="0.358695652173913" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/menu/save_canccel.xml" value="0.365625" />

@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.widget.LinearLayout;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -49,7 +50,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
     private void buildRecyclerView() {
         //---------------------Recycle View---------------------
         this.recyclerView = findViewById(R.id.my_recycle_view);
-        this.myAdapterObjectShow = new MyAdapterObjectShow(this, findViewById(R.id.userShow_main_containerView), this.myObjectList);
+        this.myAdapterObjectShow = new MyAdapterObjectShow(this, findViewById(R.id.userShow_main_containerView), this.myObjectList, this.myUser);
         this.recyclerView.setAdapter(myAdapterObjectShow);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -118,4 +119,5 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
             return objectArrayList;
         }
     }
+
 }

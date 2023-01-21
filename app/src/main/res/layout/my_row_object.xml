@@ -52,8 +52,8 @@
                     android:orientation="horizontal">
                     <ImageView
                         android:id="@+id/object_image_view"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
                         android:layout_gravity="center"
                         android:layout_margin="0dp"
                         android:adjustViewBounds="false"
@@ -157,8 +157,8 @@
                             android:layout_height="wrap_content">
                             <ProgressBar
                                 android:id="@+id/object_progess_bar"
-                                android:layout_width="65dp"
-                                android:layout_height="65dp"
+                                android:layout_width="75dp"
+                                android:layout_height="75dp"
                                 android:backgroundTint="@color/jerry_blue"
                                 android:progressDrawable="@drawable/progressbar_gradient_progress"
                                 style="?android:attr/progressBarStyleHorizontal"

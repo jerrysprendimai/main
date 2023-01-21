@@ -2,7 +2,11 @@ package com.example.jerrysprendimai;
 
 import android.util.Base64;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -96,66 +100,32 @@ public class MCrypt {
                value            = new String(Base64.decode(value, 0));
 
         return value;
-        //return "test";
     }
-    /*
-    public byte[] encrypt(String text) throws Exception
-    {
-
-        if(text == null || text.length() == 0)
-            throw new Exception("Empty string");
-
-        byte[] encrypted = null;
-
+    public static JSONArray decryptJSONArray(JSONArray encryptedJSONArray){
+        JSONArray  decryptedJSONArray = new JSONArray();
+        JSONObject encryptedJSONObject;
+        JSONObject decryptedJSONObject;
+        Iterator<String> iterator;
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, keyspec, ivspec);
-
-            encrypted = cipher.doFinal(padString(text).getBytes());
-        } catch (Exception e)
-        {
-            throw new Exception("[encrypt] " + e.getMessage());
-        }
-
-        return encrypted;
-
-    }
-
-     */
-
-    /*
-    public byte[] decrypt(String code) throws Exception
-    {
-        if(code == null || code.length() == 0)
-            throw new Exception("Empty string");
-
-        byte[] decrypted = null;
-
-        try {
-            cipher.init(Cipher.DECRYPT_MODE, keyspec, ivspec);
-
-            decrypted = cipher.doFinal(hexToBytes(code));
-            //Remove trailing zeroes
-            if( decrypted.length > 0)
-            {
-                int trim = 0;
-                for( int i = decrypted.length - 1; i >= 0; i-- ) if( decrypted[i] == 0 ) trim++;
-
-                if( trim > 0 )
-                {
-                    byte[] newArray = new byte[decrypted.length - trim];
-                    System.arraycopy(decrypted, 0, newArray, 0, decrypted.length - trim);
-                    decrypted = newArray;
+            for (int i = 0; i < encryptedJSONArray.length(); i++) {
+                decryptedJSONObject = new JSONObject();
+                encryptedJSONObject = (JSONObject) encryptedJSONArray.get(i);
+                iterator = encryptedJSONObject.keys();
+                while (iterator.hasNext()) {
+                    String key = iterator.next();
+                    if(key.equals("User")){
+                      decryptedJSONObject.put(key, MCrypt.decryptDouble(encryptedJSONObject.optString(key)));
+                    }else{
+                      decryptedJSONObject.put(key, MCrypt.decryptSingle(encryptedJSONObject.optString(key)));
+                    }
                 }
+                decryptedJSONArray.put(decryptedJSONObject);
             }
-        } catch (Exception e)
-        {
-            throw new Exception("[decrypt] " + e.getMessage());
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return decrypted;
+        return decryptedJSONArray;
     }
-
-     */
-
 
     public static String bytesToHex(byte[] buf)
     {

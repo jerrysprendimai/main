@@ -41,5 +41,8 @@
     <string name="object_customer">Užsakovas</string>
     <string name="object_completness">Baigtumas</string>
     <string name="assigned_emploees">Priskirta darbuotojų</string>
-    <string name="object_date">Darbų pradžia</string>
+    <string name="object_date">Darbų pradžia:</string>
+    <string name="object_work_count">Darbai:</string>
+    <string name="object_work_done">Užbaigta:</string>
+    <string name="locked_by">Redaguoja</string>
 </resources>

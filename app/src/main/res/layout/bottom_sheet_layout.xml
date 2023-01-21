@@ -170,35 +170,177 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="15dp"
-        android:layout_marginBottom="-3dp"
+        android:layout_margin="10dp"
+        android:layout_gravity="left"
         android:orientation="horizontal">
-        <TextView
+        <TableLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/recycleView_Item_Text"
-            android:text="@string/object_date"
-            android:textColor="@color/jerry_dark_grey_opacity"
-            android:textSize="11sp"
-            android:ems="6">
-        </TextView>
-        <TextView
-            android:id="@+id/baustelle_bottomsheet_date"
-            android:layout_width="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="40dp"
+            android:divider="@drawable/divider_list">
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="-10dp">
+                <TextView
+                    style="@style/recycleView_Item_Text"
+                    android:includeFontPadding="false"
+                    android:hint="@string/object_date"
+                    android:textStyle="bold"
+                    android:textAlignment="viewEnd"/>
+                <TextView
+                    android:id="@+id/bottomsheet_objectDate"
+                    style="@style/recycleView_Item_Text"
+                    android:includeFontPadding="false"
+                    android:text="18.02.2023"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/jerry_blue" />
+            </TableRow>
+            <TableRow>
+                <TableLayout
+                    android:showDividers="middle|end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="20dp"
+                    android:divider="@drawable/divider_list">
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            style="@style/recycleView_Item_Text"
+                            android:includeFontPadding="false"
+                            android:hint="@string/object_work_count"
+                            android:textStyle="bold"
+                            android:textAlignment="viewStart"
+                            android:layout_weight="0"
+                            />
+                        <TextView
+                            android:id="@+id/bottomsheet_objectJobs"
+                            style="@style/recycleView_Item_Text"
+                            android:includeFontPadding="false"
+                            android:text="999"
+                            android:layout_weight="1"
+                            android:textSize="14sp"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/jerry_blue" />
+                    </TableRow>
+                   <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                         <TextView
+                            style="@style/recycleView_Item_Text"
+                            android:hint="@string/object_work_done"
+                            android:textAlignment="viewStart"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+                        <TextView
+                            android:id="@+id/bottomsheet_objectJobsDone"
+                            style="@style/recycleView_Item_Text"
+                            android:text="999"
+                            android:textSize="14dp"
+                            android:textAlignment="viewStart"
+                            android:includeFontPadding="false"
+                            android:textColor="@color/jerry_blue" />
+                    </TableRow>
+                </TableLayout>
+            </TableRow>
+        </TableLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/recycleView_Item_Text"
-            android:textColor="@color/jerry_dark_grey_opacity"
-            android:gravity="left"
-            android:textSize="11dp"
-            android:text="18-04-2021"
-            android:textStyle="bold"
-            android:ems="10"/>
-    </LinearLayout>
+            android:layout_marginLeft="-45dp"
+            android:layout_gravity="right"
+            android:orientation="horizontal">
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp">
+                <ProgressBar
+                    android:id="@+id/object_progess_bar"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:backgroundTint="@color/jerry_blue"
+                    android:progressDrawable="@drawable/progressbar_gradient_progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_gravity="left"
+                    android:progress="45"
+                    android:max="100"
+                    android:min="1"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false">
+                </ProgressBar>
 
+                <TextView
+                    android:id="@+id/object_progess_bar_label"
+                    style="@style/recycleView_Item_Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@id/object_progess_bar"
+                    android:layout_alignTop="@id/object_progess_bar"
+                    android:layout_alignRight="@id/object_progess_bar"
+                    android:layout_alignBottom="@id/object_progess_bar"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:text="100.0%"
+                    android:textColor="@color/jerry_blue"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/bottomsheet_lock_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:orientation="vertical">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lock_person_white"
+                    app:tint="@color/jerry_blue">
+                </ImageView>
+                <TextView
+                    android:id="@+id/bottomsheet_lock_label"
+                    style="@style/recycleView_Item_Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="uname">
+                </TextView>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <!--<LinearLayout
+        android:id="@+id/baustelle_edit_lock_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lock_person_white"
+            app:tint="@color/jerry_blue">
+        </ImageView>
+        <TextView
+            android:id="@+id/baustelle_edit_lock_user_txt"
+            style="@style/recycleView_Item_Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="uname">
+        </TextView>
+    </LinearLayout>-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -214,7 +356,7 @@
                 <TextView android:layout_weight="5"></TextView>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/baustelle_delete_btn"
+                    android:id="@+id/bottomsheet_delete_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -225,7 +367,7 @@
                 <TextView android:layout_weight="5"></TextView>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/baustelle_pdf_btn"
+                    android:id="@+id/bottomsheet_pdf_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -236,7 +378,7 @@
                 <TextView android:layout_weight="5"></TextView>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/baustelle_edit_btn"
+                    android:id="@+id/bottomsheet_edit_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -249,5 +391,4 @@
         </TableLayout>
 
     </LinearLayout>
-
 </LinearLayout>
