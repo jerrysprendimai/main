@@ -16,19 +16,25 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
         <activity
-            android:name=".UserShow"
+            android:name=".ActivityObjectShow"
             android:exported="false" />
         <activity
-            android:name=".MenuActivity"
+            android:name=".ActivityUserEdit"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ActivityUserShow"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".ActivityMenu"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ActivitySettings"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityLogin"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityMain"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

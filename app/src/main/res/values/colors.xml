@@ -4,11 +4,11 @@
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="teal_700">#0DAFAE</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="jerry_blue">#219BD8</color>
+    <color name="jerry_blue">#45A3D3</color>
     <color name="jerry_light_blue">#27ABED</color>
     <color name="jerry_dark_blue">#016BB7</color>
     <color name="jerry_blue_opacity">#99219BD8</color>
@@ -17,6 +17,8 @@
     <color name="jerry_dark_grey">#747575</color>
     <color name="jerry_dark_grey_opacity">#99525353</color>
     <color name="jerry_light_grey">#BFBFBF</color>
+    <color name="jerry_grey_light">#D7D8D8</color>
+    <color name="jerry_grey_light_opacity">#33B9BABA</color>
     <color name="jerry_light_opacity">#E2E1E1</color>
 
     <color name="jerry_yellow">#FF9800</color>

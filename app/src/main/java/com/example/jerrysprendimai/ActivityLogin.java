@@ -1,11 +1,9 @@
 package com.example.jerrysprendimai;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,14 +21,14 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 
-public class LoginActivity extends AppCompatActivity {
+public class ActivityLogin extends AppCompatActivity {
 
     Integer backButtonCount = 0;
     TextInputEditText loginUser;
     TextInputEditText loginPassword;
     TextView settingsTxt;
     Button buttonLogin;
-    Drawable bacground;
+    Drawable background;
     Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
                 findViewById(R.id.loginUser).setEnabled(false);
                 findViewById(R.id.loginPassword).setEnabled(false);
                 findViewById(R.id.loginButton).setEnabled(false);
-                bacground = ((Button) findViewById(R.id.loginButton)).getBackground();
+                background = ((Button) findViewById(R.id.loginButton)).getBackground();
                 ((Button) findViewById(R.id.loginButton)).setBackground(getDrawable(R.drawable.button_disabled));
                 new HttpsRequest(context).execute();
             }
@@ -67,11 +65,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onSettings(View view) {
-        this.startActivity(new Intent((Context) this, SettingsActivity.class));
+        this.startActivity(new Intent((Context) this, ActivitySettings.class));
     }
 
     @Override
-    protected void onPostResume() {
+    protected void onResume() {
         findViewById(R.id.progressBar).setVisibility(View.GONE);
         ((TextView) findViewById(R.id.login_error_msg)).setVisibility(View.GONE);
         ((TextView) findViewById(R.id.login_error_msg)).setText("");
@@ -80,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.loginPassword).setEnabled(true);
         findViewById(R.id.loginButton).setEnabled(true);
 
-        super.onPostResume();
+        super.onResume();
     }
 
     @Override
@@ -140,7 +138,7 @@ public class LoginActivity extends AppCompatActivity {
                 findViewById(R.id.loginUser).setEnabled(true);
                 findViewById(R.id.loginPassword).setEnabled(true);
                 findViewById(R.id.loginButton).setEnabled(true);
-                ((Button) findViewById(R.id.loginButton)).setBackground(bacground);
+                ((Button) findViewById(R.id.loginButton)).setBackground(background);
 
                JSONObject object = (JSONObject) connector.getResultJsonArray().get(0);
                String login_status = object.getString("status");
@@ -149,7 +147,7 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject myObj = userArray.getJSONObject(0);
                     ObjectUser myUser = new ObjectUser(myObj);
 
-                    Intent intent = new Intent(this.context, MenuActivity.class);
+                    Intent intent = new Intent(this.context, ActivityMenu.class);
                     intent.putExtra("myUser", myUser);
                     context.startActivity(intent);
 

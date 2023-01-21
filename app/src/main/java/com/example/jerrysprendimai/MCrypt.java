@@ -1,5 +1,7 @@
 package com.example.jerrysprendimai;
 
+import android.util.Base64;
+
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
@@ -78,6 +80,24 @@ public class MCrypt {
         return null;
     }
 
+    public static String decryptSingle(String encrypted){
+
+        byte [] byteEncrypted   = Base64.decode(encrypted,0);
+        String  stringEncrypted = Base64.encodeToString(MCrypt.decrypt(byteEncrypted),  Base64.DEFAULT);
+        String value            = new String(Base64.decode(stringEncrypted, 0));
+        return value;
+    }
+    public static String decryptDouble(String encrypted){
+
+        byte [] byteEncrypted = Base64.decode(encrypted,0);
+        //      byteEncrypted = MCrypt.decrypt(byteEncrypted);
+        String  stringEncrypted = Base64.encodeToString(MCrypt.decrypt(byteEncrypted),  Base64.DEFAULT);
+        String value            = new String(Base64.decode(stringEncrypted, 0));
+               value            = new String(Base64.decode(value, 0));
+
+        return value;
+        //return "test";
+    }
     /*
     public byte[] encrypt(String text) throws Exception
     {

@@ -25,7 +25,7 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 
-public class SettingsActivity extends AppCompatActivity implements KeyboardVisibilityEventListener, View.OnKeyListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class ActivitySettings extends AppCompatActivity implements KeyboardVisibilityEventListener, View.OnKeyListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final String domain              = "https://www.jerry-sprendimai.eu";
     private static final String getConfig_url       = "get_config.php";
@@ -42,7 +42,7 @@ public class SettingsActivity extends AppCompatActivity implements KeyboardVisib
     TextInputEditText dbUserInput;
     TextInputEditText dbPasswordInput;
 
-    Button btTestConneciton;
+    Button btTestConnection;
 
     TextInputEditText admin1;
     TextInputEditText admin2;
@@ -64,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity implements KeyboardVisib
         dbUserInput = findViewById(R.id.settings_dbUser);
         dbPasswordInput = findViewById(R.id.settings_dbPasswd);
 
-        btTestConneciton = findViewById(R.id.btTestConnection);
+        btTestConnection = findViewById(R.id.btTestConnection);
 
         //-----------------Config
         admin1 = findViewById(R.id.settings_dbConfig_1);
@@ -79,19 +79,9 @@ public class SettingsActivity extends AppCompatActivity implements KeyboardVisib
         dbPasswordInput.setOnKeyListener(this::onKey);
 
         Context context = this;
-        btTestConneciton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               new HttpsRequest(context).execute(testConnection_url);
-            }
-        });
+        btTestConnection.setOnClickListener(view -> new HttpsRequest(context).execute(testConnection_url));
 
-        btGetSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new HttpsRequest(context).execute(getConfig_url);
-            }
-        });
+        btGetSettings.setOnClickListener(view -> new HttpsRequest(context).execute(getConfig_url));
 
         fillFieldValues();
 
@@ -215,7 +205,6 @@ public class SettingsActivity extends AppCompatActivity implements KeyboardVisib
                     connector.receive();
                     connector.disconnect();
 
-                    String result = connector.getResult();
                     break;
             }
             return null;
@@ -227,7 +216,7 @@ public class SettingsActivity extends AppCompatActivity implements KeyboardVisib
             admin2.setText("");
 
             //------------------------Hide Keyboard-----------------------------
-            View view = ((SettingsActivity)context).getCurrentFocus();
+            View view = ((ActivitySettings)context).getCurrentFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
@@ -245,7 +234,7 @@ public class SettingsActivity extends AppCompatActivity implements KeyboardVisib
                             dbPasswordInput.setText(responseObject2.getString("password"));
 
                             MenuItem item = saveCancelButtons.getMenu().findItem(R.id.item_save);
-                            ((SettingsActivity)context).onNavigationItemSelected(item);
+                            ((ActivitySettings)context).onNavigationItemSelected(item);
                         }else{
                             Toast.makeText(context, "Duomenų gauti nepavyko!!", Toast.LENGTH_SHORT).show();
                         }

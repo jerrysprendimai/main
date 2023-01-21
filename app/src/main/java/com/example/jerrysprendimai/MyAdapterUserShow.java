@@ -1,19 +1,18 @@
 package com.example.jerrysprendimai;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Field;
@@ -36,26 +35,6 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
 
     @Override
     public void onClick(View v) {
-        /*View parent = getTopLevelParentView(v);
-        TextView positionView = parent.findViewById(R.id.user_position_txt);
-        String value = positionView.getText().toString();
-        Integer position = Integer.parseInt(value);
-        ObjectUser objectUser = myUserList.get(position);
-
-        AlertDialog.Builder deleteDialog = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
-        deleteDialog.setMessage("'"+ objectUser.getUname() +"'? Löschen").setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //----------------delete button implementation---------
-                        ((UserShow) context).swipeRefreshCommit(true);
-
-                        ((UserShow) context).setWAUser(objectUser);
-
-                        BackgroundWorker backgroundWorker = new BackgroundWorker(context);
-                        backgroundWorker.execute("delete_user");
-                    }
-                }
-        ).setNegativeButton("Nein", this).show();*/
 
     }
 
@@ -68,10 +47,13 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
         TextView myUserName, myUserLevel, myUserFirstName, myUserLastName;
         CardView myCardViewIndicator;
         CardView myCardViewDeleteButton;
+        ImageView myPersonCeckImg;
         LinearLayout myRow;
+        boolean myHoldIndicator;
         TextView myPosition;
         public MyViewHolder(@NonNull View itemView){
             super(itemView);
+            myHoldIndicator = false;
             //---------------Element binding------------------------
             myPosition             = itemView.findViewById(R.id.user_position_txt);
             myCardViewIndicator    = itemView.findViewById(R.id.user_cardView_indicator);
@@ -80,8 +62,17 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
             myUserFirstName        = itemView.findViewById(R.id.user_fname_value);
             myUserLastName         = itemView.findViewById(R.id.user_lname_value);
             myCardViewDeleteButton = itemView.findViewById(R.id.user_cardView_delete);
+            myPersonCeckImg        = itemView.findViewById(R.id.user_image_view_check);
 
             myRow = itemView.findViewById(R.id.my_container);
+        }
+
+        public boolean isMyHoldIndicator() {
+            return myHoldIndicator;
+        }
+
+        public void setMyHoldIndicator(boolean myHoldIndicator) {
+            this.myHoldIndicator = myHoldIndicator;
         }
     }
     @NonNull
@@ -94,6 +85,7 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
 
     @Override
     public void onBindViewHolder(@NonNull MyAdapterUserShow.MyViewHolder holder, int position){
+        boolean holdIndicator = false;
         //-----------------Clear Hint from value fields---------
         Field[] fields = holder.getClass().getDeclaredFields();
         for(Field field: fields){
@@ -118,29 +110,70 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
         holder.myCardViewDeleteButton.setOnClickListener(this::onClick);
 
         //---------------Check User level and color-code--------
-        //holder.myCardViewIndicator.setCardBackgroundColor(objectUser.getUserLevelIndicatorColor(context));
+        holder.myCardViewIndicator.setCardBackgroundColor(objectUser.getUserLevelIndicatorColor(context));
 
-        //---------------hide delete button for admin-----------
-        if (objectUser.getUser_lv().equals("admin")){
-            holder.myCardViewDeleteButton.setVisibility(View.GONE);
+        //---------------hide delete indicator
+        if(!holder.isMyHoldIndicator()){
+            holder.myPersonCeckImg.setVisibility(View.GONE);
         }
+        //---------------hide delete button for admin-----------
+        /*if (objectUser.getUser_lv().equals("admin")){
+            holder.myCardViewDeleteButton.setVisibility(View.GONE);
+        }*/
 
         holder.myRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (((ActivityUserShow) context).getDeletionMode().equals(true)){
+                    if(objectUser.getUname().equals("admin")){
+                        return;
+                    }
+                    if(!holder.isMyHoldIndicator()){
+                        if( holder.myPersonCeckImg.getVisibility() == View.GONE){
+                          holder.myPersonCeckImg.setVisibility(View.VISIBLE);
+                            ((ActivityUserShow) context).addToBeDeleted(position);
+                        }else{
+                          holder.myPersonCeckImg.setVisibility(View.GONE);
+                          ((ActivityUserShow) context).removeToBeDeleted(position);
+                        }
+                    }else{
+                        holder.setMyHoldIndicator(false);
+                    }
+                }else{
                 //((UserShow) context).swipeRefreshCommit(true);
                 parentView.findViewById(R.id.my_swipe_refresh);
                 ObjectUser objectUser = myUserList.get(holder.getPosition());
 
-                ObjectUser myUser = ((UserShow) context).getIntent().getParcelableExtra("myUser");
+                ObjectUser myUser = ((ActivityUserShow) context).getIntent().getParcelableExtra("myUser");
 
-                /*Intent intent = new Intent(context, UserEdit.class);
+                Intent intent = new Intent(context, ActivityUserEdit.class);
                 intent.putExtra("myUserEdit", objectUser);
                 intent.putExtra("myUser", myUser);
-                context.startActivity(intent);*/
+                context.startActivity(intent);
+            }
+            }
+    });
+        /*holder.myRow.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ((ActivityUserShow) context).setDeletionMode(true);
+                holder.myPersonCeckImg.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });*/
+        holder.myRow.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ((ActivityUserShow) context).setDeletionMode(true);
+                ((ActivityUserShow) context).setButtonDeleteUser();
+                ((ActivityUserShow) context).addToBeDeleted(position);
+                holder.myPersonCeckImg.setVisibility(View.VISIBLE);
+                holder.setMyHoldIndicator(true);
+                return false;
             }
         });
     }
+
 
     @Override
     public int getItemCount() {

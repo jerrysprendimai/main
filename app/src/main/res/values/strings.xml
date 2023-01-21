@@ -25,4 +25,21 @@
     <string name="user_level">Lygis</string>
     <string name="user_fname">Vardas</string>
     <string name="user_lname">Pavardė</string>
+    <string name="admin">Administratorius</string>
+    <string name="owner">Vadovas</string>
+    <string name="employee">Darbuotojas</string>
+    <string name="user_uname">Vartotojas</string>
+    <string name="user_password">Slaptažodis</string>
+    <string name="reg_date">Registracija</string>
+    <string name="last_login">Buvo prisijungta</string>
+    <string name="error">tuščia</string>
+    <string name="exists">jau egzistuoja</string>
+    <string name="saved">Išsaugota</string>
+    <string name="deleted">Ištrinta</string>
+    <string name="issue">Klaida</string>
+    <string name="object_name">Objektas</string>
+    <string name="object_customer">Užsakovas</string>
+    <string name="object_completness">Baigtumas</string>
+    <string name="assigned_emploees">Priskirta darbuotojų</string>
+    <string name="object_date">Darbų pradžia</string>
 </resources>

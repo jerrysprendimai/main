@@ -3,6 +3,7 @@ package com.example.jerrysprendimai;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +13,7 @@ import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class MenuActivity extends AppCompatActivity {
+public class ActivityMenu extends AppCompatActivity {
 
     ObjectUser myUser;
     LinearLayout mainContainer;
@@ -44,47 +45,52 @@ public class MenuActivity extends AppCompatActivity {
 
         //------------Settings
         LinearLayout settingsLayout = (LinearLayout) findViewById(R.id.main_menu_settings);
-        settingsLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                disableWholeView(gridLayout);
-                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                Intent intent = new Intent(context, SettingsActivity.class);
-                intent.putExtra("myUser", myUser);
-                context.startActivity(intent);
-            }
+        settingsLayout.setOnClickListener(v -> {
+            disableWholeView(gridLayout);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, ActivitySettings.class);
+            intent.putExtra("myUser", myUser);
+            context.startActivity(intent);
         });
 
         //------------User_Show
         LinearLayout userLayout = (LinearLayout) findViewById(R.id.main_menu_user);
-        userLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                disableWholeView(gridLayout);
-                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                Intent intent = new Intent(context, UserShow.class);
-                intent.putExtra("myUser", myUser);
-                context.startActivity(intent);
-            }
+        userLayout.setOnClickListener(v -> {
+            disableWholeView(gridLayout);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, ActivityUserShow.class);
+            intent.putExtra("myUser", myUser);
+            context.startActivity(intent);
         });
 
+        //------------Object_Show
+        LinearLayout objectLayout = (LinearLayout) findViewById(R.id.main_menu_work);
+        objectLayout.setOnClickListener(v -> {
+            disableWholeView(gridLayout);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, ActivityObjectShow.class);
+            intent.putExtra("myUser", myUser);
+            context.startActivity(intent);
+        });
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     public void disableWholeView(ViewGroup gridView){
         for (int i = 0; i < gridView.getChildCount(); i++) {
             View child = gridView.getChildAt(i);
             if((child instanceof CardView) && (getResources().getResourceEntryName(child.getId()).contains("CardView_main_menu"))){
-                child.setBackground(getDrawable(R.drawable.button_disabled));
+                //child.setBackground(getDrawable(R.drawable.button_disabled));
                 View linerLayout = ((CardView) child).getChildAt(0);
                 linerLayout.setEnabled(false);
             }
         }
     }
+    @SuppressLint("UseCompatLoadingForDrawables")
     public  void enableWholeView(ViewGroup gridView){
         for (int i = 0; i < gridView.getChildCount(); i++) {
             View child = gridView.getChildAt(i);
             if((child instanceof CardView) && (getResources().getResourceEntryName(child.getId()).contains("CardView_main_menu"))){
-                child.setBackground(getDrawable(R.drawable.round_button));
+                //child.setBackground(getDrawable(R.drawable.round_button));
                 View linerLayout = ((CardView) child).getChildAt(0);
                 linerLayout.setEnabled(true);
             }
@@ -92,10 +98,10 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostResume() {
+    protected void onResume() {
         findViewById(R.id.progressBar).setVisibility(View.GONE);
         enableWholeView(gridLayout);
-        super.onPostResume();
+        super.onResume();
     }
 
     private void setUserLevelView() {

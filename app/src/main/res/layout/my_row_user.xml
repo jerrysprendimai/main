@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/my_top_level"
-    android:layout_margin="6dp">
+    android:layout_margin="5dp">
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="3dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="1dp"
         app:cardUseCompatPadding="true">
         <LinearLayout
             android:id="@+id/my_container"
@@ -32,17 +32,32 @@
                 android:layout_width="80dp"
                 android:layout_height="match_parent"
                 app:cardElevation="0dp"
+                app:cardCornerRadius="8dp"
                 app:cardBackgroundColor="@color/jerry_grey_opacity">
                 <ImageView
-                    android:id="@+id/pdf_image_view"
+                    android:id="@+id/user_image_view"
                     android:layout_width="50dp"
-                    android:layout_height="60dp"
+                    android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:layout_margin="0dp"
                     android:adjustViewBounds="false"
                     android:src="@drawable/ic_person_white" />
+                <ImageView
+                    android:id="@+id/user_image_view_check"
+                    android:visibility="gone"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_margin="0dp"
+                    android:adjustViewBounds="false"
+                    android:src="@drawable/ic_check_white_o60"
+                    app:tint="@color/jerry_green" />
             </androidx.cardview.widget.CardView>
             <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
@@ -68,26 +83,24 @@
 
                             <TextView
                                 android:id="@+id/user_uname_label"
-                                style="@style/Menu_Item_EditText"
+                                style="@style/recycleView_Item_Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="left"
                                 android:ems="5"
                                 android:hint="@string/user"
-                                android:includeFontPadding="false"
-                                android:textSize="10sp" />
+                                android:textStyle="bold"
+                                android:includeFontPadding="false"/>
 
                             <TextView
                                 android:id="@+id/user_uname_value"
-                                style="@style/Menu_Item_EditText"
+                                style="@style/recycleView_Item_Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="left"
                                 android:ems="10"
                                 android:hint="U_N_A_M_E"
-                                android:includeFontPadding="false"
-                                android:textSize="10sp"
-                                android:textStyle="bold" />
+                                android:includeFontPadding="false"/>
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -102,20 +115,18 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="left"
                                 android:includeFontPadding="false"
-                                style="@style/Menu_Item_EditText"
+                                style="@style/recycleView_Item_Text"
                                 android:hint="@string/user_level"
-                                android:textSize="10sp"
+                                android:textStyle="bold"
                                 android:ems="5"/>
                             <TextView
                                 android:id="@+id/user_ulevel_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textStyle="bold"
                                 android:layout_gravity="left"
                                 android:includeFontPadding="false"
-                                style="@style/Menu_Item_EditText"
+                                style="@style/recycleView_Item_Text"
                                 android:hint="a_d_m_i_n"
-                                android:textSize="10sp"
                                 android:ems="10"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -134,20 +145,18 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
                         android:includeFontPadding="false"
-                        style="@style/Menu_Item_EditText"
+                        style="@style/recycleView_Item_Text"
                         android:hint="@string/user_fname"
-                        android:textSize="10sp"
+                        android:textStyle="bold"
                         android:ems="5"/>
                     <TextView
                         android:id="@+id/user_fname_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:layout_gravity="left"
                         android:includeFontPadding="false"
-                        style="@style/Menu_Item_EditText"
+                        style="@style/recycleView_Item_Text"
                         android:hint="V_a_r_d_e_n_i_s"
-                        android:textSize="10sp"
                         android:ems="10"/>
                 </LinearLayout>
                 <LinearLayout
@@ -163,25 +172,25 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
                         android:includeFontPadding="false"
-                        style="@style/Menu_Item_EditText"
+                        style="@style/recycleView_Item_Text"
                         android:hint="@string/user_lname"
-                        android:textSize="10sp"
+                        android:textStyle="bold"
                         android:ems="5"/>
                     <TextView
                         android:id="@+id/user_lname_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:layout_gravity="left"
                         android:includeFontPadding="false"
-                        style="@style/Menu_Item_EditText"
+                        style="@style/recycleView_Item_Text"
                         android:hint="P_a_v_a_r_d_e_n_i_s"
-                        android:textSize="10sp"
                         android:ems="10"/>
                 </LinearLayout>
             </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/pdf_button_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

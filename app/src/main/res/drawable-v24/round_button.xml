@@ -6,8 +6,8 @@
         <shape xmlns:android="http://schemas.android.com/apk/res/android"
             android:shape="rectangle">
             <gradient
-                android:endColor="@color/jerry_light_blue"
-                android:startColor="@color/jerry_light_blue" />
+                android:endColor="@color/jerry_blue"
+                android:startColor="@color/jerry_blue" />
             <corners android:radius="10dp" />
             <stroke android:color="@color/jerry_dark_grey"></stroke>
         </shape>

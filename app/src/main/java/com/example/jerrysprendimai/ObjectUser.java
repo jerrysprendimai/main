@@ -1,14 +1,17 @@
 package com.example.jerrysprendimai;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
+
+import androidx.core.content.ContextCompat;
 
 import org.json.JSONObject;
 
 public class ObjectUser implements Parcelable {
     private Integer id;
-    private String email, uname, type, locked, first_name, last_name, passwd, reg_date, last_login, user_lv, sessionId;
+    private String email, uname, type, locked, first_name, last_name, passwd, reg_date, last_login, user_lv, sessionId, last_action;
 
     private Boolean checked;
 
@@ -69,39 +72,90 @@ public class ObjectUser implements Parcelable {
         dest.writeByte((byte) (checked == null ? 0 : checked ? 1 : 2));
     }
 
+    public ObjectUser(){
+        this.id          = -1;
+        this.uname       = "";
+        this.email       = "";
+        this.type        = "3";
+        this.locked      = "";
+        this.first_name  = "";
+        this.last_name   = "";
+        this.passwd      = "";  //--------------> decode here
+        this.reg_date    = "";  //DateHelper.get_current_date_disply();
+        this.last_login  = "";
+        this.user_lv     = "user";
+        this.checked     = false;
+        this.last_action = "";
+    }
+
     public ObjectUser(JSONObject obj){
         try {
-            byte [] uname = Base64.decode(obj.getString("uname"),0);
-            byte [] passwd = Base64.decode(obj.getString("passwd"), 0);
-
-            String decUname = Base64.encodeToString(MCrypt.decrypt(uname),  Base64.DEFAULT);
-            String decPaswd = Base64.encodeToString(MCrypt.decrypt(passwd), Base64.DEFAULT);
-
-            decUname = new String(Base64.decode(decUname, 0));
-            decPaswd = new String(Base64.decode(decPaswd, 0));
-
-            decUname = new String(Base64.decode(decUname, 0));
-            decPaswd = new String(Base64.decode(decPaswd, 0));
-
-            this.id         = Integer.parseInt(obj.getString("id"));
-            this.uname      = decUname.toLowerCase();
-            //this.uname      = obj.getString("uname").toLowerCase();
-            this.email      = obj.getString("email");
-            this.type       = obj.getString("type");
-            this.locked     = obj.getString("locked");
-            this.first_name = obj.getString("first_name");
-            this.last_name  = obj.getString("last_name");
-            this.passwd     = decPaswd;
-            //this.passwd     = obj.getString("passwd");
-            //this.sessionId  = obj.getString("sessionId");
-            this.reg_date   = DateHelper.get_date_display(obj.getString("reg_date"));
-            this.last_login = DateHelper.get_timestamp_display(obj.getString("last_login"));//obj.getString("last_login");
-            this.user_lv    = obj.getString("user_lv");
+            this.id          = Integer.parseInt(MCrypt.decryptSingle(obj.getString("id")));
+            this.uname       = MCrypt.decryptDouble(obj.getString("uname"));
+            this.email       = MCrypt.decryptSingle(obj.getString("email"));
+            this.type        = MCrypt.decryptSingle(obj.getString("type"));
+            this.locked      = MCrypt.decryptSingle(obj.getString("locked"));
+            this.first_name  = MCrypt.decryptSingle(obj.getString("first_name"));
+            this.last_name   = MCrypt.decryptSingle(obj.getString("last_name"));
+            this.passwd      = MCrypt.decryptDouble(obj.getString("passwd"));
+            this.reg_date    = DateHelper.get_date_display(MCrypt.decryptSingle(obj.getString("reg_date")));
+            this.last_login  = DateHelper.get_timestamp_display(MCrypt.decryptSingle(obj.getString("last_login")));
+            this.user_lv     = MCrypt.decryptSingle(obj.getString("user_lv"));
+            this.sessionId   = MCrypt.decryptSingle(obj.getString("session"));
+            this.last_action = MCrypt.decryptSingle(obj.getString("last_activity"));
             this.checked    = false;
 
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+    public int getUserLevelIndicatorColor(Context context) {
+        Integer color = null;
+        if (this.getType().equals("1")){
+            color = ContextCompat.getColor(context, R.color.jerry_grey_light);
+        }else if(this.getType().equals("2")){
+            color = ContextCompat.getColor(context, R.color.jerry_blue);
+        }else if(this.getType().equals("3")){
+            //color = ContextCompat.getColor(context, R.color.jerry_grey);
+            color = ContextCompat.getColor(context, R.color.teal_700);
+        }
+        return color;
+    }
+
+    public String toJson(){
+        JSONObject jsonObject = new JSONObject();
+        try{
+
+            String endUname = "";
+            String encPaswd = "";
+            try{
+                endUname = Base64.encodeToString(this.getUname().toLowerCase().getBytes(), Base64.DEFAULT);
+                encPaswd = Base64.encodeToString(this.getPasswd().getBytes(), Base64.DEFAULT);
+
+                endUname = Base64.encodeToString(MCrypt.encrypt(endUname.getBytes()), Base64.DEFAULT);
+                encPaswd = Base64.encodeToString(MCrypt.encrypt(encPaswd.getBytes()), Base64.DEFAULT);
+                //endUname = Base64.encodeToString(MCrypt.encrypt(this.getUname().toLowerCase().getBytes()), Base64.DEFAULT);
+                //encPaswd = Base64.encodeToString(MCrypt.encrypt(this.getPasswd().getBytes()), Base64.DEFAULT);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            jsonObject.put("id", this.getId().toString());
+            jsonObject.put("uname", endUname);
+            //jsonObject.put("uname", this.getUname().toLowerCase());
+            jsonObject.put("email", this.getEmail());
+            jsonObject.put("type",this.getType());
+            jsonObject.put("locked",this.getLocked());
+            jsonObject.put("fname",this.getFirst_name());
+            jsonObject.put("lname",this.getLast_name());
+            jsonObject.put("password",encPaswd);
+            //jsonObject.put("password",this.getPasswd());
+            jsonObject.put("regDate", DateHelper.get_date_mysql(this.getReg_date()));
+            jsonObject.put("cheked", this.getChecked().toString());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
     }
 
     public Integer getId() {
