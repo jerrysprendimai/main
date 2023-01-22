@@ -83,7 +83,7 @@ public class ObjectUser implements Parcelable {
         this.passwd      = "";  //--------------> decode here
         this.reg_date    = "";  //DateHelper.get_current_date_disply();
         this.last_login  = "";
-        this.user_lv     = "user";
+        this.user_lv     = "";
         this.checked     = false;
         this.last_action = "";
     }
@@ -106,7 +106,24 @@ public class ObjectUser implements Parcelable {
             this.checked    = false;
 
         }catch (Exception e){
-            e.printStackTrace();
+            try{
+                this.id          = Integer.parseInt(obj.getString("id"));
+                this.uname       = obj.getString("User");
+                this.email       = obj.getString("Email");
+                this.type        = obj.getString("Type");
+                this.locked      = obj.getString("Locked");
+                this.first_name  = obj.getString("FirstName");
+                this.last_name   = obj.getString("LastName");
+                this.passwd      = obj.getString("Passwd");
+                this.reg_date    = DateHelper.get_date_display(obj.getString("RegDate"));
+                this.last_login  = DateHelper.get_timestamp_display(obj.getString("LastLogin"));
+                //this.user_lv     = obj.getString("user_lv");
+                this.sessionId   = obj.getString("Session");
+                this.last_action = obj.getString("LastActivity");
+                this.checked    = false;
+            }catch (Exception ee) {
+                ee.printStackTrace();
+            }
         }
     }
     public int getUserLevelIndicatorColor(Context context) {

@@ -80,10 +80,11 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
             this.objectUser = this.getIntent().getParcelableExtra("myUserEdit");
         }catch (Exception e){
             this.objectUser = new ObjectUser();
-            //e.printStackTrace();
+            this.objectUser.setUser_lv(getResources().getString(R.string.employee));
         }
         if (this.objectUser == null ){
             this.objectUser = new ObjectUser();
+            this.objectUser.setUser_lv(getResources().getString(R.string.employee));
         }
 
         this.fillFieldValues();
@@ -164,16 +165,6 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
             this.uTypeButton.setVisibility(View.GONE);
             this.uTypeLevelSwitchButtonText.setVisibility(View.GONE);
             this.uLastLogin.setVisibility(View.GONE);
-            //this.uFirstName.setFocusable(false);
-            //this.uFirstName.setFocusableInTouchMode(false);
-            //this.uFirstName.setClickable(false);
-
-            //this.uLastName.setFocusable(false);
-            //this.uLastName.setFocusableInTouchMode(false);
-            //this.uLastName.setClickable(false);
-
-            //this.uTypeLevelSwitchButtonText.setVisibility(View.GONE);
-            //this.uTypeButton.setVisibility(View.GONE);
         }else{
             this.uTypeLevelSwitchButtonText.setVisibility(View.VISIBLE);
 

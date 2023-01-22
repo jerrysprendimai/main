@@ -115,6 +115,7 @@ public class MCrypt {
                     String key = iterator.next();
                     if(key.equals("User")){
                       decryptedJSONObject.put(key, MCrypt.decryptDouble(encryptedJSONObject.optString(key)));
+                      //decryptedJSONObject.put(key, MCrypt.decryptSingle(encryptedJSONObject.optString(key)));
                     }else{
                       decryptedJSONObject.put(key, MCrypt.decryptSingle(encryptedJSONObject.optString(key)));
                     }

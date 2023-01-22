@@ -64,6 +64,19 @@ public class ObjectObject implements Parcelable {
         this.lockedByUserId = "0";
         this.lockedUname    = "";
     }
+    public ObjectObject(JSONObject obj, String wa){
+        try {
+            this.id             = Integer.parseInt(obj.getString("id"));
+            this.date           = DateHelper.get_date_display(obj.getString("Date"));
+            this.objectName     = obj.getString("ObjectName");
+            this.customerName   = obj.getString("CustomerName");
+            this.completeness   = obj.getString("Completeness");
+            this.lockedByUserId = obj.getString("LockedByUserId");
+            this.lockedUname    = obj.getString("User");
+        }catch (Exception ee){
+            ee.printStackTrace();
+        }
+    }
     public ObjectObject(JSONObject obj){
         try {
             this.id             = Integer.parseInt(MCrypt.decryptSingle(obj.getString("id")));
