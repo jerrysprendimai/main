@@ -9,11 +9,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +33,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
     FloatingActionButton buttonDeleteUser;
 
     MyAdapterUserShow myAdapterUserShow;
-    ActivityUserShow.HttpsRequest requestHandler;
+    HttpsRequestGetUserList requestHandler;
     Boolean deletionMode;
     ArrayList toBeDeletedList;
 
@@ -99,7 +99,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
         //---------------------Recycle View-------------------------------
         buildRecyclerView();
 
-        new ActivityUserShow.HttpsRequest(this).execute();
+        new HttpsRequestGetUserList(this).execute();
 
     }
 
@@ -138,7 +138,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
     @Override
     public void onRefresh() {
       swipeRefreshLayout.setRefreshing(true);
-      new ActivityUserShow.HttpsRequest(this).execute();
+      new HttpsRequestGetUserList(this).execute();
       this.setDeletionMode(false);
       setButtonAddUser();
     }
@@ -208,7 +208,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
         @Override
         protected InputStream doInBackground(String... strings) {
             connector = new Connector(context, delete_user_url);
-            connector.addPostParameter("toDelete", getJsonObjectToDelete().toString());
+            connector.addPostParameter("toDelete", MCrypt2.encodeToString(getJsonObjectToDelete().toString()));
             connector.send();
             connector.receive();
             connector.disconnect();
@@ -221,7 +221,8 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
         @Override
         protected void onPostExecute(InputStream inputStream) {
             try{
-                JSONObject object = (JSONObject) connector.getResultJsonArray().get(0);
+                connector.clearResponse();
+                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
                 String login_status = object.getString("status");
                 if (login_status.equals("1")) {
                     Toast.makeText(this.context, getResources().getString(R.string.deleted), Toast.LENGTH_SHORT).show();
@@ -235,13 +236,13 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
             super.onPostExecute(inputStream);
         }
     }
-    class HttpsRequest extends AsyncTask<String, Void, InputStream> {
+    class HttpsRequestGetUserList extends AsyncTask<String, Void, InputStream> {
         private static final String get_user_list_url = "get_user_list.php";
 
         private Context context;
         Connector connector;
 
-        public HttpsRequest(Context ctx){
+        public HttpsRequestGetUserList(Context ctx){
             context = ctx;
         }
 
@@ -249,7 +250,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
         protected InputStream doInBackground(String... strings) {
 
                 connector = new Connector(context, get_user_list_url);
-                connector.addPostParameter("user_type", myUser.getType());
+                connector.addPostParameter("user_type", MCrypt2.encodeToString(myUser.getType()));
                 connector.send();
                 connector.receive();
                 connector.disconnect();
@@ -261,7 +262,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
-
+               connector.clearResponse();
                ArrayList<ObjectUser> userArryList = getUserList(connector);
                ((ActivityUserShow) context).myUserList.removeAll(((ActivityUserShow) context).myUserListOriginal);
                ((ActivityUserShow) context).myUserList.addAll(userArryList);

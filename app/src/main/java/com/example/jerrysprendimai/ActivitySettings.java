@@ -188,11 +188,7 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
                     }catch (Exception e){
                        e.printStackTrace();
                     }
-
-
                     connector = new Connector(context, getConfig_url);
-                    //connector.addPostParameter("a1", Base64.encodeToString(MCrypt.encrypt(string1.getBytes()), Base64.DEFAULT));
-                    //connector.addPostParameter("a1", Base64.encodeToString(MCrypt.encrypt(string2.getBytes()), Base64.DEFAULT));
                     connector.addPostParameter("a1", tmp1);
                     connector.addPostParameter("a2", tmp2);
                     connector.send();
@@ -215,6 +211,8 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
             admin1.setText("");
             admin2.setText("");
 
+            connector.clearResponse();
+
             //------------------------Hide Keyboard-----------------------------
             View view = ((ActivitySettings)context).getCurrentFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -223,8 +221,8 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
             switch (action_type){
                 case getConfig_url:
                     try {
-                        JSONObject responseObject1 = (JSONObject) connector.getResultJsonArray().get(0);
-                        JSONObject responseObject2 = (JSONObject) connector.getResultJsonArray().get(1);
+                        JSONObject responseObject1 = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                        JSONObject responseObject2 = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(1));
                         String login_status = responseObject1.getString("status");
                         if (login_status.equals("1")) {
                             urlInput.setText(responseObject2.getString("domain"));
@@ -244,7 +242,8 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
                     break;
                 case testConnection_url:
                     try {
-                        JSONObject object = (JSONObject) connector.getResultJsonArray().get(0);
+                        connector.clearResponse();
+                        JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
                         String login_status = object.getString("status");
                         if (login_status.equals("1")) {
                             Toast.makeText(context, "Pavyko prisijungti", Toast.LENGTH_SHORT).show();

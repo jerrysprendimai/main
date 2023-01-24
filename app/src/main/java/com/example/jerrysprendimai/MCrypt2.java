@@ -13,7 +13,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class MCrypt {
+public class MCrypt2 {
 
     static char[] HEX_CHARS = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
@@ -22,13 +22,13 @@ public class MCrypt {
     private SecretKeySpec keyspec;
     private Cipher cipher;
 
-    private String iv = "fedcba98765_jery";//Dummy iv (CHANGE IT!)
-    private String SecretKey = "0123456789a_jery";//Dummy secretKey (CHANGE IT!)
+    private String iv = "oiuyxc98765_yrej";//Dummy iv (CHANGE IT!)
+    private String SecretKey = "zottffssent_yrej";//Dummy secretKey (CHANGE IT!)
 
-    private static String ivGlobal = "fedcba98765_jery";//Dummy iv (CHANGE IT!)
-    private static String secretKeyGlobal = "0123456789a_jery";//Dummy secretKey (CHANGE IT!)
+    private static String ivGlobal = "oiuyxc98765_yrej";//Dummy iv (CHANGE IT!)
+    private static String secretKeyGlobal = "zottffssent_yrej";//Dummy secretKey (CHANGE IT!)
 
-    public MCrypt()
+    public MCrypt2()
     {
         ivspec = new IvParameterSpec(iv.getBytes(), 0, 16);
 
@@ -87,7 +87,7 @@ public class MCrypt {
     public static String decryptSingle(String encrypted){
 
         byte [] byteEncrypted   = Base64.decode(encrypted,0);
-        String  stringEncrypted = Base64.encodeToString(MCrypt.decrypt(byteEncrypted),  Base64.DEFAULT);
+        String  stringEncrypted = Base64.encodeToString(MCrypt2.decrypt(byteEncrypted),  Base64.DEFAULT);
         String value            = new String(Base64.decode(stringEncrypted, 0));
         return value;
     }
@@ -95,12 +95,17 @@ public class MCrypt {
 
         byte [] byteEncrypted = Base64.decode(encrypted,0);
         //      byteEncrypted = MCrypt.decrypt(byteEncrypted);
-        String  stringEncrypted = Base64.encodeToString(MCrypt.decrypt(byteEncrypted),  Base64.DEFAULT);
+        String  stringEncrypted = Base64.encodeToString(MCrypt2.decrypt(byteEncrypted),  Base64.DEFAULT);
         String value            = new String(Base64.decode(stringEncrypted, 0));
                value            = new String(Base64.decode(value, 0));
 
         return value;
     }
+
+    public static String encodeToString(String str){
+        return Base64.encodeToString(MCrypt2.encrypt(str.getBytes()), Base64.DEFAULT);
+    }
+
     public static JSONObject decryptJSONObject(JSONObject encryptedJSONObject){
         JSONObject decryptedJSONObject = new JSONObject();
         Iterator<String> iterator;
@@ -110,9 +115,9 @@ public class MCrypt {
             while (iterator.hasNext()) {
                String key = iterator.next();
                if(key.equals("User")){
-                 decryptedJSONObject.put(key, MCrypt.decryptDouble(encryptedJSONObject.optString(key)));
+                 decryptedJSONObject.put(key, MCrypt2.decryptDouble(encryptedJSONObject.optString(key)));
                }else{
-                 decryptedJSONObject.put(key, MCrypt.decryptSingle(encryptedJSONObject.optString(key)));
+                 decryptedJSONObject.put(key, MCrypt2.decryptSingle(encryptedJSONObject.optString(key)));
                     }
                }
         }catch (Exception e){
@@ -134,10 +139,10 @@ public class MCrypt {
                 while (iterator.hasNext()) {
                     String key = iterator.next();
                     if(key.equals("User")){
-                      decryptedJSONObject.put(key, MCrypt.decryptDouble(encryptedJSONObject.optString(key)));
+                      decryptedJSONObject.put(key, MCrypt2.decryptDouble(encryptedJSONObject.optString(key)));
                       //decryptedJSONObject.put(key, MCrypt.decryptSingle(encryptedJSONObject.optString(key)));
                     }else{
-                      decryptedJSONObject.put(key, MCrypt.decryptSingle(encryptedJSONObject.optString(key)));
+                      decryptedJSONObject.put(key, MCrypt2.decryptSingle(encryptedJSONObject.optString(key)));
                     }
                 }
                 decryptedJSONArray.put(decryptedJSONObject);

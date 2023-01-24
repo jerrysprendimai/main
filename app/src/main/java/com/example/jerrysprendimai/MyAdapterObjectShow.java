@@ -239,9 +239,9 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
                 responseObjUser    = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(1));
-                responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
-                responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
-                responseObject    = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
+                //responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
+                responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
+                responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -258,10 +258,10 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     ObjectObjUser objectObjUser = new ObjectObjUser((JSONObject) responseObjUser.get(i));
                     objUserArrayList.add(objectObjUser);
                 }
-                for(int i = 0; i < responseObjPic.length(); i++){
+                /*for(int i = 0; i < responseObjPic.length(); i++){
                     ObjectObjPic objectObjPic = new ObjectObjPic((JSONObject) responseObjPic.get(i));
                     objPicsArrayList.add(objectObjPic);
-                }
+                }*/
                 for(int i =0; i < responseEmployee.length(); i++){
                     ObjectUser objectUser = new ObjectUser((JSONObject) responseEmployee.get(i));
                     employeeArrayList.add(objectUser);
@@ -425,20 +425,6 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         @Override
         protected void onPostExecute(InputStream inputStream) {
             new HttpsRequestGetObjectDetails(context, clickObject).execute();
-
-            /*JSONObject responseObject;
-            try {
-                responseObject = (JSONObject) connector.getResultJsonArray().get(0);
-                String lockStatus = MCrypt.decryptSingle(responseObject.getString("status"));
-                String lockMsg    = MCrypt.decryptSingle(responseObject.getString("msg"));
-                if (lockStatus.equals("1")) {
-                    //implement if needed
-                }else{
-                }
-                ((ActivityObjectShow) context).onRefresh();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }*/
         }
     }
 }

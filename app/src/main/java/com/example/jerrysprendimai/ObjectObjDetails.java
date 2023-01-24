@@ -7,7 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ObjectObjDetails implements Parcelable {
-    private Integer id, objectId, posNr;
+    private Integer id, objectId, posNr, lockedByUserId;
     private String description, completed;
 
     protected ObjectObjDetails(Parcel in) {
@@ -25,6 +25,11 @@ public class ObjectObjDetails implements Parcelable {
             posNr = null;
         } else {
             posNr = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            lockedByUserId = null;
+        } else {
+            lockedByUserId = in.readInt();
         }
         description = in.readString();
         completed = in.readString();
@@ -64,24 +69,32 @@ public class ObjectObjDetails implements Parcelable {
             dest.writeByte((byte) 1);
             dest.writeInt(posNr);
         }
+        if (lockedByUserId == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(lockedByUserId);
+        }
         dest.writeString(description);
         dest.writeString(completed);
     }
 
     public ObjectObjDetails(){
-        this.id           = -1;
-        this.objectId     = -1;
-        this.posNr        = 0;
-        this.description  = "";
-        this.completed    = "";
+        this.id             = -1;
+        this.objectId       = -1;
+        this.posNr          = 0;
+        this.description    = "";
+        this.lockedByUserId = -1;
+        this.completed      = "";
     }
     public ObjectObjDetails(JSONObject obj) {
         try {
-           this.id           = Integer.parseInt(obj.getString("id"));
-           this.objectId     = Integer.parseInt(obj.getString("Object_id"));
-           this.posNr        = Integer.parseInt(obj.getString("Pos_Nr"));
-           this.description  = obj.getString("Description");
-           this.completed    = obj.getString("Completed");
+           this.id              = Integer.parseInt(obj.getString("id"));
+           this.objectId        = Integer.parseInt(obj.getString("Object_id"));
+           this.posNr           = Integer.parseInt(obj.getString("Pos_Nr"));
+           this.description     = obj.getString("Description");
+            this.lockedByUserId = Integer.parseInt(obj.getString("LockedByUserID"));;
+           this.completed       = obj.getString("Completed");
         }catch (JSONException e) {
             e.printStackTrace();
         }
@@ -126,5 +139,14 @@ public class ObjectObjDetails implements Parcelable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public Integer getLockedByUserId() {
+        return lockedByUserId;
+    }
+
+    public void setLockedByUserId(Integer lockedByUserId) {
+        this.lockedByUserId = lockedByUserId;
+    }
+
 
 }

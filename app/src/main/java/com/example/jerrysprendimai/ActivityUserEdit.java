@@ -7,7 +7,6 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -280,7 +279,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                 }
                 //--save to DB
                 if(needSave == true) {
-                    new ActivityUserEdit.HttpsRequest(this).execute();
+                    new HttpsRequestSaveUser(this).execute();
                 }
                 break;
             case R.id.item_cancel:
@@ -299,12 +298,12 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    class HttpsRequest extends AsyncTask<String, Void, InputStream> {
+    class HttpsRequestSaveUser extends AsyncTask<String, Void, InputStream> {
         private static final String save_user_url = "save_user.php";
         private Context context;
         Connector connector;
 
-        public HttpsRequest(Context ctx){
+        public HttpsRequestSaveUser(Context ctx){
             context = ctx;
         }
 
@@ -312,9 +311,9 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
         protected InputStream doInBackground(String... strings) {
 
             connector = new Connector(context, save_user_url);
-            connector.addPostParameter("userId", myUser.getUname());
-            connector.addPostParameter("objectUser", objectUser.toJson());
-            connector.addPostParameter("sessionId", myUser.getSessionId());
+            //connector.addPostParameter("userId", myUser.getUname());
+            connector.addPostParameter("objectUser", MCrypt2.encodeToString(objectUser.toJson()));
+            //connector.addPostParameter("sessionId",  MCrypt2.encodeToString(myUser.getSessionId()));
             connector.send();
             connector.receive();
             connector.disconnect();
@@ -328,6 +327,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
         protected void onPostExecute(InputStream inputStream) {
             String msg = "Problema!!!";
             try {
+                connector.clearResponse();
                 JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
                 String saveStatus = responseObject.getString("status");
                 msg = responseObject.getString("msg");

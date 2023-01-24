@@ -200,7 +200,7 @@
                                     android:ems="12"
                                     android:fontFamily="@font/poppinsmedium"
                                     android:hint="@string/dbA1"
-                                    android:inputType="textPersonName"
+                                    android:inputType="textPassword"
                                     android:textColor="@color/black"
                                     android:textColorHint="@color/black"
                                     android:textSize="15sp" />
@@ -219,7 +219,7 @@
                                     android:ems="12"
                                     android:fontFamily="@font/poppinsmedium"
                                     android:hint="@string/dbA2"
-                                    android:inputType="textPersonName"
+                                    android:inputType="textPassword"
                                     android:textColor="@color/black"
                                     android:textColorHint="@color/black"
                                     android:textSize="15sp" />

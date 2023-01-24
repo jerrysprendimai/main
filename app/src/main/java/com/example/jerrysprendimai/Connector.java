@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Base64;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -136,6 +137,27 @@ public class Connector {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void clearResponse(){
+        try {
+           String stringEncripted = this.getResult();
+           String stringDecripted = MCrypt2.decryptSingle(stringEncripted);
+           JSONArray responseArray = new JSONArray(stringDecripted);
+           this.setResultJsonArray(responseArray);
+        } catch (JSONException e) {
+            try {
+                String stringEncripted = this.getResult();
+                String stringDecripted = MCrypt2.decryptSingle(stringEncripted);
+                JSONObject responseObject = new JSONObject(stringDecripted);
+                JSONArray responseArray = new JSONArray();
+                responseArray.put(responseObject);
+                this.setResultJsonArray(responseArray);
+            } catch (JSONException ee) {
+                ee.printStackTrace();
+            }
+        }
+
     }
 
     public JSONArray getResultJsonArray() {

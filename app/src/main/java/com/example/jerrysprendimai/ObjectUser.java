@@ -117,7 +117,7 @@ public class ObjectUser implements Parcelable {
                 this.passwd      = obj.getString("Passwd");
                 this.reg_date    = DateHelper.get_date_display(obj.getString("RegDate"));
                 this.last_login  = DateHelper.get_timestamp_display(obj.getString("LastLogin"));
-                //this.user_lv     = obj.getString("user_lv");
+                this.user_lv     = obj.getString("user_lv");
                 this.sessionId   = obj.getString("Session");
                 this.last_action = obj.getString("LastActivity");
                 this.checked    = false;

@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -140,11 +142,21 @@ public class ActivityLogin extends AppCompatActivity {
                 findViewById(R.id.loginButton).setEnabled(true);
                 ((Button) findViewById(R.id.loginButton)).setBackground(background);
 
-               JSONObject object = (JSONObject) connector.getResultJsonArray().get(0);
+
+               connector.clearResponse();
+               //String stringEncripted = connector.getResult();
+               //String stringDecripted = MCrypt2.decryptSingle(stringEncripted);
+               //JSONArray responseArray = new JSONArray(stringDecripted);
+               //connector.setResultJsonArray(responseArray);
+
+               JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+               //JSONObject object = (JSONObject) connector.getResultJsonArray().get(0);
+
                String login_status = object.getString("status");
                 if (login_status.equals("1")) {
                     JSONArray userArray = (JSONArray) connector.getResultJsonArray().get(1);
-                    JSONObject myObj = userArray.getJSONObject(0);
+                    JSONObject myObj = MCrypt.decryptJSONObject(userArray.getJSONObject(0));
+                    //JSONObject myObj = userArray.getJSONObject(0);
                     ObjectUser myUser = new ObjectUser(myObj);
 
                     Intent intent = new Intent(this.context, ActivityMenu.class);
@@ -157,7 +169,7 @@ public class ActivityLogin extends AppCompatActivity {
                     ((TextView) findViewById(R.id.login_error_msg)).setVisibility(View.VISIBLE);
                 }
             }catch(Exception e){
-
+                e.printStackTrace();
             }
             //super.onPostExecute(inputStream);
         }
