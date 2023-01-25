@@ -16,6 +16,9 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".ActivityObjectEdit"
+            android:exported="false" />
+        <activity
             android:name=".ActivityObjectShow"
             android:exported="false" />
         <activity

@@ -2,6 +2,7 @@ package com.example.jerrysprendimai;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Parcel;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +40,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
     List<ObjectObject> myObjectList;
     List<ObjectObject> myObjectListFull;
+
     ObjectUser myUser;
     ViewGroup parentView;
     BottomSheetDialog bottomSheetDialog;
@@ -193,6 +196,9 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
         private Context context;
         private ObjectObject clickObject;
+        private ArrayList<ObjectObjUser> objectUserArrayList;
+        private ArrayList<ObjectObjDetails> objectDetailsArrayList;
+        private ArrayList<ObjectObjPic> objectPicturesArrayList;
         Connector connector;
 
         public HttpsRequestGetObjectDetails(Context ctx, ObjectObject obj){
@@ -200,6 +206,24 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             clickObject = obj;
         }
 
+        public ArrayList<ObjectObjUser> getObjectUserArrayList() {
+            return objectUserArrayList;
+        }
+        public void setObjectUserArrayList(ArrayList<ObjectObjUser> objectUserArrayList) {
+            this.objectUserArrayList = objectUserArrayList;
+        }
+        public ArrayList<ObjectObjDetails> getObjectDetailsArrayList() {
+            return objectDetailsArrayList;
+        }
+        public void setObjectDetailsArrayList(ArrayList<ObjectObjDetails> objectDetailsArrayList) {
+            this.objectDetailsArrayList = objectDetailsArrayList;
+        }
+        public ArrayList<ObjectObjPic> getObjectPicturesArrayList() {
+            return objectPicturesArrayList;
+        }
+        public void setObjectPicturesArrayList(ArrayList<ObjectObjPic> objectPicturesArrayList) {
+            this.objectPicturesArrayList = objectPicturesArrayList;
+        }
         public void setClickObject(ObjectObject clickObject) {
             this.clickObject = clickObject;
         }
@@ -239,9 +263,9 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
                 responseObjUser    = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(1));
-                //responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
-                responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
-                responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
+                responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
+                responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
+                responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -253,19 +277,25 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                        completeCount += 1;
                     }
                 }
+                setObjectDetailsArrayList(objDetailsArrayList);
 
                 for(int i = 0; i < responseObjUser.length(); i++){
                     ObjectObjUser objectObjUser = new ObjectObjUser((JSONObject) responseObjUser.get(i));
                     objUserArrayList.add(objectObjUser);
                 }
-                /*for(int i = 0; i < responseObjPic.length(); i++){
+                setObjectUserArrayList(objUserArrayList);
+
+                for(int i = 0; i < responseObjPic.length(); i++){
                     ObjectObjPic objectObjPic = new ObjectObjPic((JSONObject) responseObjPic.get(i));
                     objPicsArrayList.add(objectObjPic);
-                }*/
+                }
+                setObjectPicturesArrayList(objPicsArrayList);
+
                 for(int i =0; i < responseEmployee.length(); i++){
                     ObjectUser objectUser = new ObjectUser((JSONObject) responseEmployee.get(i));
                     employeeArrayList.add(objectUser);
                 }
+
                 for(int i = 0; i < responseObject.length(); i++ ){
                     ObjectObject updatedObject = new ObjectObject((JSONObject) responseObject.get(i), "wa");
                     if(updatedObject != null){
@@ -340,19 +370,16 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
                     AlertDialog.Builder builder = new AlertDialog.Builder((Context) context, R.style.AlertDialogTheme);
                     builder.setView(dialogView);
-                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ArrayList assignedUserIdList = new ArrayList();
-                            //----changes to DB
-                            for(int i = 0; i < employeeArrayList.size(); i++ ){
-                                ObjectUser objUsr = employeeArrayList.get(i);
-                                if(objUsr.getChecked().equals(true)){
-                                    assignedUserIdList.add(objUsr.getId());
-                                }
+                    builder.setPositiveButton("Ok", (dialog, which) -> {
+                        ArrayList assignedUserIdList = new ArrayList();
+                        //----changes to DB
+                        for(int i = 0; i < employeeArrayList.size(); i++ ){
+                            ObjectUser objUsr = employeeArrayList.get(i);
+                            if(objUsr.getChecked().equals(true)){
+                                assignedUserIdList.add(objUsr.getId());
                             }
-                            new HttpsRequestSetObjectUser(context, clickObject, assignedUserIdList).execute();
                         }
+                        new HttpsRequestSetObjectUser(context, clickObject, assignedUserIdList).execute();
                     });
                     builder.setNegativeButton("Cancel", null);
                     builder.create();
@@ -381,6 +408,18 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
                     Toast.makeText(context, context.getResources().getString(R.string.locked_by) +" '" + clickObject.getLockedUname()+"'", Toast.LENGTH_SHORT).show();
                 }
+
+                //---- Edit Button click
+                FloatingActionButton editButton = bottomSheetView.findViewById(R.id.bottomsheet_edit_btn);
+                editButton.setOnClickListener( v ->  {
+                    Intent intent = new Intent(context, ActivityObjectEdit.class);
+                    intent.putExtra("myUser", myUser);
+                    intent.putExtra("objectObject", getClickObject());
+                    intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
+                    intent.putParcelableArrayListExtra("listtUser", getObjectUserArrayList());
+                    intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
+                    context.startActivity(intent);
+                });
 
                 bottomSheetDialog.setOnDismissListener(dialog -> {
                     //--unlock Object in DB

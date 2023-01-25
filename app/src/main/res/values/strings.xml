@@ -45,4 +45,7 @@
     <string name="object_work_count">Darbai:</string>
     <string name="object_work_done">Užbaigta:</string>
     <string name="locked_by">Redaguoja</string>
+    <string name="id">ID:</string>
+    <string name="add_job">Pridėti darbą</string>
+    <string name="object_address">Adresas</string>
 </resources>

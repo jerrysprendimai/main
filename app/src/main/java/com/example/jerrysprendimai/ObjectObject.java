@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class ObjectObject implements Parcelable {
     private Integer id;
-    private String date, objectName,customerName,completeness,lockedByUserId, lockedUname;
+    private String date, objectName, objectAddress,customerName,completeness,lockedByUserId, lockedUname;
 
     protected ObjectObject(Parcel in) {
         if (in.readByte() == 0) {
@@ -19,10 +19,31 @@ public class ObjectObject implements Parcelable {
         }
         date = in.readString();
         objectName = in.readString();
+        objectAddress = in.readString();
         customerName = in.readString();
         completeness = in.readString();
         lockedByUserId = in.readString();
         lockedUname = in.readString();
+    }
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        if (id == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(id);
+        }
+        dest.writeString(date);
+        dest.writeString(objectName);
+        dest.writeString(objectAddress);
+        dest.writeString(customerName);
+        dest.writeString(completeness);
+        dest.writeString(lockedByUserId);
+        dest.writeString(lockedUname);
+    }
+    @Override
+    public int describeContents() {
+        return 0;
     }
     public static final Creator<ObjectObject> CREATOR = new Creator<ObjectObject>() {
         @Override
@@ -35,30 +56,12 @@ public class ObjectObject implements Parcelable {
             return new ObjectObject[size];
         }
     };
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        if (id == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(id);
-        }
-        dest.writeString(date);
-        dest.writeString(objectName);
-        dest.writeString(customerName);
-        dest.writeString(completeness);
-        dest.writeString(lockedByUserId);
-        dest.writeString(lockedUname);
-    }
 
     public ObjectObject(){
         this.id             = -1;
         this.date           = "";
         this.objectName     = "";
+        this.objectAddress  = "";
         this.customerName   = "";
         this.completeness   = "";
         this.lockedByUserId = "0";
@@ -70,6 +73,7 @@ public class ObjectObject implements Parcelable {
             this.date           = DateHelper.get_date_display(obj.getString("Date"));
             this.objectName     = obj.getString("ObjectName");
             this.customerName   = obj.getString("CustomerName");
+            this.objectAddress  = obj.getString("ObjectAddress");
             this.completeness   = obj.getString("Completeness");
             this.lockedByUserId = obj.getString("LockedByUserId");
             this.lockedUname    = obj.getString("User");
@@ -82,6 +86,7 @@ public class ObjectObject implements Parcelable {
             this.id             = Integer.parseInt(MCrypt.decryptSingle(obj.getString("id")));
             this.date           = DateHelper.get_date_display(MCrypt.decryptSingle(obj.getString("Date")));
             this.objectName     = MCrypt.decryptSingle(obj.getString("ObjectName"));
+            this.objectAddress  = MCrypt.decryptSingle(obj.getString("ObjectAddress"));
             this.customerName   = MCrypt.decryptSingle(obj.getString("CustomerName"));
             this.completeness   = MCrypt.decryptSingle(obj.getString("Completeness"));
             this.lockedByUserId = MCrypt.decryptSingle(obj.getString("LockedByUserId"));
@@ -149,5 +154,11 @@ public class ObjectObject implements Parcelable {
         this.lockedByUserId = lockedByUserId;
     }
 
+    public String getObjectAddress() {
+        return objectAddress;
+    }
 
+    public void setObjectAddress(String objectAddress) {
+        this.objectAddress = objectAddress;
+    }
 }
