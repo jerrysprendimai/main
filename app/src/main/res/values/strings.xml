@@ -48,4 +48,9 @@
     <string name="id">ID:</string>
     <string name="add_job">Pridėti darbą</string>
     <string name="object_address">Adresas</string>
+    <string name="object_jobName">Darbo pavadinimas</string>
+    <string name="object_jobDescription">Aprašymas</string>
+    <string name="object_foto">Foto</string>
+    <string name="objectDetails_switchButton_label">Užbaigti darbą</string>
+    <string name="object_jobDone">Užbaigtas</string>
 </resources>

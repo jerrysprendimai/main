@@ -330,13 +330,14 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectDate)).setText(String.valueOf(clickObject.getDate()));
                 ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectJobs)).setText(String.valueOf(objDetailsArrayList.size()));
                 ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectJobsDone)).setText(String.valueOf(completeCount));
-                ((TextView) bottomSheetView.findViewById(R.id.object_progess_bar_label)).setText(String.valueOf(clickObject.getCompleteness()));
+                ((TextView) bottomSheetView.findViewById(R.id.object_progess_bar_label)).setText(String.valueOf(clickObject.getCompleteness()) + "%");
                 ((ProgressBar) bottomSheetView.findViewById(R.id.object_progess_bar)).setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(clickObject.getCompleteness())))));
 
                 //---- retractable button/view handling
                 LinearLayout retractableLayout     = bottomSheetView.findViewById(R.id.bottomsheet_retractable_layout);
                 LinearLayout retractableLayoutLine = bottomSheetView.findViewById(R.id.bottomsheet_retractableLine);
                 Button retractableButton           = bottomSheetView.findViewById(R.id.bottomsheet_retractable_button);
+
                 retractableButton.setOnClickListener(v -> {
                     if(retractableLayout.getVisibility()==View.GONE){
                         TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());

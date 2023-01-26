@@ -47,16 +47,18 @@
                         app:cardElevation="0dp">
 
                         <LinearLayout
+                            android:id="@+id/objectEdit_retractableLine"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
                             <androidx.cardview.widget.CardView
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
+                                app:cardElevation="1dp"
                                 app:cardBackgroundColor="@color/jerry_grey_light">
                                 <ImageView
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_object_white"
                                     app:tint="@color/jerry_blue">
@@ -161,104 +163,196 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-
-
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:id="@+id/objectEdit_retractable_layout"
-                        android:orientation="vertical">
+                        android:orientation="horizontal">
 
-                        <EditText android:id="@+id/invisibleFocusHolder"
-                            style="@style/InvisibleFocusHolder"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/recycleView_Item_Text"
-                            android:layout_gravity="left"
-                            android:layout_width="wrap_content"
-                            android:paddingTop="1dp">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/objectEdit_objectName"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:backgroundTint="@color/jerry_blue"
-                                android:ems="9"
-                                android:fontFamily="@font/poppinsmedium"
-                                android:hint="@string/object_name"
-                                android:inputType="textPersonName"
-                                android:textColor="@color/black"
-                                android:textColorHint="@color/black"
-                                android:focusedByDefault="false"
-                                android:textSize="12sp" />
-                        </com.google.android.material.textfield.TextInputLayout>
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/recycleView_Item_Text"
-                            android:layout_gravity="left"
-                            android:layout_width="wrap_content"
-                            android:paddingTop="12dp">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/objectEdit_customerName"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:backgroundTint="@color/jerry_blue"
-                                android:ems="9"
-                                android:fontFamily="@font/poppinsmedium"
-                                android:hint="@string/object_customer"
-                                android:inputType="textPersonName"
-                                android:textColor="@color/black"
-                                android:textColorHint="@color/black"
-                                android:textSize="12sp" />
-                        </com.google.android.material.textfield.TextInputLayout>
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/recycleView_Item_Text"
-                            android:layout_gravity="left"
-                            android:layout_width="wrap_content"
-                            android:paddingTop="12dp">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/objectEdit_objectAddress"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:backgroundTint="@color/jerry_blue"
-                                android:ems="9"
-                                android:fontFamily="@font/poppinsmedium"
-                                android:hint="@string/object_address"
-                                android:inputType="textPersonName"
-                                android:textColor="@color/black"
-                                android:textColorHint="@color/black"
-                                android:textSize="12sp" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                            <EditText android:id="@+id/invisibleFocusHolder"
+                                style="@style/InvisibleFocusHolder"/>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/recycleView_Item_Text"
+                                android:layout_gravity="left"
+                                android:layout_width="wrap_content"
+                                android:paddingTop="0dp">
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/objectEdit_objectName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:backgroundTint="@color/jerry_blue"
+                                    android:ems="9"
+                                    android:fontFamily="@font/poppinsmedium"
+                                    android:text="t-e-s-t"
+                                    android:hint="@string/object_name"
+                                    android:inputType="textPersonName"
+                                    android:textColor="@color/black"
+                                    android:textColorHint="@color/black"
+                                    android:focusedByDefault="false"
+                                    android:textSize="12sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/recycleView_Item_Text"
+                                android:layout_gravity="left"
+                                android:layout_width="wrap_content"
+                                android:paddingTop="0dp">
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/objectEdit_customerName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:backgroundTint="@color/jerry_blue"
+                                    android:ems="9"
+                                    android:text="t-e-s-t"
+                                    android:fontFamily="@font/poppinsmedium"
+                                    android:hint="@string/object_customer"
+                                    android:inputType="textPersonName"
+                                    android:textColor="@color/black"
+                                    android:textColorHint="@color/black"
+                                    android:textSize="12sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/recycleView_Item_Text"
+                                android:layout_gravity="left"
+                                android:layout_width="wrap_content"
+                                android:paddingTop="0dp">
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/objectEdit_objectAddress"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:backgroundTint="@color/jerry_blue"
+                                    android:ems="9"
+                                    android:text="t-e-s-t"
+                                    android:fontFamily="@font/poppinsmedium"
+                                    android:hint="@string/object_address"
+                                    android:inputType="textPersonName"
+                                    android:textColor="@color/black"
+                                    android:textColorHint="@color/black"
+                                    android:textSize="12sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+                            <TableLayout
+                                android:showDividers="middle|end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginLeft="0dp"
+                                android:divider="@drawable/divider_list">
+
+                                    <TableRow
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    style="@style/recycleView_Item_Text"
+                                    android:includeFontPadding="false"
+                                    android:hint="@string/object_work_count"
+                                    android:textStyle="bold"
+                                    android:textAlignment="viewStart"
+                                    android:layout_weight="0"
+                                    />
+                                <TextView
+                                    android:id="@+id/objectEdit_objectJobs"
+                                    style="@style/recycleView_Item_Text"
+                                    android:includeFontPadding="false"
+                                    android:text="999"
+                                    android:layout_weight="1"
+                                    android:textSize="14sp"
+                                    android:textAlignment="viewStart"
+                                    android:textColor="@color/jerry_blue" />
+                            </TableRow>
+                                    <TableRow
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    style="@style/recycleView_Item_Text"
+                                    android:hint="@string/object_work_done"
+                                    android:textAlignment="viewStart"
+                                    android:textStyle="bold"
+                                    android:includeFontPadding="false" />
+                                <TextView
+                                    android:id="@+id/objectEdit_objectJobsDone"
+                                    style="@style/recycleView_Item_Text"
+                                    android:text="999"
+                                    android:textSize="14dp"
+                                    android:textAlignment="viewStart"
+                                    android:includeFontPadding="false"
+                                    android:textColor="@color/jerry_blue" />
+                            </TableRow>
+                            </TableLayout>
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="8dp">
+                                <ProgressBar
+                                    android:id="@+id/objectEdit_progess_bar"
+                                    android:layout_width="95dp"
+                                    android:layout_height="95dp"
+                                    android:backgroundTint="@color/jerry_blue"
+                                    android:progressDrawable="@drawable/progressbar_gradient_progress"
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_gravity="left"
+                                    android:progress="45"
+                                    android:max="100"
+                                    android:min="1"
+                                    android:textStyle="bold"
+                                    android:includeFontPadding="false">
+                                </ProgressBar>
+
+                                <TextView
+                                    android:id="@+id/objectEdit_progess_bar_label"
+                                    style="@style/recycleView_Item_Text"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignLeft="@id/objectEdit_progess_bar"
+                                    android:layout_alignTop="@id/objectEdit_progess_bar"
+                                    android:layout_alignRight="@id/objectEdit_progess_bar"
+                                    android:layout_alignBottom="@id/objectEdit_progess_bar"
+                                    android:background="@android:color/transparent"
+                                    android:gravity="center"
+                                    android:text="100.0%"
+                                    android:textColor="@color/jerry_blue"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold" />
+                            </RelativeLayout>
+
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <ScrollView
+            <!--<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/my_swipe_refresh"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingBottom="60dp">-->
+
+           <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_margin="3dp"
                 android:fillViewport="true"
                 android:scrollbarAlwaysDrawVerticalTrack="true"
                 android:scrollbarSize="@android:dimen/app_icon_size"
                 android:visibility="visible">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/objectEdit_job_recycle_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="vertical">
+               <androidx.recyclerview.widget.RecyclerView
+                  android:id="@+id/objectEdit_job_recycle_view"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:scrollbars="vertical">
                 </androidx.recyclerview.widget.RecyclerView>
-                <!--<LinearLayout
-                    android:id="@+id/baustelle_edit_arbeit_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingBottom="50dp">
-                </LinearLayout>-->
-
             </ScrollView>
+            <!--</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
         </LinearLayout>
 
         <include layout="@layout/save_cancel_layout" />

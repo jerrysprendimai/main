@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 public class ObjectObjDetails implements Parcelable {
     private Integer id, objectId, posNr, lockedByUserId;
-    private String description, completed;
+    private String name, description, completed;
 
     protected ObjectObjDetails(Parcel in) {
         if (in.readByte() == 0) {
@@ -31,23 +31,9 @@ public class ObjectObjDetails implements Parcelable {
         } else {
             lockedByUserId = in.readInt();
         }
+        name = in.readString();
         description = in.readString();
         completed = in.readString();
-    }
-    public static final Creator<ObjectObjDetails> CREATOR = new Creator<ObjectObjDetails>() {
-        @Override
-        public ObjectObjDetails createFromParcel(Parcel in) {
-            return new ObjectObjDetails(in);
-        }
-
-        @Override
-        public ObjectObjDetails[] newArray(int size) {
-            return new ObjectObjDetails[size];
-        }
-    };
-    @Override
-    public int describeContents() {
-        return 0;
     }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -75,14 +61,31 @@ public class ObjectObjDetails implements Parcelable {
             dest.writeByte((byte) 1);
             dest.writeInt(lockedByUserId);
         }
+        dest.writeString(name);
         dest.writeString(description);
         dest.writeString(completed);
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    public static final Creator<ObjectObjDetails> CREATOR = new Creator<ObjectObjDetails>() {
+        @Override
+        public ObjectObjDetails createFromParcel(Parcel in) {
+            return new ObjectObjDetails(in);
+        }
+
+        @Override
+        public ObjectObjDetails[] newArray(int size) {
+            return new ObjectObjDetails[size];
+        }
+    };
 
     public ObjectObjDetails(){
         this.id             = -1;
         this.objectId       = -1;
         this.posNr          = 0;
+        this.name           = "";
         this.description    = "";
         this.lockedByUserId = -1;
         this.completed      = "";
@@ -92,8 +95,9 @@ public class ObjectObjDetails implements Parcelable {
            this.id              = Integer.parseInt(obj.getString("id"));
            this.objectId        = Integer.parseInt(obj.getString("Object_id"));
            this.posNr           = Integer.parseInt(obj.getString("Pos_Nr"));
+           this.name            = obj.getString("Name");
            this.description     = obj.getString("Description");
-            this.lockedByUserId = Integer.parseInt(obj.getString("LockedByUserID"));;
+           this.lockedByUserId = Integer.parseInt(obj.getString("LockedByUserID"));;
            this.completed       = obj.getString("Completed");
         }catch (JSONException e) {
             e.printStackTrace();
@@ -148,5 +152,11 @@ public class ObjectObjDetails implements Parcelable {
         this.lockedByUserId = lockedByUserId;
     }
 
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }

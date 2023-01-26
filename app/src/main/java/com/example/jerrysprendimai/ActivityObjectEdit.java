@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,18 +14,25 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -36,9 +45,13 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     BottomNavigationView bottomNavigationView;
     ObjectUser myUser;
 
+    RecyclerView recyclerView;
+    MyAdapterObjectEdit myAdapterObjectEdit;
+
     EditText editInvisibleFocusHolder;
     ImageView oSavedStatusIndicator;
-    TextView oId, oDate, oName, oCustomer, oAddress;
+    TextView oId, oDate, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
+    ProgressBar oProgressbar;
 
     boolean needSave;
     Integer backButtonCount;
@@ -66,10 +79,13 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oName                    = findViewById(R.id.objectEdit_objectName);
         this.oCustomer                = findViewById(R.id.objectEdit_customerName);
         this.oAddress                 = findViewById(R.id.objectEdit_objectAddress);
+        this.oJobs                    = findViewById(R.id.objectEdit_objectJobs);
+        this.oJobsDone                = findViewById(R.id.objectEdit_objectJobsDone);
+        this.oProgressbar             = findViewById(R.id.objectEdit_progess_bar);
+        this.oProgressBarLabel        = findViewById(R.id.objectEdit_progess_bar_label);
 
-        oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_blue));
-
-        this.fillFieldValues();
+        fillFieldValues();
+        buildRecyclerView();
 
         //--------------setting event listeners---------------
         this.oName.addTextChangedListener(this);
@@ -79,26 +95,62 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oCustomer.setOnKeyListener(this);
         this.oAddress.setOnKeyListener(this);
 
-        //-----------------Bottom Menu Hide/Show depending on the Keyboard----------------
+        //---- retractable button/view handling
+        LinearLayout retractableLayout     = findViewById(R.id.objectEdit_retractable_layout);
+        LinearLayout retractableLayoutLine = findViewById(R.id.objectEdit_retractableLine);
+        Button retractableButton           = findViewById(R.id.objectEdit_retractable_button);
+        retractableButton.setOnClickListener(v -> {
+            if(retractableLayout.getVisibility()==View.GONE){
+                TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
+                retractableLayout.setVisibility(View.VISIBLE);
+                retractableButton.setBackgroundResource(R.drawable.ic_arrow_up_white);
+            }else{
+                TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
+                retractableLayout.setVisibility(View.GONE);
+                retractableButton.setBackgroundResource(R.drawable.ic_arrow_down_white);
+            }
+        });
+        retractableLayoutLine.setOnClickListener(v -> retractableButton.performClick());
+
+        //-----------------Save-Cancel Menu Hide/Show depending on the Keyboard----------------
         KeyboardVisibilityEvent.setEventListener(this, this);
         this.bottomNavigationView = findViewById(R.id.save_cancel_buttons);
         this.bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
-        //ActivityObjectEdit.hideSoftKeyboard(this);
 
     }
 
     private void fillFieldValues() {
-        try {
+            Integer completeCount = 0;
+            for(int i = 0; i < this.objectDetailsArrayList.size(); i++){
+                ObjectObjDetails objectObjDetails =  this.objectDetailsArrayList.get(i);
+                if(objectObjDetails.getCompleted().equals("X")){
+                    completeCount += 1;
+                }
+            }
+            if(this.objectObject.getId() >= 0){
+                oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_green));
+            }else{
+                oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_yellow));
+            }
+
             this.oId.setText(this.objectObject.getId().toString());
             this.oDate.setText(this.objectObject.getDate());
             this.oName.setText(this.objectObject.getObjectName());
             this.oCustomer.setText(this.objectObject.getCustomerName());
             this.oAddress.setText(this.objectObject.getObjectAddress());
+            this.oJobs.setText(String.valueOf(this.objectDetailsArrayList.size()));
+            this.oJobsDone.setText(String.valueOf(completeCount));
+            this.oProgressBarLabel.setText(String.valueOf(this.objectObject.getCompleteness()) + "%");
+            this.oProgressbar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(this.objectObject.getCompleteness())))));
 
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    }
+    private void buildRecyclerView() {
+        //---------------------Recycle View---------------------
+        this.recyclerView = findViewById(R.id.objectEdit_job_recycle_view);
+        this.myAdapterObjectEdit = new MyAdapterObjectEdit(this, findViewById(R.id.objectEdit_main_containerView), getObjectDetailsArrayList(), getMyUser());
+        this.recyclerView.setAdapter(myAdapterObjectEdit);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -167,12 +219,18 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void afterTextChanged(Editable s) {
         if(!this.objectObject.getObjectName().equals(this.oName.getText().toString())){
             this.objectObject.setObjectName(this.oName.getText().toString());
+            setNeedSave(true);
         }
         if(!this.objectObject.getCustomerName().equals(this.oCustomer.getText().toString())){
             this.objectObject.setCustomerName(this.oCustomer.getText().toString());
+            setNeedSave(true);
         }
         if(!this.objectObject.getObjectAddress().equals(this.oAddress.getText().toString())){
             this.objectObject.setObjectAddress(this.oAddress.getText().toString());
+            setNeedSave(true);
+        }
+        if((this.needSave == true)&&(!oSavedStatusIndicator.getColorFilter().equals(ContextCompat.getColor(this, R.color.jerry_yellow)))){
+            oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_yellow));
         }
     }
 
@@ -196,5 +254,30 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
 
+    }
+
+    public boolean isNeedSave() {
+        return needSave;
+    }
+
+    public void setNeedSave(boolean needSave) {
+        this.needSave = needSave;
+    }
+
+
+    public ArrayList<ObjectObjDetails> getObjectDetailsArrayList() {
+        return objectDetailsArrayList;
+    }
+
+    public void setObjectDetailsArrayList(ArrayList<ObjectObjDetails> objectDetailsArrayList) {
+        this.objectDetailsArrayList = objectDetailsArrayList;
+    }
+
+    public ObjectUser getMyUser() {
+        return myUser;
+    }
+
+    public void setMyUser(ObjectUser myUser) {
+        this.myUser = myUser;
     }
 }
