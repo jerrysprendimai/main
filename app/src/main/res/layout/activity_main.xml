@@ -28,5 +28,5 @@
         android:layout_height="wrap_content"
         android:indeterminateTint="@color/jerry_blue" />
 
-    <include layout="@layout/footer_layout" />
+    <include layout="@layout/layout_footer" />
 </LinearLayout>

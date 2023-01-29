@@ -1,5 +1,6 @@
 package com.example.jerrysprendimai;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -8,8 +9,8 @@ import org.json.JSONObject;
 
 public class ObjectObjPic implements Parcelable{
     private Integer id, objectId, posNr;
-    String picName, creationDate, picUrl;
-
+    String picName, creationDate, picUrl, picUri;
+    Bitmap imageResource;
 
     protected ObjectObjPic(Parcel in) {
         if (in.readByte() == 0) {
@@ -30,6 +31,8 @@ public class ObjectObjPic implements Parcelable{
         picName = in.readString();
         creationDate = in.readString();
         picUrl = in.readString();
+        picUri = in.readString();
+        imageResource = in.readParcelable(Bitmap.class.getClassLoader());
     }
     public static final Creator<ObjectObjPic> CREATOR = new Creator<ObjectObjPic>() {
         @Override
@@ -69,6 +72,8 @@ public class ObjectObjPic implements Parcelable{
         dest.writeString(picName);
         dest.writeString(creationDate);
         dest.writeString(picUrl);
+        dest.writeString(picUri);
+        dest.writeParcelable(imageResource, flags);
     }
 
     public ObjectObjPic(){
@@ -76,8 +81,9 @@ public class ObjectObjPic implements Parcelable{
         this.objectId     = -1;
         this.posNr        = 0;
         this.picName      = "";
-        this.creationDate = "";
+        this.creationDate = DateHelper.get_current_date_disply();
         this.picUrl       = "";
+        this.picUri       = "";
     }
 
     public ObjectObjPic(JSONObject obj) {
@@ -88,6 +94,7 @@ public class ObjectObjPic implements Parcelable{
             this.picName      = obj.getString("PicName");
             this.creationDate = obj.getString("CreationDate");
             this.picUrl       = obj.getString("PicURL");
+            this.picUri       = "";
         }catch (JSONException e) {
             e.printStackTrace();
         }
@@ -141,5 +148,20 @@ public class ObjectObjPic implements Parcelable{
         this.picUrl = picUrl;
     }
 
+    public String getPicUri() {
+        return picUri;
+    }
+
+    public void setPicUri(String picUri) {
+        this.picUri = picUri;
+    }
+
+    public Bitmap getImageResource() {
+        return imageResource;
+    }
+
+    public void setImageResource(Bitmap imageResource) {
+        this.imageResource = imageResource;
+    }
 
 }

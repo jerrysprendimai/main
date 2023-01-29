@@ -20,15 +20,19 @@
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_menu.xml" value="0.33" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_object_edit.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_object_show.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_picture_view.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_settings.xml" value="0.35260416666666666" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_user_edit.xml" value="0.33" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/activity_user_show.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/bottom_sheet_layout.xml" value="0.365625" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/dialog_date_picker.xml" value="0.365625" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/dialog_object_user_assignment.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/footer_layout.xml" value="0.358695652173913" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/full_item.xml" value="0.365625" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object.xml" value="0.33" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object_assigned_user.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object_detail.xml" value="0.5" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_picture.xml" value="0.67" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_user.xml" value="0.5" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_user_assignment.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/save_cancel_layout.xml" value="0.358695652173913" />

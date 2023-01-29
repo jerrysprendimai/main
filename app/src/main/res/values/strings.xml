@@ -53,4 +53,5 @@
     <string name="object_foto">Foto</string>
     <string name="objectDetails_switchButton_label">Užbaigti darbą</string>
     <string name="object_jobDone">Užbaigtas</string>
+    <string name="job_begin">Darbų pradžia</string>
 </resources>

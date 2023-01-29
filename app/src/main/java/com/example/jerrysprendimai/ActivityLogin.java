@@ -2,6 +2,7 @@ package com.example.jerrysprendimai;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -11,6 +12,7 @@ import android.util.Base64;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,8 +32,13 @@ public class ActivityLogin extends AppCompatActivity {
     TextInputEditText loginPassword;
     TextView settingsTxt;
     Button buttonLogin;
+    LinearLayout shiftContainer;
     Drawable background;
     Context context;
+
+    int currentlyScrolled;
+    int totalScreenHeight;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,10 +49,44 @@ public class ActivityLogin extends AppCompatActivity {
         loginUser     = findViewById(R.id.loginUser);
         loginPassword = findViewById(R.id.loginPassword);
         buttonLogin   = findViewById(R.id.loginButton);
+        shiftContainer = findViewById(R.id.shift_container);
 
         //----------to remove
         loginUser.setText("admin");
         loginPassword.setText("admin");
+
+        //----testing screen pan
+        /*Activity activityLogin = this;
+        currentlyScrolled = 0;
+        totalScreenHeight = shiftContainer.getHeight();
+        loginPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View focusedView, boolean hasFocus) {
+                if(hasFocus == true){
+                    if (focusedView == null){
+                        Toast.makeText(activityLogin, "focusedView is null", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    totalScreenHeight = shiftContainer.getHeight();
+                    int[] location = new int[2];
+                    focusedView.getLocationInWindow(location);
+                    int absX = location[0];
+                    int absY = location[1];
+
+                    int oneFourth = totalScreenHeight/4;
+                    if (absY > oneFourth){
+                        int distanceToScroll = absY - oneFourth + currentlyScrolled;
+                        currentlyScrolled = distanceToScroll;
+                        shiftContainer.scrollTo(absX,absY);
+                        shiftContainer.setVisibility(View.VISIBLE);
+                        //Toast.makeText(activity, "Shift up " + distanceToScroll, Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    currentlyScrolled = 0;
+                    shiftContainer.scrollTo(0,0);
+                }
+            }
+        });*/
 
         context = this;
         buttonLogin.setOnClickListener(new View.OnClickListener() {
@@ -142,15 +183,9 @@ public class ActivityLogin extends AppCompatActivity {
                 findViewById(R.id.loginButton).setEnabled(true);
                 ((Button) findViewById(R.id.loginButton)).setBackground(background);
 
-
                connector.clearResponse();
-               //String stringEncripted = connector.getResult();
-               //String stringDecripted = MCrypt2.decryptSingle(stringEncripted);
-               //JSONArray responseArray = new JSONArray(stringDecripted);
-               //connector.setResultJsonArray(responseArray);
 
                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
-               //JSONObject object = (JSONObject) connector.getResultJsonArray().get(0);
 
                String login_status = object.getString("status");
                 if (login_status.equals("1")) {

@@ -2,6 +2,7 @@ package com.example.jerrysprendimai;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,43 +19,58 @@ import android.text.TextWatcher;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class ActivityObjectEdit extends AppCompatActivity implements View.OnClickListener, KeyboardVisibilityEventListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, View.OnKeyListener {
 
-    ObjectObject objectObject;
+
     private ArrayList<ObjectObjUser> objectUserArrayList;
     private ArrayList<ObjectObjDetails> objectDetailsArrayList;
     private ArrayList<ObjectObjPic> objectPicturesArrayList;
     BottomNavigationView bottomNavigationView;
+    ObjectObject objectObject;
     ObjectUser myUser;
+    ArrayList<Integer> toBeDeletedList;
 
     RecyclerView recyclerView;
     MyAdapterObjectEdit myAdapterObjectEdit;
+    ScrollView scrollView;
 
     EditText editInvisibleFocusHolder;
     ImageView oSavedStatusIndicator;
-    TextView oId, oDate, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
+    Button oAddJob;
+    TextView oId, oNameLb, oDate, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
     ProgressBar oProgressbar;
 
-    boolean needSave;
+    boolean needSave, deletionMode;
+    FloatingActionButton oDeleteJobButton;
+    LinearLayout oDeleteJobButtonLayout;
     Integer backButtonCount;
 
     @Override
@@ -71,9 +88,14 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.backButtonCount = 0;
         this.needSave = false;
 
+        //-----------------Deletion Mode
+        this.deletionMode = false;
+        this.toBeDeletedList = new ArrayList<Integer>();
+
         //-----------------View element binding----------------
         this.editInvisibleFocusHolder = findViewById(R.id.invisibleFocusHolder);
         this.oId                      = findViewById(R.id.objectEdit_id);
+        this.oNameLb                  = findViewById(R.id.objectEdit_name);
         this.oSavedStatusIndicator    = findViewById(R.id.objectEdit_savedStatus_img);
         this.oDate                    = findViewById(R.id.objectEdit_date);
         this.oName                    = findViewById(R.id.objectEdit_objectName);
@@ -83,6 +105,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oJobsDone                = findViewById(R.id.objectEdit_objectJobsDone);
         this.oProgressbar             = findViewById(R.id.objectEdit_progess_bar);
         this.oProgressBarLabel        = findViewById(R.id.objectEdit_progess_bar_label);
+        this.oAddJob                  = findViewById(R.id.objectEdit_add_job_button);
+        this.scrollView               = findViewById(R.id.objectEdit_job_scroll_view);
+        this.oDeleteJobButton         = findViewById(R.id.objectEdit_delete_job);
+        this.oDeleteJobButtonLayout   = findViewById(R.id.objectEdit_delete_job_layout);
 
         fillFieldValues();
         buildRecyclerView();
@@ -94,6 +120,68 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oName.setOnKeyListener(this);
         this.oCustomer.setOnKeyListener(this);
         this.oAddress.setOnKeyListener(this);
+
+        //---- Date Picker handling
+        Context context = this;
+        this.oDate.setOnClickListener(v->{
+            View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_date_picker, null, false);
+            TextView dialogDateLabel = dialogView.findViewById(R.id.datePicker_date_label);
+            CalendarView datePickerCalender = dialogView.findViewById(R.id.datePicker_calenderView);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, Integer.parseInt(DateHelper.get_YMD_from_date_display("year",        this.objectObject.getDate())));
+            calendar.set(Calendar.MONTH, Integer.parseInt(DateHelper.get_YMD_from_date_display("month",      this.objectObject.getDate())) - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(DateHelper.get_YMD_from_date_display("day", this.objectObject.getDate())));
+            dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
+            long milliTime = calendar.getTimeInMillis();
+            datePickerCalender.setDate(milliTime);
+            datePickerCalender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+                @Override
+                public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month );
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
+                    long milliTime = calendar.getTimeInMillis();
+                    datePickerCalender.setDate(milliTime);
+                }
+            });
+            AlertDialog.Builder datePickerDialog = new AlertDialog.Builder((Context) this, R.style.AlertDialogTheme);
+            datePickerDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    String dialogDate = dateFormat.format(datePickerCalender.getDate());
+                    objectObject.setDate(dialogDate);
+                    oDate.setText(dialogDate);
+
+                    setNeedSave(true);
+                    oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
+                }
+            });
+            datePickerDialog.setNegativeButton("Cancel", null);
+            datePickerDialog.setView(dialogView);
+            datePickerDialog.create();
+            datePickerDialog.show();
+        });
+        //---- Add Job button handling
+        this.oDeleteJobButton.setOnClickListener(v ->{
+            //--------sort list dscending
+            Collections.sort(toBeDeletedList, new Comparator<Integer>() {
+                public int compare(Integer o1, Integer o2) {
+                    return o2.compareTo(o1);
+                }
+            });
+            for(int i=0; i<toBeDeletedList.size();i++){
+                ObjectObjDetails objectObjDetailsToRemove = objectDetailsArrayList.get(toBeDeletedList.get(i));
+                objectDetailsArrayList.remove(objectObjDetailsToRemove);
+               //objectDetailsArrayList.remove(toBeDeletedList.get(i));
+            }
+            setDeletionMode(false);
+            this.setSaveCancelVisibility(true);
+            this.setDeleteButtonVisibility(false);
+            this.toBeDeletedList = new ArrayList<Integer>();
+            myAdapterObjectEdit.notifyDataSetChanged();
+        });
 
         //---- retractable button/view handling
         LinearLayout retractableLayout     = findViewById(R.id.objectEdit_retractable_layout);
@@ -110,7 +198,30 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_down_white);
             }
         });
+        retractableLayoutLine.setSoundEffectsEnabled(false);
         retractableLayoutLine.setOnClickListener(v -> retractableButton.performClick());
+        retractableLayoutLine.performClick();
+
+        //---- Add Job Button handling
+        oAddJob.setOnClickListener(v ->{
+            setDeletionMode(false);
+            this.setSaveCancelVisibility(true);
+            this.setDeleteButtonVisibility(false);
+            this.toBeDeletedList = new ArrayList<Integer>();
+
+            ObjectObjDetails newObjectObjDetails = new ObjectObjDetails();
+            objectDetailsArrayList.add(0, newObjectObjDetails);
+            //myAdapterObjectEdit.setMyObjectList(objectDetailsArrayList);
+            //MyAdapterObjectEdit.MyViewHolder newViewHolder = myAdapterObjectEdit.onCreateViewHolder(this.recyclerView, 0);
+            //myAdapterObjectEdit.onBindViewHolder(newViewHolder, 0);
+
+            myAdapterObjectEdit.notifyDataSetChanged();
+            /*for(int i=0; i<objectDetailsArrayList.size()-1; i++) {
+                //myAdapterObjectEdit.onBindViewHolder(myAdapterObjectEdit.getMyHolder(), i);
+                myAdapterObjectEdit.notifyItemChanged(i);
+            }*/
+            oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_yellow));
+        });
 
         //-----------------Save-Cancel Menu Hide/Show depending on the Keyboard----------------
         KeyboardVisibilityEvent.setEventListener(this, this);
@@ -119,9 +230,30 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
 
     }
-
+    public void setSaveCancelVisibility(Boolean value){
+        TransitionManager.beginDelayedTransition(bottomNavigationView, new AutoTransition());
+        if(value.equals(true)){
+            this.bottomNavigationView.setVisibility(View.VISIBLE);
+        }else{
+            this.bottomNavigationView.setVisibility(View.GONE);
+        }
+    }
+    public void notifyItemChanged(){
+        for(int i=0; i<myAdapterObjectEdit.getMyViewHolderList().size(); i++) {
+            myAdapterObjectEdit.notifyItemChanged(i);
+        }
+    }
     private void fillFieldValues() {
             Integer completeCount = 0;
+
+            if(getDeletionMode().equals(false)){
+                oDeleteJobButtonLayout.setVisibility(View.GONE);
+                //oDeleteJobButton.setVisibility(View.GONE);
+            }else{
+                oDeleteJobButtonLayout.setVisibility(View.VISIBLE);
+                //oDeleteJobButton.setVisibility(View.VISIBLE);
+            }
+
             for(int i = 0; i < this.objectDetailsArrayList.size(); i++){
                 ObjectObjDetails objectObjDetails =  this.objectDetailsArrayList.get(i);
                 if(objectObjDetails.getCompleted().equals("X")){
@@ -135,6 +267,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             }
 
             this.oId.setText(this.objectObject.getId().toString());
+            this.oNameLb.setText(this.objectObject.getObjectName());
             this.oDate.setText(this.objectObject.getDate());
             this.oName.setText(this.objectObject.getObjectName());
             this.oCustomer.setText(this.objectObject.getCustomerName());
@@ -148,9 +281,36 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     private void buildRecyclerView() {
         //---------------------Recycle View---------------------
         this.recyclerView = findViewById(R.id.objectEdit_job_recycle_view);
-        this.myAdapterObjectEdit = new MyAdapterObjectEdit(this, findViewById(R.id.objectEdit_main_containerView), getObjectDetailsArrayList(), getMyUser());
+        this.myAdapterObjectEdit = new MyAdapterObjectEdit(this, findViewById(R.id.objectEdit_main_containerView), getObjectDetailsArrayList(), getMyUser(), getObjectPicturesArrayList());
         this.recyclerView.setAdapter(myAdapterObjectEdit);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    public void addToBeDeleted(int position){
+        boolean found = false;
+        for(int i=0; i<this.toBeDeletedList.size(); i++){
+            if(this.toBeDeletedList.get(i).equals(position)){
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            this.toBeDeletedList.add(position);
+        }
+    }
+    public void removeToBeDeleted(int position){
+        for(int i=0; i<this.toBeDeletedList.size(); i++){
+            if(this.toBeDeletedList.get(i).equals(position)){
+                this.toBeDeletedList.remove(i);
+                break;
+            }
+        }
+        if(this.toBeDeletedList.size() == 0){
+            this.setDeletionMode(false);
+            this.setSaveCancelVisibility(true);
+            this.setDeleteButtonVisibility(false);
+            myAdapterObjectEdit.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -159,17 +319,30 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         editInvisibleFocusHolder.setInputType(InputType.TYPE_NULL);
         editInvisibleFocusHolder.requestFocus();
     }
-
-    public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if(inputMethodManager.isAcceptingText()){
-          inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(),0);
+    public void scrollToPosition(){
+        int nY_Pos = this.scrollView.getTop();
+        int nY_Pos2 = this.scrollView.getBottom();
+        //this.scrollView.fullScroll(View.FOCUS_UP);
+    }
+    public void hideSoftKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if(this.getDeletionMode().equals(true)){
+            this.setDeletionMode(false);
+            this.setDeleteButtonVisibility(false);
+            this.setSaveCancelVisibility(true);
+            this.toBeDeletedList = new ArrayList<Integer>();
+            myAdapterObjectEdit.notifyDataSetChanged();
+        }else{
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -218,6 +391,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     @Override
     public void afterTextChanged(Editable s) {
         if(!this.objectObject.getObjectName().equals(this.oName.getText().toString())){
+            oNameLb.setText(this.oName.getText().toString());
             this.objectObject.setObjectName(this.oName.getText().toString());
             setNeedSave(true);
         }
@@ -250,7 +424,16 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         }
         return false;
     }
-
+    public void setDeleteButtonVisibility(Boolean value){
+        TransitionManager.beginDelayedTransition(oDeleteJobButtonLayout, new AutoTransition());
+        if(value.equals(true)){
+            oDeleteJobButtonLayout.setVisibility(View.VISIBLE);
+            //this.oDeleteJobButton.setVisibility(View.VISIBLE);
+        }else{
+            oDeleteJobButtonLayout.setVisibility(View.GONE);
+            //this.oDeleteJobButton.setVisibility(View.GONE);
+        }
+    }
     @Override
     public void onClick(View v) {
 
@@ -269,6 +452,14 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         return objectDetailsArrayList;
     }
 
+    public ArrayList<ObjectObjPic> getObjectPicturesArrayList() {
+        return objectPicturesArrayList;
+    }
+
+    public void setObjectPicturesArrayList(ArrayList<ObjectObjPic> objectPicturesArrayList) {
+        this.objectPicturesArrayList = objectPicturesArrayList;
+    }
+
     public void setObjectDetailsArrayList(ArrayList<ObjectObjDetails> objectDetailsArrayList) {
         this.objectDetailsArrayList = objectDetailsArrayList;
     }
@@ -280,4 +471,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void setMyUser(ObjectUser myUser) {
         this.myUser = myUser;
     }
+    public Boolean getDeletionMode() {
+        return deletionMode;
+    }
+    public void setDeletionMode(Boolean deletionMode) {
+        this.deletionMode = deletionMode;
+    };
 }

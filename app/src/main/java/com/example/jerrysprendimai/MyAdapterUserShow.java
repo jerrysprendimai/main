@@ -131,7 +131,7 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
                     if(!holder.isMyHoldIndicator()){
                         if( holder.myPersonCeckImg.getVisibility() == View.GONE){
                           holder.myPersonCeckImg.setVisibility(View.VISIBLE);
-                            ((ActivityUserShow) context).addToBeDeleted(position);
+                         ((ActivityUserShow) context).addToBeDeleted(position);
                         }else{
                           holder.myPersonCeckImg.setVisibility(View.GONE);
                           ((ActivityUserShow) context).removeToBeDeleted(position);

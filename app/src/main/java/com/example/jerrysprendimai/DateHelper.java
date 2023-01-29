@@ -75,13 +75,15 @@ public class DateHelper {
       String dateArr[] = date.split("-");
           switch (valueOf){
               case "year":
-                  result = dateArr[2];
+                  result = dateArr[0];
+                  //result = dateArr[2];
                   break;
               case "month":
                   result = dateArr[1];
                   break;
               case "day":
-                  result = dateArr[0];
+                  result = dateArr[2];
+                  //result = dateArr[0];
                   break;
           }
 

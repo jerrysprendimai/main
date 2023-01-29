@@ -15,6 +15,9 @@
         app:cardElevation="1dp"
         app:cardUseCompatPadding="true">
 
+        <EditText android:id="@+id/objectDetails_invisibleFocusHolder"
+            style="@style/InvisibleFocusHolder"/>
+
         <LinearLayout
             android:id="@+id/objectDetails_summary_line"
             android:layout_width="match_parent"
@@ -78,6 +81,23 @@
                         android:adjustViewBounds="false"
                         app:tint="@color/jerry_green"/>
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    app:cardElevation="0dp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/objectDetails_delete_image_view"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_margin="0dp"
+                        android:src="@drawable/ic_cancel_white_o60"
+                        android:adjustViewBounds="false"
+                        app:tint="@color/jerry_red"/>
+                </LinearLayout>
             </androidx.cardview.widget.CardView>
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -126,7 +146,6 @@
             android:id="@+id/objectDetails_summary_expanded"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
             android:orientation="vertical">
@@ -188,6 +207,23 @@
                             android:src="@drawable/ic_check_white_o50"
                             android:adjustViewBounds="false"
                             app:tint="@color/jerry_green"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:clickable="false"
+                        app:cardElevation="0dp"
+                        android:orientation="horizontal">
+                        <ImageView
+                            android:id="@+id/objectDetails_delete_image_view_extended"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            android:layout_margin="0dp"
+                            android:src="@drawable/ic_cancel_white_o60"
+                            android:adjustViewBounds="false"
+                            app:tint="@color/jerry_red"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
                 <LinearLayout
@@ -334,10 +370,14 @@
                                 android:layout_height="wrap_content"
                                 android:layout_margin="5dp"
                                 android:orientation="horizontal">
-                                <LinearLayout
+                                <GridLayout
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:alignmentMode="alignBounds"
+                                    android:columnCount="3"
                                     android:layout_weight="1"
+                                    android:columnOrderPreserved="false"
                                     android:layout_margin="5dp"
                                     android:orientation="horizontal">
                                     <androidx.recyclerview.widget.RecyclerView
@@ -345,7 +385,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content">
                                     </androidx.recyclerview.widget.RecyclerView>
-                                </LinearLayout>
+                                </GridLayout>
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
                         <androidx.cardview.widget.CardView

@@ -59,7 +59,7 @@ public class ObjectObject implements Parcelable {
 
     public ObjectObject(){
         this.id             = -1;
-        this.date           = "";
+        this.date           = DateHelper.get_current_date_disply();
         this.objectName     = "";
         this.objectAddress  = "";
         this.customerName   = "";

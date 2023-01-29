@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -71,6 +72,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         TextView objectCustomer;
         ProgressBar progressBar;
         TextView progressBarLabel;
+
 
         public MyViewHolder(@NonNull View itemView){
             super(itemView);

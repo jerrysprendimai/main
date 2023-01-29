@@ -281,8 +281,8 @@
 
 
         </LinearLayout>
-        <include layout="@layout/save_cancel_layout" />
-        <include layout="@layout/footer_layout" />
+        <include layout="@layout/layout_save_cancel" />
+        <include layout="@layout/layout_footer" />
     </androidx.cardview.widget.CardView>
 
 </LinearLayout>

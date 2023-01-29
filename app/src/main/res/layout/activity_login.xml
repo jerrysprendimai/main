@@ -18,78 +18,87 @@
         android:layout_marginBottom="20dp"
         android:background="@android:color/transparent"
         app:srcCompat="@mipmap/ic_jerry_foreground" />
+
     <LinearLayout
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center">
-        <ProgressBar
-            android:layout_gravity="top"
-            android:id="@+id/progressBar"
-            style="@style/Widget.AppCompat.ProgressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminateTint="@color/jerry_blue"
-            android:layout_marginBottom="-10dp"/>
-    </LinearLayout>
+        android:id="@+id/shift_container"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Login_Input_layout"
-        android:labelFor="@+id/etUser">
+        <LinearLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center">
+            <ProgressBar
+                android:layout_gravity="top"
+                android:id="@+id/progressBar"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@color/jerry_blue"
+                android:layout_marginBottom="-10dp"/>
+        </LinearLayout>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/loginUser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Login_Input_layout"
+            android:labelFor="@+id/etUser">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/loginUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:backgroundTint="@color/jerry_light_blue"
+                android:drawableStart="@drawable/ic_user"
+                android:ems="10"
+                android:fontFamily="@font/poppinsmedium"
+                android:hint="@string/user"
+                android:inputType="textEmailAddress"
+                android:padding="5dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Login_Input_layout"
+            app:passwordToggleEnabled="true"
+            android:labelFor="@+id/etPassword">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/loginPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/jerry_light_blue"
+                android:drawableStart="@drawable/ic_password"
+                android:ems="10"
+                android:fontFamily="@font/poppinsmedium"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:padding="5dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                tools:ignore="SpeakableTextPresentCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/loginButton"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="220dp"
+            android:layout_height="35dp"
             android:layout_gravity="center_horizontal"
-            android:backgroundTint="@color/jerry_light_blue"
-            android:drawableStart="@drawable/ic_user"
-            android:ems="10"
-            android:fontFamily="@font/poppinsmedium"
-            android:hint="@string/user"
-            android:inputType="textEmailAddress"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/round_button"
+            android:clickable="true"
             android:padding="5dp"
-            android:textColor="@color/black"
-            android:textColorHint="@color/black"
-            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:text="@string/login"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:ignore="TouchTargetSizeCheck" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Login_Input_layout"
-        app:passwordToggleEnabled="true"
-        android:labelFor="@+id/etPassword">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/loginPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/jerry_light_blue"
-            android:drawableStart="@drawable/ic_password"
-            android:ems="10"
-            android:fontFamily="@font/poppinsmedium"
-            android:hint="@string/password"
-            android:inputType="textPassword"
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:textColorHint="@color/black"
-            tools:ignore="SpeakableTextPresentCheck" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/loginButton"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="220dp"
-        android:layout_height="35dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="@drawable/round_button"
-        android:clickable="true"
-        android:padding="5dp"
-        android:text="@string/login"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        tools:ignore="TouchTargetSizeCheck" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/login_settings"
@@ -117,5 +126,5 @@
         android:text="@string/error_login"
         android:ems="10">
     </TextView>
-    <include layout="@layout/footer_layout" />
+    <include layout="@layout/layout_footer" />
 </LinearLayout>
