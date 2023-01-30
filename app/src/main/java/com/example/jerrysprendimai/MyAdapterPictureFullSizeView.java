@@ -13,6 +13,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.github.chrisbanes.photoview.PhotoViewAttacher;
 
 import java.util.ArrayList;
 
@@ -54,19 +55,23 @@ public class MyAdapterPictureFullSizeView extends PagerAdapter {
         View v = inflater.inflate(R.layout.full_item,null);
 
         ImageView imageView = (ImageView) v.findViewById(R.id.img);
+        //com.ortiz.touchview.TouchImageView imageView = (com.ortiz.touchview.TouchImageView) v.findViewById(R.id.img);
         Glide.with(context)
                 .load(url + "/" +objectObjPic.getPicUrl())
                 .apply(new RequestOptions().centerInside())
                 .into(imageView);
         ViewPager vp = (ViewPager) container;
         vp.addView(v,0);
+
+        //PhotoViewAttacher photoView = new PhotoViewAttacher(imageView);
+        //photoView.update();
         return v;
+
     }
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         //super.destroyItem(container, position, object);
-
         ViewPager viewPager = (ViewPager) container;
         View v = (View) object;
         viewPager.removeView(v);

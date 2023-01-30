@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ImageView
+    <com.github.chrisbanes.photoview.PhotoView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="5dp"
         android:id="@+id/img">
-
-    </ImageView>
+    </com.github.chrisbanes.photoview.PhotoView>
 </LinearLayout>
