@@ -1,6 +1,7 @@
 package com.example.jerrysprendimai;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,7 +10,8 @@ import org.json.JSONObject;
 
 public class ObjectObjPic implements Parcelable{
     private Integer id, objectId, posNr;
-    String picName, creationDate, picUrl, picUri;
+    String picName, creationDate, picUrl;
+    String picUri;
     Bitmap imageResource;
 
     protected ObjectObjPic(Parcel in) {
@@ -79,7 +81,7 @@ public class ObjectObjPic implements Parcelable{
     public ObjectObjPic(){
         this.id           = -1;
         this.objectId     = -1;
-        this.posNr        = 0;
+        this.posNr        = -1;
         this.picName      = "";
         this.creationDate = DateHelper.get_current_date_disply();
         this.picUrl       = "";

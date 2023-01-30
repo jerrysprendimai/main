@@ -55,11 +55,17 @@ public class MyAdapterPictureFullSizeView extends PagerAdapter {
         View v = inflater.inflate(R.layout.full_item,null);
 
         ImageView imageView = (ImageView) v.findViewById(R.id.img);
-        //com.ortiz.touchview.TouchImageView imageView = (com.ortiz.touchview.TouchImageView) v.findViewById(R.id.img);
-        Glide.with(context)
-                .load(url + "/" +objectObjPic.getPicUrl())
-                .apply(new RequestOptions().centerInside())
-                .into(imageView);
+
+        try {
+            if(!objectObjPic.getImageResource().equals(null)){
+                imageView.setImageBitmap(objectObjPic.getImageResource());
+            }
+        }catch (Exception e){
+            Glide.with(context)
+                    .load(url + "/" +objectObjPic.getPicUrl())
+                    .apply(new RequestOptions().centerInside())
+                    .into(imageView);
+        }
         ViewPager vp = (ViewPager) container;
         vp.addView(v,0);
 

@@ -5,6 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/objectDetailsPicture_top_level"
+    android:background="@color/jerry_grey_opacity"
     android:layout_margin="5dp">
 
     <androidx.cardview.widget.CardView

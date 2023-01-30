@@ -1,6 +1,12 @@
 package com.example.jerrysprendimai;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -12,23 +18,32 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.jerrysprendimai.interfaces.OnIntentReceived;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
-public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdit.MyViewHolder> {
-        Context context;
+public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdit.MyViewHolder> implements ActivityCompat.OnRequestPermissionsResultCallback, OnIntentReceived {
 
+    private static final int IMAGE_PICK_CODE = 1000;
+    private static final int PERMISSION_CODE = 1001;
+    private static final int GALLERY_REQ_CODE = 1000;
+
+        Context context;
         ArrayList<ObjectObjDetails> myObjectList;
         ArrayList<ObjectObjDetails> myObjectListFull;
         ArrayList<ObjectObjPic> myObjectListPic;
@@ -38,9 +53,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         ObjectUser myUser;
         ViewGroup parentView;
         MyViewHolder myHolder;
-        MyAdapterObjectEditPicture myAdapterObjectEditPicture;
-
-
+        Boolean deletionMode;
+        ArrayList<ObjectObjPic> toBeDeletedList;
 
     public MyAdapterObjectEdit(Context context, ViewGroup parentView, ArrayList<ObjectObjDetails> objectList, ObjectUser user, ArrayList<ObjectObjPic> pictureList) {
         this.context = context;
@@ -50,6 +64,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         this.parentView = parentView;
         this.myUser = user;
         this.myViewHolderList = new ArrayList<>();
+        this.toBeDeletedList = new ArrayList<>();
     }
     @NonNull
     @Override
@@ -61,9 +76,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
-        //LinearLayout objectDetailLockLayout, myRow;
         Integer pos;
-        LinearLayout lockLayout, lockLayoutExtended, layoutSummary, layoutExtended, retractableButtonLayout, getRetractableButtonLayoutExtended, oDAddFrotoButton, oDTakeFotoButton;
+        LinearLayout lockLayout, lockLayoutExtended, layoutSummary, layoutExtended, retractableButtonLayout,
+                     getRetractableButtonLayoutExtended, oDAddFotoButton, oDTakeFotoButton, oDDeleteFotoButton,
+                     addButtonsLayout, deleteButtonsLayout, oDDeleteCancel;
         ImageView oDJobDoneImg, oDJobDoneImgExtended, oDJobDeleteImg, oDJobDeleteImgExtended;
         TextView oDJobName, oDCompletedJobLabel;
         TextInputEditText oDJobNameExtended, oDJobDescriptionExtended;
@@ -72,6 +88,9 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         Button oDRetractableButton, oDRetractableButtonExtended;
         EditText oDfocusHolder;
         boolean myHoldIndicator;
+        MyAdapterObjectEditPicture myAdapterObjectEditPicture;
+        ArrayList<ObjectObjPic> filteredPics;
+
 
         public MyViewHolder(@NonNull View itemView){
             super(itemView);
@@ -95,20 +114,33 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             oDCompletedJobLabel                = itemView.findViewById(R.id.objectDetails_switchButton_label);
             oDfocusHolder                      = itemView.findViewById(R.id.objectDetails_invisibleFocusHolder);
             oDFotoRecycleView                  = itemView.findViewById(R.id.objectDetails_foto_recycleView_extended);
-            oDAddFrotoButton                   = itemView.findViewById(R.id.objectDetails_add_picture_button_extended);
+            oDAddFotoButton                   = itemView.findViewById(R.id.objectDetails_add_picture_button_extended);
             oDTakeFotoButton                   = itemView.findViewById(R.id.objectDetails_take_picture_button_extended);
+            oDDeleteFotoButton                 = itemView.findViewById(R.id.objectDetails_delete_picture_button_extended);
+            oDDeleteCancel                     = itemView.findViewById(R.id.objectDetails_delete_cancel_picture_button_extended);
+            addButtonsLayout                   = itemView.findViewById(R.id.objectDetails_add_picture_button_layoutButtons);
+            deleteButtonsLayout                = itemView.findViewById(R.id.objectDetails_delete_picture_button_layoutButtons);
+            filteredPics = new ArrayList<>();
         }
         public void setPos(int position){
             pos = position;
         }
-
         public boolean isMyHoldIndicator() {
             return myHoldIndicator;
         }
-
         public void setMyHoldIndicator(boolean myHoldIndicator) {
             this.myHoldIndicator = myHoldIndicator;
         }
+        public void setDeletionModeButtons(boolean value){
+            if(value){
+                addButtonsLayout.setVisibility(View.GONE);
+                deleteButtonsLayout.setVisibility(View.VISIBLE);
+            }else{
+                addButtonsLayout.setVisibility(View.VISIBLE);
+                deleteButtonsLayout.setVisibility(View.GONE);
+            }
+        }
+
     }
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
@@ -238,7 +270,6 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             holder.oDJobDeleteImg.setVisibility(View.VISIBLE);
             return false;
         });
-
         holder.oDRetractableButtonExtended.setOnClickListener(v -> {
             if((holder.layoutSummary.getVisibility() == View.GONE)&&(holder.layoutExtended.getVisibility() == View.VISIBLE)){
                 TransitionManager.beginDelayedTransition(holder.layoutExtended, new AutoTransition());
@@ -266,18 +297,114 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         });
 
         //----picture handling
-        ArrayList<ObjectObjPic> filteredPics = new ArrayList<>();
-        filteredPics.addAll(myObjectListPic);
-        for(int i = filteredPics.size()-1; i>=0 ; i--){
-            ObjectObjPic objectObjPic = filteredPics.get(i);
+        holder.filteredPics = new ArrayList<>();
+        holder.filteredPics.addAll(myObjectListPic);
+        for(int i = holder.filteredPics.size()-1; i>=0 ; i--){
+            ObjectObjPic objectObjPic = holder.filteredPics.get(i);
             if(!objectObjPic.getPosNr().equals(myObjectObjDetails.getPosNr())){
-                filteredPics.remove(objectObjPic);
+                holder.filteredPics.remove(objectObjPic);
             }
         }
-        this.myAdapterObjectEditPicture = new MyAdapterObjectEditPicture(context, parentView, filteredPics, myUser);
-        holder.oDFotoRecycleView.setAdapter(myAdapterObjectEditPicture);
+        holder.setDeletionModeButtons(false);
+        setDeletionMode(false);
+        holder.myAdapterObjectEditPicture = new MyAdapterObjectEditPicture(context, this, holder, parentView, holder.filteredPics, myUser);
+        holder.oDFotoRecycleView.setAdapter(holder.myAdapterObjectEditPicture);
         holder.oDFotoRecycleView.setLayoutManager(new GridLayoutManager(context, 3));
         //holder.oDFotoRecycleView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
+
+        //---------delete cancel handler
+        holder.oDDeleteCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setDeletionMode(false);
+                holder.setDeletionModeButtons(false);
+                holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+            }
+        });
+        //---------delete handler
+        holder.oDDeleteFotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //----Delete it from whole Picture ArrayList + delete from filtered ArrayList
+                for(int i=0; i<toBeDeletedList.size();i++){
+                    holder.filteredPics.remove(toBeDeletedList.get(i));
+                }
+                for(int i=0; i<toBeDeletedList.size();i++){
+                    myObjectListPic.remove(toBeDeletedList.get(i));
+                }
+                toBeDeletedList = new ArrayList<>();
+                setDeletionMode(false);
+                holder.setDeletionModeButtons(false);
+                holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+            }
+        });
+        //----------add picture handler
+        MyAdapterObjectEdit thisInstance = this;
+        holder.oDAddFotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder);
+                //check permission
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_DENIED){
+                        //permission not granted, request it
+                        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                        //show popup for runtime permission
+                        ((ActivityObjectEdit)context).requestPermissions(permissions, PERMISSION_CODE);
+                    }else{
+                        //permission already granted
+                        pickImageFromGallery();
+                    }
+                }else{
+                    //system os is less that marshmallow
+                    pickImageFromGallery();
+                }
+
+            }
+
+        });
+
+    }
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data, MyViewHolder holder, int resultOk){
+        if(resultCode == resultOk && requestCode == IMAGE_PICK_CODE){
+            //set image to image view
+            Uri filePath = data.getData();
+            ObjectObjPic newPic = new ObjectObjPic();
+            newPic.setPicUri(filePath.toString());
+            newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
+            newPic.setPosNr(holder.getAdapterPosition());
+            try {
+                newPic.setImageResource(MediaStore.Images.Media.getBitmap(context.getContentResolver(), filePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            myObjectListPic.add(newPic);
+            holder.filteredPics.add(newPic);
+            holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+        }
+    }
+    public void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        ((ActivityObjectEdit)context).startActivityForResult(intent, IMAGE_PICK_CODE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case PERMISSION_CODE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //permission granted
+                    pickImageFromGallery();
+                }else{
+                    //permission denied
+                    Toast.makeText(context, "Atšaukta", Toast.LENGTH_SHORT).show();
+                }
+        }
+    }
+    @Override
+    public void onIntent(Intent i, int resultCode) {
+       // TODO: Handle here
     }
 
     @Override
@@ -286,9 +413,41 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         //return 0;
     }
 
+
+    public void removeToBeDeleted(ObjectObjPic objectObjPic){
+        for(int i=0; i<this.toBeDeletedList.size(); i++){
+            if(this.toBeDeletedList.get(i).equals(objectObjPic)){
+                this.toBeDeletedList.remove(i);
+                break;
+            }
+        }
+        if(this.toBeDeletedList.size() == 0){
+            setDeletionMode(false);
+            getMyHolder().setDeletionModeButtons(false);
+            getMyHolder().myAdapterObjectEditPicture.notifyDataSetChanged();
+        }
+    }
+    public void addToBeDeleted(ObjectObjPic objectObjPic){
+        boolean found = false;
+        for(int i=0; i<this.toBeDeletedList.size(); i++){
+            if(this.toBeDeletedList.get(i).equals(objectObjPic)){
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            this.toBeDeletedList.add(objectObjPic);
+        }
+    }
+
     public void setMyHolder(MyViewHolder myHolder) {
         this.myHolder = myHolder;
     }
+
+    public MyViewHolder getMyHolder() {
+        return myHolder;
+    }
+
     public void setMyObjectObjDetails(ObjectObjDetails myObjectObjDetails) {
         this.myObjectObjDetails = myObjectObjDetails;
     }
@@ -296,5 +455,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     public ArrayList<MyViewHolder> getMyViewHolderList() {
         return myViewHolderList;
     }
-
+    public Boolean getDeletionMode() {
+        return deletionMode;
+    }
+    public void setDeletionMode(Boolean deletionMode) {
+        this.deletionMode = deletionMode;
+    }
 }

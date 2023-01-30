@@ -1,6 +1,7 @@
 package com.example.jerrysprendimai;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -49,6 +51,7 @@ import java.util.Comparator;
 
 public class ActivityObjectEdit extends AppCompatActivity implements View.OnClickListener, KeyboardVisibilityEventListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, View.OnKeyListener {
 
+    public static final int REQUEST_CODE = 101;
 
     private ArrayList<ObjectObjUser> objectUserArrayList;
     private ArrayList<ObjectObjDetails> objectDetailsArrayList;
@@ -72,6 +75,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     FloatingActionButton oDeleteJobButton;
     LinearLayout oDeleteJobButtonLayout;
     Integer backButtonCount;
+    MyAdapterObjectEdit adatpreWa;
+    MyAdapterObjectEdit.MyViewHolder holderWa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -439,6 +444,22 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        getAdatpreWa().onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        getAdatpreWa().onActivityResult(requestCode, resultCode, data, this.getHolderWa(), RESULT_OK);
+
+    }
+    public void setCallbackAdapterReference(MyAdapterObjectEdit adapter, MyAdapterObjectEdit.MyViewHolder holder) {
+        this.adatpreWa = adapter;
+        this.holderWa  = holder;
+    }
     public boolean isNeedSave() {
         return needSave;
     }
@@ -467,7 +488,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public ObjectUser getMyUser() {
         return myUser;
     }
-
     public void setMyUser(ObjectUser myUser) {
         this.myUser = myUser;
     }
@@ -477,4 +497,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void setDeletionMode(Boolean deletionMode) {
         this.deletionMode = deletionMode;
     };
+    public MyAdapterObjectEdit getAdatpreWa() {        return adatpreWa;    }
+    public MyAdapterObjectEdit.MyViewHolder getHolderWa() {        return holderWa;    }
 }
