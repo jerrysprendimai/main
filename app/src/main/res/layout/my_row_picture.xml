@@ -26,14 +26,14 @@
                 android:id="@+id/objectDetailsPicture_img"
                 android:layout_gravity="center"
                 android:clickable="true"
-                android:layout_width="60dp"
-                android:layout_height="60dp">
+                android:layout_width="75dp"
+                android:layout_height="75dp">
             </ImageView>
         </LinearLayout>
         <ProgressBar
             android:id="@+id/objectDetailsPicture_progressBar"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:progressDrawable="@drawable/progressbar_gradient_progress"
             android:indeterminateTint="@color/jerry_blue"
             android:layout_gravity="center"

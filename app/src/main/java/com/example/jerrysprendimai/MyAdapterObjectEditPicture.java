@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.jerrysprendimai.interfaces.PicRecyclerViewClickListener;
@@ -120,18 +121,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         }
 
         int scale = scaleSize * 2;
-        /*
-        int width_tmp = o.outWidth;
-        int height_tmp = o.outHeight;
-        int scale = 1;
 
-        while(true) {
-            if(width_tmp / 2 < reqWidth || height_tmp / 2 < reqHeight)
-                break;
-            width_tmp /= 2;
-            height_tmp /= 2;
-            scale *= 2;
-        }*/
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = scale;
         try {
@@ -157,15 +147,33 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         }
 
         if(objectObjPic.getPicUri().length() > 0){
-            //holder.myImage.setImageBitmap(MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(objectObjPic.getPicUri())));
-            holder.myImage.setImageBitmap(decodeSampledBitmapFromResource(100, 100, objectObjPic, 4));
-            holder.myProgressBar.setVisibility(View.GONE);
+            //holder.myImage.setImageBitmap(decodeSampledBitmapFromResource(100, 100, objectObjPic, 4));
+            //holder.myProgressBar.setVisibility(View.GONE);
+            Glide.with(context)
+                    .asBitmap()
+                    .load(Uri.parse(objectObjPic.picUri))
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .apply(new RequestOptions().override(500,500))
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            holder.myProgressBar.setVisibility(View.GONE);
+                            holder.myImage.setImageBitmap(resource);
+                            //objectObjPic.setImageResource(resource);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
         }else{
             Glide.with(context)
                     .asBitmap()
                     .load(url + "/" + objectObjPic.getPicUrl())
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
+                    .apply(new RequestOptions().override(500,500))
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

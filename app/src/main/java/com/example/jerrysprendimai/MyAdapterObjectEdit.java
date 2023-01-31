@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
@@ -28,34 +30,42 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.jerrysprendimai.interfaces.OnIntentReceived;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdit.MyViewHolder> implements ActivityCompat.OnRequestPermissionsResultCallback, OnIntentReceived {
+public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdit.MyViewHolder> implements OnIntentReceived {
 
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
     private static final int PICK_IMAGE_MULTIPLE = 1;
-    private static final int GALLERY_REQ_CODE = 1000;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    static final int REQUEST_IMAGE_CAPTURE = 10;
+    static final int MY_WRITE_EXTERNAL_STORAGE = 101;
 
-        Context context;
-        ArrayList<ObjectObjDetails> myObjectList;
-        ArrayList<ObjectObjDetails> myObjectListFull;
-        ArrayList<ObjectObjPic> myObjectListPic;
+    Context context;
+    ArrayList<ObjectObjDetails> myObjectList;
+    ArrayList<ObjectObjDetails> myObjectListFull;
+    ArrayList<ObjectObjPic> myObjectListPic;
 
-        ArrayList<MyAdapterObjectEdit.MyViewHolder> myViewHolderList;
-        ObjectObjDetails myObjectObjDetails;
-        ObjectUser myUser;
-        ViewGroup parentView;
-        MyViewHolder myHolder;
-        Boolean deletionMode;
-        ArrayList<ObjectObjPic> toBeDeletedList;
+    ArrayList<MyAdapterObjectEdit.MyViewHolder> myViewHolderList;
+    ObjectObjDetails myObjectObjDetails;
+    ObjectUser myUser;
+    ViewGroup parentView;
+    MyViewHolder myHolder;
+    Boolean deletionMode;
+    ArrayList<ObjectObjPic> toBeDeletedList;
+    String mCurrentPhotoPath;
+    Uri mCurrentPhotoUri;
 
     public MyAdapterObjectEdit(Context context, ViewGroup parentView, ArrayList<ObjectObjDetails> objectList, ObjectUser user, ArrayList<ObjectObjPic> pictureList) {
         this.context = context;
@@ -86,7 +96,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         TextInputEditText oDJobNameExtended, oDJobDescriptionExtended;
         RecyclerView oDFotoRecycleView;
         SwitchCompat oDCompleteJob;
-        Button oDRetractableButton, oDRetractableButtonExtended;
+        Button oDRetractableButton, oDRetractableButtonExtended, oDRetractableButtonToTopExtended;
         EditText oDfocusHolder;
         boolean myHoldIndicator;
         MyAdapterObjectEditPicture myAdapterObjectEditPicture;
@@ -111,6 +121,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             oDJobDescriptionExtended           = itemView.findViewById(R.id.objectDetail_jobDescription_extended);
             oDRetractableButton                = itemView.findViewById(R.id.objectDetails_retractable_button);
             oDRetractableButtonExtended        = itemView.findViewById(R.id.objectDetails_retractable_button_extended);
+            oDRetractableButtonToTopExtended   = itemView.findViewById(R.id.objectDetails_retractable_button_toTop_extended);
             oDCompleteJob                      = itemView.findViewById(R.id.objectDetails_switchButton);
             oDCompletedJobLabel                = itemView.findViewById(R.id.objectDetails_switchButton_label);
             oDfocusHolder                      = itemView.findViewById(R.id.objectDetails_invisibleFocusHolder);
@@ -290,6 +301,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 ((ActivityObjectEdit)context).hideSoftKeyboard();
             }
         });
+        holder.oDRetractableButtonToTopExtended.setSoundEffectsEnabled(false);
+        holder.oDRetractableButtonToTopExtended.setOnClickListener( v-> {
+            holder.oDRetractableButtonExtended.performClick();
+        });
         holder.layoutSummary.setSoundEffectsEnabled(false);
         holder.layoutSummary.setOnClickListener(v -> holder.oDRetractableButton.performClick());
         holder.layoutSummary.setOnLongClickListener(v -> {
@@ -344,11 +359,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         holder.oDAddFotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder);
+                ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "addFoto");
                 //check permission
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                    if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_DENIED){
+                    if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
                         //permission not granted, request it
                         String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
                         //show popup for runtime permission
@@ -365,9 +379,32 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             }
 
         });
+        //----------take foto handler
+        holder.oDTakeFotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "takeFoto");
+                //check permission camera
+               if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+                        ((ActivityObjectEdit)context).requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+                    } else {
+                        //check permission external storage
+                        if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                            ((ActivityObjectEdit)context).requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_WRITE_EXTERNAL_STORAGE);
+                        } else {
+                            takeNewFoto();
+                        }
+                    }
+                }else{
+                   takeNewFoto();
+               }
+            }
+        });
 
     }
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data, MyViewHolder holder, int resultOk){
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data, MyViewHolder holder, int resultOk, String actionTp){
+        //-----add picture/add pictures
         if(resultCode == resultOk && (requestCode == IMAGE_PICK_CODE || requestCode == PICK_IMAGE_MULTIPLE)){
             try {
                for(int i= 0; i < data.getClipData().getItemCount(); i++){
@@ -381,6 +418,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                }
             }catch (Exception e){
                 //set image to image view
+                galleryAddPic();
                 Uri filePath = data.getData();
                 ObjectObjPic newPic = new ObjectObjPic();
                 newPic.setPicUri(filePath.toString());
@@ -388,9 +426,62 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 newPic.setPosNr(holder.getAdapterPosition());
                 myObjectListPic.add(newPic);
                 holder.filteredPics.add(newPic);
-                //holder.myAdapterObjectEditPicture.notifyDataSetChanged();
             }
+
             holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+            ((ActivityObjectEdit)context).clearCallbackAdapterReference();
+        }
+        //-----take picture
+        if(resultCode == resultOk && requestCode == REQUEST_IMAGE_CAPTURE ){
+            //Bitmap photo = (Bitmap) data.getExtras().get("data");
+            //imageView.setImageBitmap(photo);
+            //Uri filePath = data.getData();
+            ObjectObjPic newPic = new ObjectObjPic();
+            newPic.setPicUri(getmCurrentPhotoUri().toString());//filePath.toString());
+            newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
+            newPic.setPosNr(holder.getAdapterPosition());
+            myObjectListPic.add(newPic);
+            holder.filteredPics.add(newPic);
+
+            holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+            ((ActivityObjectEdit)context).clearCallbackAdapterReference();
+        }
+
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(getmCurrentPhotoPath());
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
+    }
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageName = "jpg_"+timeStamp+"_";
+        File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);//Environment.getExternalStorageDirectory();
+        File image = File.createTempFile(imageName, ".jpg", storageDir );
+        setmCurrentPhotoPath(image.getAbsolutePath());
+        return image;
+    }
+
+    public void takeNewFoto(){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                Uri imageUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider",photoFile);
+                setmCurrentPhotoUri(imageUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".fileprovider" , photoFile));
+                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                ((ActivityObjectEdit)context).startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
         }
     }
     public void pickImageFromGallery() {
@@ -409,24 +500,23 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             Intent photoPickerIntent = new Intent();
             ((ActivityObjectEdit)context).startActivityForResult(photoPickerIntent, IMAGE_PICK_CODE);
         }
-        /*
-        //Intent intent = new Intent(Intent.ACTION_PICK);
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        //((ActivityObjectEdit)context).startActivityForResult(intent, IMAGE_PICK_CODE);
-        ((ActivityObjectEdit)context).startActivityForResult(Intent.createChooser(intent,"android.intent.action.SEND_MULTIPLE"), 1);
-        //((ActivityObjectEdit)context).startActivityForResult(Intent.createChooser(intent,"Select Picture"), 1);
-        */
     }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults, String actionTp) {
         switch (requestCode){
             case PERMISSION_CODE:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     //permission granted
-                    pickImageFromGallery();
+
+                       pickImageFromGallery();
+                }else{
+                    //permission denied
+                    Toast.makeText(context, "Atšaukta", Toast.LENGTH_SHORT).show();
+                }
+            case MY_WRITE_EXTERNAL_STORAGE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //permission granted
+                     takeNewFoto();
                 }else{
                     //permission denied
                     Toast.makeText(context, "Atšaukta", Toast.LENGTH_SHORT).show();
@@ -491,5 +581,19 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     }
     public void setDeletionMode(Boolean deletionMode) {
         this.deletionMode = deletionMode;
+    }
+
+    public String getmCurrentPhotoPath() {
+        return mCurrentPhotoPath;
+    }
+
+    public void setmCurrentPhotoPath(String mCurrentPhotoPath) {
+        this.mCurrentPhotoPath = mCurrentPhotoPath;
+    }
+    public void setmCurrentPhotoUri(Uri mCurrentPhotoUri){
+        this.mCurrentPhotoUri = mCurrentPhotoUri;
+    }
+    public Uri getmCurrentPhotoUri() {
+        return mCurrentPhotoUri;
     }
 }

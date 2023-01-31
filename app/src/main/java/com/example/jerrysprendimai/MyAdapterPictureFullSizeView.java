@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -12,11 +13,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.github.chrisbanes.photoview.PhotoViewAttacher;
 
 import java.io.FileNotFoundException;
@@ -51,20 +56,7 @@ public class MyAdapterPictureFullSizeView extends PagerAdapter {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
         int scale = scaleSize * 2;
-        /*
-        int width_tmp = o.outWidth;
-        int height_tmp = o.outHeight;
-        int scale = 1;
-
-        while(true) {
-            if(width_tmp / 2 < reqWidth || height_tmp / 2 < reqHeight)
-                break;
-            width_tmp /= 2;
-            height_tmp /= 2;
-            scale *= 2;
-        }*/
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = scale;
         try {
@@ -92,7 +84,25 @@ public class MyAdapterPictureFullSizeView extends PagerAdapter {
         ImageView imageView = (ImageView) v.findViewById(R.id.img);
 
         if(objectObjPic.getPicUri().length() > 0){
-           imageView.setImageBitmap(decodeSampledBitmapFromResource(100, 100, objectObjPic, 3));
+           //imageView.setImageBitmap(decodeSampledBitmapFromResource(100, 100, objectObjPic, 3));
+            Glide.with(context)
+                    .asBitmap()
+                    .load(Uri.parse(objectObjPic.picUri))
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .apply(new RequestOptions().override(500,500))
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            //holder.myProgressBar.setVisibility(View.GONE);
+                            //holder.myImage.setImageBitmap(resource);
+                            imageView.setImageBitmap(resource);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
         }else{
             Glide.with(context)
                     .load(url + "/" +objectObjPic.getPicUrl())

@@ -77,6 +77,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     Integer backButtonCount;
     MyAdapterObjectEdit adatpreWa;
     MyAdapterObjectEdit.MyViewHolder holderWa;
+    String actionTypeWa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -447,18 +448,24 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        getAdatpreWa().onRequestPermissionsResult(requestCode, permissions, grantResults);
+        getAdatpreWa().onRequestPermissionsResult(requestCode, permissions, grantResults, getActionTypeWa());
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        getAdatpreWa().onActivityResult(requestCode, resultCode, data, this.getHolderWa(), RESULT_OK);
+        getAdatpreWa().onActivityResult(requestCode, resultCode, data, this.getHolderWa(), RESULT_OK, getActionTypeWa());
 
     }
-    public void setCallbackAdapterReference(MyAdapterObjectEdit adapter, MyAdapterObjectEdit.MyViewHolder holder) {
-        this.adatpreWa = adapter;
-        this.holderWa  = holder;
+    public void setCallbackAdapterReference(MyAdapterObjectEdit adapter, MyAdapterObjectEdit.MyViewHolder holder, String actionType) {
+        this.adatpreWa    = adapter;
+        this.holderWa     = holder;
+        this.actionTypeWa = actionType;
+    }
+    public void clearCallbackAdapterReference() {
+        this.adatpreWa    = null;
+        this.holderWa     = null;
+        this.actionTypeWa = null;
     }
     public boolean isNeedSave() {
         return needSave;
@@ -499,4 +506,5 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     };
     public MyAdapterObjectEdit getAdatpreWa() {        return adatpreWa;    }
     public MyAdapterObjectEdit.MyViewHolder getHolderWa() {        return holderWa;    }
+    public String getActionTypeWa() {  return actionTypeWa;    }
 }
