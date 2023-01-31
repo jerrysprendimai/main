@@ -41,6 +41,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
+    private static final int PICK_IMAGE_MULTIPLE = 1;
     private static final int GALLERY_REQ_CODE = 1000;
 
         Context context;
@@ -367,27 +368,57 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
     }
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data, MyViewHolder holder, int resultOk){
-        if(resultCode == resultOk && requestCode == IMAGE_PICK_CODE){
-            //set image to image view
-            Uri filePath = data.getData();
-            ObjectObjPic newPic = new ObjectObjPic();
-            newPic.setPicUri(filePath.toString());
-            newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-            newPic.setPosNr(holder.getAdapterPosition());
+        if(resultCode == resultOk && (requestCode == IMAGE_PICK_CODE || requestCode == PICK_IMAGE_MULTIPLE)){
             try {
-                newPic.setImageResource(MediaStore.Images.Media.getBitmap(context.getContentResolver(), filePath));
-            } catch (IOException e) {
-                e.printStackTrace();
+               for(int i= 0; i < data.getClipData().getItemCount(); i++){
+                   Uri filePath = data.getClipData().getItemAt(i).getUri();
+                   ObjectObjPic newPic = new ObjectObjPic();
+                   newPic.setPicUri(filePath.toString());
+                   newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
+                   newPic.setPosNr(holder.getAdapterPosition());
+                   myObjectListPic.add(newPic);
+                   holder.filteredPics.add(newPic);
+               }
+            }catch (Exception e){
+                //set image to image view
+                Uri filePath = data.getData();
+                ObjectObjPic newPic = new ObjectObjPic();
+                newPic.setPicUri(filePath.toString());
+                newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
+                newPic.setPosNr(holder.getAdapterPosition());
+                myObjectListPic.add(newPic);
+                holder.filteredPics.add(newPic);
+                //holder.myAdapterObjectEditPicture.notifyDataSetChanged();
             }
-            myObjectListPic.add(newPic);
-            holder.filteredPics.add(newPic);
             holder.myAdapterObjectEditPicture.notifyDataSetChanged();
         }
     }
     public void pickImageFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            try {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                ((ActivityObjectEdit)context).startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_MULTIPLE);
+            }catch(Exception e){
+                Intent photoPickerIntent = new Intent();
+                ((ActivityObjectEdit)context).startActivityForResult(photoPickerIntent, IMAGE_PICK_CODE);
+            }
+        } else {
+            Intent photoPickerIntent = new Intent();
+            ((ActivityObjectEdit)context).startActivityForResult(photoPickerIntent, IMAGE_PICK_CODE);
+        }
+        /*
+        //Intent intent = new Intent(Intent.ACTION_PICK);
+        Intent intent = new Intent();
         intent.setType("image/*");
-        ((ActivityObjectEdit)context).startActivityForResult(intent, IMAGE_PICK_CODE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        //((ActivityObjectEdit)context).startActivityForResult(intent, IMAGE_PICK_CODE);
+        ((ActivityObjectEdit)context).startActivityForResult(Intent.createChooser(intent,"android.intent.action.SEND_MULTIPLE"), 1);
+        //((ActivityObjectEdit)context).startActivityForResult(Intent.createChooser(intent,"Select Picture"), 1);
+        */
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

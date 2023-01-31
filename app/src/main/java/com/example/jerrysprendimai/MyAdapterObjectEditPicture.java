@@ -1,12 +1,18 @@
 package com.example.jerrysprendimai;
 
 import android.animation.Animator;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +30,10 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.jerrysprendimai.interfaces.PicRecyclerViewClickListener;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterObjectEditPicture.MyViewHolder>{
@@ -81,7 +91,55 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         View view = inflater.inflate(R.layout.my_row_picture, parent, false);
         return new MyAdapterObjectEditPicture.MyViewHolder(view);
     }
+    public int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
 
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
+    }
+    public Bitmap decodeSampledBitmapFromResource(int reqWidth, int reqHeight, ObjectObjPic objectObjPic, int scaleSize) {
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        try {
+            BitmapFactory.decodeStream(context.getContentResolver().openInputStream(Uri.parse(objectObjPic.getPicUri())), null, o);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        int scale = scaleSize * 2;
+        /*
+        int width_tmp = o.outWidth;
+        int height_tmp = o.outHeight;
+        int scale = 1;
+
+        while(true) {
+            if(width_tmp / 2 < reqWidth || height_tmp / 2 < reqHeight)
+                break;
+            width_tmp /= 2;
+            height_tmp /= 2;
+            scale *= 2;
+        }*/
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        try {
+            return BitmapFactory.decodeStream(context.getContentResolver().openInputStream(Uri.parse(objectObjPic.getPicUri())), null, o2);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         String url = "";
@@ -98,12 +156,11 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             url = result.getString(1);
         }
 
-        try{
-            if(!objectObjPic.getImageResource().equals(null)) {
-                holder.myImage.setImageBitmap(objectObjPic.getImageResource());
-                holder.myProgressBar.setVisibility(View.GONE);
-            }
-        }catch(Exception e){
+        if(objectObjPic.getPicUri().length() > 0){
+            //holder.myImage.setImageBitmap(MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(objectObjPic.getPicUri())));
+            holder.myImage.setImageBitmap(decodeSampledBitmapFromResource(100, 100, objectObjPic, 4));
+            holder.myProgressBar.setVisibility(View.GONE);
+        }else{
             Glide.with(context)
                     .asBitmap()
                     .load(url + "/" + objectObjPic.getPicUrl())
