@@ -26,10 +26,10 @@
                 android:layout_margin="10dp"
                 app:cardBackgroundColor="@color/jerry_grey_light_opacity"
                 app:cardCornerRadius="3dp"
+                app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -43,6 +43,7 @@
                         android:layout_height="40dp"
                         android:layout_gravity="center_horizontal"
                         app:cardCornerRadius="2dp"
+                        app:strokeColor="@color/jerry_grey"
                         app:cardBackgroundColor="@color/jerry_grey_light_opacity"
                         app:cardElevation="0dp">
 

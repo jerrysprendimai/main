@@ -98,6 +98,23 @@ public class ObjectObject implements Parcelable {
         //String decUname = Base64.encodeToString(MCrypt.decrypt(uname),  Base64.DEFAULT);
     }
 
+    public String toJson(){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id",            this.getId().toString());
+            jsonObject.put("date",          this.getDate());
+            jsonObject.put("objectName",    this.getObjectName());
+            jsonObject.put("objectAddress", this.getObjectAddress());
+            jsonObject.put("customerName",  this.getCustomerName());
+            jsonObject.put("completeness",  this.getCompleteness());
+            jsonObject.put("lockedByUserId",this.getLockedByUserId());
+            jsonObject.put("lockedUname",   this.getLockedUname());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
+
     public Integer getId() {
         return id;
     }

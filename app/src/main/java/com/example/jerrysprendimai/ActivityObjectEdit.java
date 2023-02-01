@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -33,15 +35,20 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,7 +78,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     TextView oId, oNameLb, oDate, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
     ProgressBar oProgressbar;
 
-    boolean needSave, deletionMode;
+    boolean needSave, deletionMode, fieldCheckError;
     FloatingActionButton oDeleteJobButton;
     LinearLayout oDeleteJobButtonLayout;
     Integer backButtonCount;
@@ -347,7 +354,16 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             this.toBeDeletedList = new ArrayList<Integer>();
             myAdapterObjectEdit.notifyDataSetChanged();
         }else{
-            super.onBackPressed();
+
+            //-----------back button press handling: in case object not saved - show warning
+            if ((backButtonCount.equals(0)) && (isNeedSave())) {
+                Toast.makeText(this, getResources().getString(R.string.not_saved), Toast.LENGTH_SHORT).show();
+                backButtonCount++;
+            } else {
+                //getIntent().removeExtra("myBaustelle");
+                backButtonCount = 0;
+                super.onBackPressed();
+            }
         }
     }
 
@@ -360,25 +376,43 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         }
     }
 
+    public boolean isFieldValueError(String value, TextView field){
+        boolean returnValue = false;
+        if(value.equals("")){
+            returnValue = true;
+            field.setError(getResources().getString(R.string.error));
+        }else{
+            field.setError(null);
+        }
+        return returnValue;
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_save:
+                backButtonCount = 0;
+
                 //---cehck if fields are not empty
-                //boolean fied1 = checkFieldValue(this.objectUser.getUname(),      this.uUser);
-                //boolean fied2 = checkFieldValue(this.objectUser.getPasswd(),     this.uPasswd);
-                //boolean fied3 = checkFieldValue(this.objectUser.getFirst_name(), this.uFirstName);
-                //boolean fied4 = checkFieldValue(this.objectUser.getLast_name(),  this.uLastName);
-                //if((fied1 != true)||(fied2 != true)||(fied3 != true)||(fied4 != true)){
-                //    return false;
-                //}
-                //--save to DB
-                //if(needSave == true) {
-                //    new ActivityUserEdit.HttpsRequestSaveUser(this).execute();
-                //}
+                setFieldCheckError(false);
+                if(isFieldValueError(this.objectObject.getObjectName(), this.oName)){
+                    setFieldCheckError(true);
+                }
+                if(isFieldValueError(this.objectObject.getCustomerName(),  this.oCustomer)){
+                    setFieldCheckError(true);
+                }
+                if(isFieldValueError(this.objectObject.getObjectAddress(), this.oAddress)){
+                    setFieldCheckError(true);
+                }
+
+                if(!isFieldCheckError()){
+                    new HttpsRequestSaveObject(this).execute();
+                }
+
                 break;
             case R.id.item_cancel:
                 //--todo cancel changes
+                //--pop-up?
                 break;
         }
         return false;
@@ -388,12 +422,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
     }
-
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
 
     }
-
     @Override
     public void afterTextChanged(Editable s) {
         if(!this.objectObject.getObjectName().equals(this.oName.getText().toString())){
@@ -413,7 +445,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_yellow));
         }
     }
-
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         //-----------------Hide Keyboard--------------------------
@@ -444,13 +475,11 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
 
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         getAdatpreWa().onRequestPermissionsResult(requestCode, permissions, grantResults, getActionTypeWa());
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -470,28 +499,21 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public boolean isNeedSave() {
         return needSave;
     }
-
     public void setNeedSave(boolean needSave) {
         this.needSave = needSave;
     }
-
-
     public ArrayList<ObjectObjDetails> getObjectDetailsArrayList() {
         return objectDetailsArrayList;
     }
-
     public ArrayList<ObjectObjPic> getObjectPicturesArrayList() {
         return objectPicturesArrayList;
     }
-
     public void setObjectPicturesArrayList(ArrayList<ObjectObjPic> objectPicturesArrayList) {
         this.objectPicturesArrayList = objectPicturesArrayList;
     }
-
     public void setObjectDetailsArrayList(ArrayList<ObjectObjDetails> objectDetailsArrayList) {
         this.objectDetailsArrayList = objectDetailsArrayList;
     }
-
     public ObjectUser getMyUser() {
         return myUser;
     }
@@ -507,4 +529,111 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public MyAdapterObjectEdit getAdatpreWa() {        return adatpreWa;    }
     public MyAdapterObjectEdit.MyViewHolder getHolderWa() {        return holderWa;    }
     public String getActionTypeWa() {  return actionTypeWa;    }
+    public boolean isFieldCheckError() {
+        return fieldCheckError;
+    }
+    public void setFieldCheckError(boolean fieldCheckError) {
+        this.fieldCheckError = fieldCheckError;
+    }
+
+    class HttpsRequestSaveObject extends AsyncTask<String, Void, InputStream> {
+        private static final String save_object_url = "save_object.php";
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestSaveObject(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+            connector = new Connector(context, save_object_url);
+            connector.addPostParameter("objectObject", MCrypt2.encodeToString(objectObject.toJson()));
+            connector.addPostParameter("detailsList",  MCrypt2.encodeToString(getDetailsArrayListJson(getObjectDetailsArrayList())));
+            connector.addPostParameter("pictureList",  MCrypt2.encodeToString(getPicArrayListJson(getObjectPicturesArrayList())));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            /*String msg = "Problema!!!";
+            try {
+                connector.clearResponse();
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String saveStatus = responseObject.getString("status");
+                msg = responseObject.getString("msg");
+                if (saveStatus.equals("1")) {
+                    String userId  = responseObject.getString("userId");
+                    String regDate = responseObject.getString("regDate");
+                    regDate = DateHelper.get_date_display(regDate);
+                    ((ActivityUserEdit) context).uSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_green));
+                    ((ActivityUserEdit) context).objectUser.setReg_date(regDate);
+                    ((ActivityUserEdit) context).uRegDate.setText(((ActivityUserEdit) context).objectUser.getReg_date());
+                    ((ActivityUserEdit) context).objectUser.setId(Integer.parseInt(userId));
+
+                    Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
+                }else if(saveStatus.equals("2")){
+                    ((ActivityUserEdit) context).uSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_green));
+                    Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
+                }else if(saveStatus.equals("9")){
+                    Toast.makeText(context, getResources().getString(R.string.user)+" '"+
+                            objectUser.getUname()+"' "+
+                            getResources().getString(R.string.exists), Toast.LENGTH_SHORT).show();
+                }
+
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }*/
+
+            super.onPostExecute(inputStream);
+        }
+        private String getPicArrayListJson(ArrayList<ObjectObjPic> pictureList){
+            JSONArray jsonArray = new JSONArray();
+            for(int i=0; i < pictureList.size(); i++){
+                jsonArray.put(pictureList.get(i).toJson());
+            }
+            return jsonArray.toString();
+        }
+        private String getDetailsArrayListJson(ArrayList<ObjectObjDetails> detailsList){
+            JSONArray jsonArray = new JSONArray();
+            for(int i=0; i < detailsList.size(); i++){
+                jsonArray.put(detailsList.get(i).toJson());
+            }
+            return jsonArray.toString();
+        }
+
+        /*private ArrayList<ObjectUser>getUserList(Connector conn){
+            ArrayList<ObjectUser> userArrayList = new ArrayList<>();
+            try{
+                ObjectUser objectUser;
+                JSONArray responseObjects1 = (JSONArray) conn.getResultJsonArray();
+                for (int i = 0; i < responseObjects1.length(); i++) {
+                    objectUser = new ObjectUser((JSONObject) responseObjects1.get(i));
+
+                    switch (objectUser.getType()){
+                        case "1":
+                            objectUser.setUser_lv(getResources().getString(R.string.admin));
+                            break;
+                        case "2":
+                            objectUser.setUser_lv(getResources().getString(R.string.owner));
+                            break;
+                        case "3":
+                            objectUser.setUser_lv(getResources().getString(R.string.employee));
+                            break;
+                    }
+                    userArrayList.add(objectUser);
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return userArrayList;
+        }*/
+    }
 }

@@ -6,13 +6,13 @@
     android:layout_height="wrap_content"
     android:id="@+id/objectDetailsPicture_top_level"
     android:background="@color/jerry_grey_opacity"
-    android:layout_margin="5dp">
+    android:layout_margin="3dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
-        app:cardElevation="1dp"
+        app:cardElevation="0dp"
         android:backgroundTint="@color/jerry_grey_opacity"
         app:cardUseCompatPadding="true">
         <LinearLayout
@@ -26,8 +26,11 @@
                 android:id="@+id/objectDetailsPicture_img"
                 android:layout_gravity="center"
                 android:clickable="true"
-                android:layout_width="75dp"
-                android:layout_height="75dp">
+                android:src="@drawable/ic_picture_placeholder_white"
+                android:background="@android:color/transparent"
+                android:backgroundTint="@android:color/transparent"
+                android:layout_width="70dp"
+                android:layout_height="70dp">
             </ImageView>
         </LinearLayout>
         <ProgressBar

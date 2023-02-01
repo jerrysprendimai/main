@@ -101,7 +101,21 @@ public class ObjectObjPic implements Parcelable{
             e.printStackTrace();
         }
     }
-
+    public String toJson(){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id",           this.getId().toString());
+            jsonObject.put("objectId",     this.getObjectId());
+            jsonObject.put("posNr",        this.getPosNr());
+            jsonObject.put("picName",      this.getPicName());
+            jsonObject.put("creationDate", this.getCreationDate());
+            jsonObject.put("picUrl",       this.getPicUrl());
+            jsonObject.put("picUri",       this.getPicUri());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
     public Integer getId() {
         return id;
     }

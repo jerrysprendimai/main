@@ -90,7 +90,7 @@ public class MyAdapterPictureFullSizeView extends PagerAdapter {
                     .load(Uri.parse(objectObjPic.picUri))
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
-                    .apply(new RequestOptions().override(500,500))
+                    .apply(new RequestOptions().override(500,500).centerInside())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

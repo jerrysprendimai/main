@@ -1,19 +1,26 @@
 package com.example.jerrysprendimai;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.media.Image;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +49,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdit.MyViewHolder> implements OnIntentReceived {
 
@@ -66,6 +74,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     ArrayList<ObjectObjPic> toBeDeletedList;
     String mCurrentPhotoPath;
     Uri mCurrentPhotoUri;
+    File mPhotoFile;
 
     public MyAdapterObjectEdit(Context context, ViewGroup parentView, ArrayList<ObjectObjDetails> objectList, ObjectUser user, ArrayList<ObjectObjPic> pictureList) {
         this.context = context;
@@ -409,21 +418,34 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             try {
                for(int i= 0; i < data.getClipData().getItemCount(); i++){
                    Uri filePath = data.getClipData().getItemAt(i).getUri();
+                   Cursor cursor = context.getContentResolver().query(filePath, null,null,null,null);
+                   int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                   int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+
+                   cursor.moveToFirst();
+                   String fileName = cursor.getString(nameIndex);
                    ObjectObjPic newPic = new ObjectObjPic();
                    newPic.setPicUri(filePath.toString());
                    newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
                    newPic.setPosNr(holder.getAdapterPosition());
+                   newPic.setPicName(fileName);
                    myObjectListPic.add(newPic);
                    holder.filteredPics.add(newPic);
                }
             }catch (Exception e){
                 //set image to image view
-                galleryAddPic();
                 Uri filePath = data.getData();
+                Cursor cursor = context.getContentResolver().query(filePath, null,null,null,null);
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                cursor.moveToFirst();
+                String fileName = cursor.getString(nameIndex);
+
                 ObjectObjPic newPic = new ObjectObjPic();
                 newPic.setPicUri(filePath.toString());
                 newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
                 newPic.setPosNr(holder.getAdapterPosition());
+                newPic.setPicName(fileName);
                 myObjectListPic.add(newPic);
                 holder.filteredPics.add(newPic);
             }
@@ -436,31 +458,64 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             //Bitmap photo = (Bitmap) data.getExtras().get("data");
             //imageView.setImageBitmap(photo);
             //Uri filePath = data.getData();
+            galleryAddPic();
             ObjectObjPic newPic = new ObjectObjPic();
             newPic.setPicUri(getmCurrentPhotoUri().toString());//filePath.toString());
             newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
             newPic.setPosNr(holder.getAdapterPosition());
+            newPic.setPicName(getmPhotoFile().getName());
             myObjectListPic.add(newPic);
             holder.filteredPics.add(newPic);
 
             holder.myAdapterObjectEditPicture.notifyDataSetChanged();
             ((ActivityObjectEdit)context).clearCallbackAdapterReference();
+        }else if(resultCode != resultOk && requestCode == REQUEST_IMAGE_CAPTURE){
+            File photoImage = getmPhotoFile();
+            if(photoImage.exists()){
+                photoImage.delete();
+            }
+            setmPhotoFile(null);
+            setmCurrentPhotoUri(null);
+            setmCurrentPhotoPath(null);
         }
 
     }
-
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(getmCurrentPhotoPath());
+        File f = getmPhotoFile();//new File(getmCurrentPhotoPath());
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
+
+        MediaScannerConnection.scanFile(
+                context,
+                new String[]{getmCurrentPhotoPath()},
+                null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.v("smth", "file" + path + "was scanned: " + uri);
+                    }
+                }
+        );
     }
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageName = "jpg_"+timeStamp+"_";
-        File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);//Environment.getExternalStorageDirectory();
+        String imageName = timeStamp+"_";
+        File storageDir = //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/Jerry");//Environment.getExternalStorageDirectory();
         File image = File.createTempFile(imageName, ".jpg", storageDir );
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "JerrySprendimai_"+timeStamp);
+        values.put(MediaStore.Images.Media.DESCRIPTION, "JerrySprendimai_"+timeStamp);
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.ImageColumns.BUCKET_ID, image.toString().toLowerCase(Locale.ROOT).hashCode());
+        values.put(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, image.getName().toLowerCase(Locale.ROOT));
+        values.put("_data", image.getAbsolutePath());
+        ContentResolver cr = context.getContentResolver();
+        cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
+
         setmCurrentPhotoPath(image.getAbsolutePath());
         return image;
     }
@@ -477,6 +532,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             if (photoFile != null) {
                 Uri imageUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider",photoFile);
                 setmCurrentPhotoUri(imageUri);
+                setmPhotoFile(photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".fileprovider" , photoFile));
                 //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
@@ -583,17 +639,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         this.deletionMode = deletionMode;
     }
 
-    public String getmCurrentPhotoPath() {
-        return mCurrentPhotoPath;
-    }
-
-    public void setmCurrentPhotoPath(String mCurrentPhotoPath) {
-        this.mCurrentPhotoPath = mCurrentPhotoPath;
-    }
-    public void setmCurrentPhotoUri(Uri mCurrentPhotoUri){
-        this.mCurrentPhotoUri = mCurrentPhotoUri;
-    }
-    public Uri getmCurrentPhotoUri() {
-        return mCurrentPhotoUri;
-    }
+    public String getmCurrentPhotoPath() { return mCurrentPhotoPath;    }
+    public void setmCurrentPhotoPath(String mCurrentPhotoPath) {        this.mCurrentPhotoPath = mCurrentPhotoPath;    }
+    public void setmCurrentPhotoUri(Uri mCurrentPhotoUri){       this.mCurrentPhotoUri = mCurrentPhotoUri;    }
+    public Uri getmCurrentPhotoUri() {        return mCurrentPhotoUri;    }
+    public File getmPhotoFile() {        return mPhotoFile;    }
+    public void setmPhotoFile(File mPhotoFile) {        this.mPhotoFile = mPhotoFile;    }
 }

@@ -103,6 +103,26 @@ public class ObjectObjDetails implements Parcelable {
             e.printStackTrace();
         }
     }
+    public String toJson(){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id",             this.getId().toString());
+            jsonObject.put("objectId",       this.getObjectId());
+            jsonObject.put("posNr",          this.getPosNr());
+            jsonObject.put("name",           this.getName());
+            jsonObject.put("description",    this.getDescription());
+            jsonObject.put("lockedByUserId", this.getLockedByUserId());
+            if (this.completed.equals(true)){
+                jsonObject.put("completed","X");
+            }else{
+                jsonObject.put("completed","");
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
 
     public Integer getId() {
         return id;

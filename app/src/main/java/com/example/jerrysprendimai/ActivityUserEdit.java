@@ -311,9 +311,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
         protected InputStream doInBackground(String... strings) {
 
             connector = new Connector(context, save_user_url);
-            //connector.addPostParameter("userId", myUser.getUname());
             connector.addPostParameter("objectUser", MCrypt2.encodeToString(objectUser.toJson()));
-            //connector.addPostParameter("sessionId",  MCrypt2.encodeToString(myUser.getSessionId()));
             connector.send();
             connector.receive();
             connector.disconnect();

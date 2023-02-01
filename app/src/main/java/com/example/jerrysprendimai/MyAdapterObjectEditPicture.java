@@ -145,16 +145,18 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             result.moveToNext();
             url = result.getString(1);
         }
-
+        holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_picture_placeholder_white));
+        holder.myProgressBar.setVisibility(View.VISIBLE);
         if(objectObjPic.getPicUri().length() > 0){
             //holder.myImage.setImageBitmap(decodeSampledBitmapFromResource(100, 100, objectObjPic, 4));
             //holder.myProgressBar.setVisibility(View.GONE);
             Glide.with(context)
                     .asBitmap()
                     .load(Uri.parse(objectObjPic.picUri))
+                    .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
-                    .apply(new RequestOptions().override(500,500))
+                    .apply(new RequestOptions().override(500,500).centerInside())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -171,9 +173,10 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             Glide.with(context)
                     .asBitmap()
                     .load(url + "/" + objectObjPic.getPicUrl())
+                    .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
-                    .apply(new RequestOptions().override(500,500))
+                    .apply(new RequestOptions().override(500,500).centerInside())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
