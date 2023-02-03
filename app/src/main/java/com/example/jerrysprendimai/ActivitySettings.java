@@ -211,7 +211,7 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
             admin1.setText("");
             admin2.setText("");
 
-            connector.clearResponse();
+            connector.decodeResponse();
 
             //------------------------Hide Keyboard-----------------------------
             View view = ((ActivitySettings)context).getCurrentFocus();
@@ -242,7 +242,7 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
                     break;
                 case testConnection_url:
                     try {
-                        connector.clearResponse();
+                        connector.decodeResponse();
                         JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
                         String login_status = object.getString("status");
                         if (login_status.equals("1")) {

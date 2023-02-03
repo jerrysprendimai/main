@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
@@ -64,8 +65,8 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         boolean myHoldIndicator;
         //ImageButton myImage;
         ImageView myExpandedImage;
-        ImageView myImage;
-        ProgressBar myProgressBar;
+        ImageView myImage, myImageUpl;
+        ProgressBar myProgressBar, myProgressBarUpl;
         LinearLayout myContainer;
         boolean bacgroundMarked;
 
@@ -74,15 +75,21 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
 
             myHoldIndicator = false;
             //---------------Element binding------------------------
-            myImage         = itemView.findViewById(R.id.objectDetailsPicture_img);
-            myExpandedImage = itemView.findViewById(R.id.expanded_image);
-            myContainer     = itemView.findViewById(R.id.objectDetailsPicture_top_level);
-            myProgressBar   = itemView.findViewById(R.id.objectDetailsPicture_progressBar);
+            myImage          = itemView.findViewById(R.id.objectDetailsPicture_img);
+            myExpandedImage  = itemView.findViewById(R.id.expanded_image);
+            myImageUpl       = itemView.findViewById(R.id.objectDetailsPicture_upl);
+            myContainer      = itemView.findViewById(R.id.objectDetailsPicture_top_level);
+            myProgressBar    = itemView.findViewById(R.id.objectDetailsPicture_progressBar);
+            myProgressBarUpl = itemView.findViewById(R.id.objectDetailsPicture_progressBar_upl);
         }
         public boolean isMyHoldIndicator() {return myHoldIndicator;}
         public void setMyHoldIndicator(boolean myHoldIndicator) {this.myHoldIndicator = myHoldIndicator;}
         public boolean isBacgroundMarked() {         return bacgroundMarked;      }
         public void setBacgroundMarked(boolean bacgroundMarked) {      this.bacgroundMarked = bacgroundMarked;      }
+
+        public void callbackSetUpload() {
+            this.myImageUpl.setVisibility(View.GONE);
+        }
     }
 
     @NonNull
@@ -90,6 +97,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
     public MyAdapterObjectEditPicture.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.my_row_picture, parent, false);
+
         return new MyAdapterObjectEditPicture.MyViewHolder(view);
     }
     public int calculateInSampleSize(
@@ -130,11 +138,16 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             return null;
         }
     }
+    public void callbackSetUpload(){
+
+    }
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         String url = "";
 
         ObjectObjPic objectObjPic = myPictureList.get(holder.getAdapterPosition());
+        objectObjPic.setHolder(holder);
+
         holder.myContainer.setBackgroundColor(Color.TRANSPARENT);
         holder.setBacgroundMarked(false);
 
@@ -145,11 +158,16 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             result.moveToNext();
             url = result.getString(1);
         }
+        holder.myImageUpl.setVisibility(View.GONE);
+        holder.myProgressBarUpl.setVisibility(View.GONE);
+
         holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_picture_placeholder_white));
         holder.myProgressBar.setVisibility(View.VISIBLE);
         if(objectObjPic.getPicUri().length() > 0){
-            //holder.myImage.setImageBitmap(decodeSampledBitmapFromResource(100, 100, objectObjPic, 4));
-            //holder.myProgressBar.setVisibility(View.GONE);
+
+            holder.myImageUpl.setVisibility(View.VISIBLE);
+            holder.myImageUpl.setColorFilter(context.getResources().getColor(R.color.jerry_blue), PorterDuff.Mode.SRC_ATOP);
+
             Glide.with(context)
                     .asBitmap()
                     .load(Uri.parse(objectObjPic.picUri))
@@ -176,7 +194,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
-                    .apply(new RequestOptions().override(500,500).centerInside())
+                    //.apply(new RequestOptions().override(500,500).centerInside())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

@@ -98,16 +98,27 @@ public class MyAdapterPictureFullSizeView extends PagerAdapter {
                             //holder.myImage.setImageBitmap(resource);
                             imageView.setImageBitmap(resource);
                         }
-
                         @Override
                         public void onLoadCleared(@Nullable Drawable placeholder) {
                         }
                     });
         }else{
             Glide.with(context)
-                    .load(url + "/" +objectObjPic.getPicUrl())
-                    .apply(new RequestOptions().centerInside())
-                    .into(imageView);
+                    .asBitmap()
+                    .load(url + "/" + objectObjPic.getPicUrl())
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    //.apply(new RequestOptions().centerInside())
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            imageView.setImageBitmap(resource);
+                        }
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
         }
         ViewPager vp = (ViewPager) container;
         vp.addView(v,0);

@@ -57,6 +57,11 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
 
     @Override
     public void onRefresh() {
+        if(myAdapterObjectShow.bottomSheetDialog != null){
+            if(myAdapterObjectShow.bottomSheetDialog.isShowing()){
+                myAdapterObjectShow.requestObjectDetails(this);
+            }
+        }
         swipeRefreshLayout.setRefreshing(true);
         new ActivityObjectShow.HttpsRequestGetObjectList(this).execute();
     }

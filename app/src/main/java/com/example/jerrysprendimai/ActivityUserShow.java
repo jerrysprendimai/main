@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
@@ -221,7 +220,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
         @Override
         protected void onPostExecute(InputStream inputStream) {
             try{
-                connector.clearResponse();
+                connector.decodeResponse();
                 JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
                 String login_status = object.getString("status");
                 if (login_status.equals("1")) {
@@ -262,7 +261,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
-               connector.clearResponse();
+               connector.decodeResponse();
                ArrayList<ObjectUser> userArryList = getUserList(connector);
                ((ActivityUserShow) context).myUserList.removeAll(((ActivityUserShow) context).myUserListOriginal);
                ((ActivityUserShow) context).myUserList.addAll(userArryList);

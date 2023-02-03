@@ -33,6 +33,15 @@
                 android:layout_height="70dp">
             </ImageView>
         </LinearLayout>
+        <ImageView
+            android:id="@+id/objectDetailsPicture_upl"
+            android:layout_gravity="bottom|center"
+            android:clickable="false"
+            android:src="@drawable/ic_upload_white"
+            android:background="@android:color/transparent"
+            android:layout_width="25dp"
+            android:layout_height="25dp">
+        </ImageView>
         <ProgressBar
             android:id="@+id/objectDetailsPicture_progressBar"
             android:layout_width="35dp"
@@ -41,6 +50,20 @@
             android:indeterminateTint="@color/jerry_blue"
             android:layout_gravity="center"
             android:layout_margin="0dp">
+        </ProgressBar>
+        <ProgressBar
+            android:id="@+id/objectDetailsPicture_progressBar_upl"
+            android:background="@color/jerry_grey_opacity"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:progressDrawable="@drawable/progressbar_gradient_progress_upl"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_gravity="center"
+            android:progress="45"
+            android:max="100"
+            android:min="1"
+            android:textStyle="bold"
+            android:includeFontPadding="false">
         </ProgressBar>
     </androidx.cardview.widget.CardView>
 

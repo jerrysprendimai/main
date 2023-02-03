@@ -139,7 +139,7 @@ public class Connector {
         }
     }
 
-    public void clearResponse(){
+    public void decodeResponse(){
         try {
            String stringEncripted = this.getResult();
            String stringDecripted = MCrypt2.decryptSingle(stringEncripted);

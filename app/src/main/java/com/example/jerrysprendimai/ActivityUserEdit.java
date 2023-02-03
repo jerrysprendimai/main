@@ -325,7 +325,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
         protected void onPostExecute(InputStream inputStream) {
             String msg = "Problema!!!";
             try {
-                connector.clearResponse();
+                connector.decodeResponse();
                 JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
                 String saveStatus = responseObject.getString("status");
                 msg = responseObject.getString("msg");

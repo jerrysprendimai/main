@@ -2,20 +2,17 @@ package com.example.jerrysprendimai;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -39,7 +36,6 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
@@ -48,8 +44,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -85,6 +81,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     MyAdapterObjectEdit adatpreWa;
     MyAdapterObjectEdit.MyViewHolder holderWa;
     String actionTypeWa;
+    private int backgroundJobs = 10;
+    private int newPicCount = 0;
+    private int retutnThreadCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,6 +209,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 retractableLayout.setVisibility(View.GONE);
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_down_white);
             }
+            hideSoftKeyboard();
         });
         retractableLayoutLine.setSoundEffectsEnabled(false);
         retractableLayoutLine.setOnClickListener(v -> retractableButton.performClick());
@@ -389,6 +389,32 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        class RunnableTask implements Runnable{
+            Context context;
+            ObjectObjPic objectObjPic;
+            public RunnableTask(ActivityObjectEdit activityObjectEdit, ObjectObjPic objectObjPic) {
+                this.context = activityObjectEdit;
+                this.objectObjPic = objectObjPic;
+            }
+            @Override
+            public void run() {
+                boolean go = true;
+                while (go){
+                if(backgroundJobs >0){
+                    backgroundJobs -= 1;
+                    new HttpsRequestUploadPictures(context, objectObjPic).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+                    go = false;
+                }else{
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+              }
+            }
+        }
+
         switch (item.getItemId()) {
             case R.id.item_save:
                 backButtonCount = 0;
@@ -406,18 +432,57 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 }
 
                 if(!isFieldCheckError()){
-                    new HttpsRequestSaveObject(this).execute();
-                }
+                    findViewById(R.id.item_save).setEnabled(false);
+                    findViewById(R.id.item_cancel).setEnabled(false);
+                    findViewById(R.id.objectEdit_retractable_button).setEnabled(false);
+                    findViewById(R.id.objectEdit_add_job_button).setEnabled(false);
+                    findViewById(R.id.objectEdit_date).setEnabled(false);
+                    findViewById(R.id.objectEdit_objectName).setEnabled(false);
+                    findViewById(R.id.objectEdit_customerName).setEnabled(false);
+                    findViewById(R.id.objectEdit_objectAddress).setEnabled(false);
 
+                    newPicCount = 0;
+                    for(int i=0; i < getObjectPicturesArrayList().size(); i++){
+                      if(getObjectPicturesArrayList().get(i).getId().equals(-1)){
+                        newPicCount += 1;
+                        Thread thread = new Thread(new RunnableTask(this, getObjectPicturesArrayList().get(i)));
+                        thread.start();
+                        }
+                    }
+                    new HttpsRequestSaveObject(this).execute();
+                }else{
+                    Button retractableButton = findViewById(R.id.objectEdit_retractable_button);
+                    retractableButton.setSoundEffectsEnabled(false);
+                    retractableButton.performClick();
+                    retractableButton.setSoundEffectsEnabled(true);
+                }
                 break;
             case R.id.item_cancel:
                 //--todo cancel changes
                 //--pop-up?
                 break;
+
         }
         return false;
     }
+    public void calculateCompletness(){
+        int count = 0;
+        for(int i = 0; i < objectDetailsArrayList.size(); i++){
+            if(objectDetailsArrayList.get(i).getCompleted().equals("X")){
+                count += 1;
+            }
+        }
+        int total = objectDetailsArrayList.size();
+        int diff = total - count;
 
+        double completness = Math.round(( 100 - ((double)(total-count)/total) * 100.0));
+
+        objectObject.setCompleteness(new DecimalFormat("##.#").format(completness));
+        oProgressbar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
+        oProgressBarLabel.setText(objectObject.getCompleteness()+"%");
+        oJobs.setText(String.valueOf(total));
+        oJobsDone.setText(String.valueOf(count));
+    }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -536,62 +601,110 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.fieldCheckError = fieldCheckError;
     }
 
-    class HttpsRequestSaveObject extends AsyncTask<String, Void, InputStream> {
-        private static final String save_object_url = "save_object.php";
+    public void refresh(){
+        if(newPicCount == retutnThreadCount ){
+            findViewById(R.id.item_save).setEnabled(true);
+            findViewById(R.id.item_cancel).setEnabled(true);
+            findViewById(R.id.objectEdit_retractable_button).setEnabled(true);
+            findViewById(R.id.objectEdit_add_job_button).setEnabled(true);
+            findViewById(R.id.objectEdit_date).setEnabled(true);
+            findViewById(R.id.objectEdit_objectName).setEnabled(true);
+            findViewById(R.id.objectEdit_customerName).setEnabled(true);
+            findViewById(R.id.objectEdit_objectAddress).setEnabled(true);
+
+            myAdapterObjectEdit.notifyDataSetChanged();
+            retutnThreadCount = 0;
+            setNeedSave(false);
+            oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_green));
+            Toast.makeText( this, "Išsaugota", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    class HttpsRequestUploadPictures extends AsyncTask<String, String, InputStream> {
+        private static final String upload_picture_url = "upload_picture.php";
         private Context context;
         Connector connector;
+        ObjectObjPic objectObjPic;
 
-        public HttpsRequestSaveObject(Context ctx){
+        public HttpsRequestUploadPictures(Context ctx, ObjectObjPic objectPic){
             context = ctx;
+            objectObjPic = objectPic;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... value) {
+            if (value[0].equals("start")) {
+                objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
+                objectObjPic.getHolder().myProgressBarUpl.setVisibility(View.VISIBLE);
+                objectObjPic.getHolder().myProgressBarUpl.setProgress(0);
+            } else if(value[0].equals("one")) {
+                objectObjPic.getHolder().myProgressBarUpl.setProgress(30);
+                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 5,30);
+                objectAnimator.setDuration(3000);
+                objectAnimator.start();
+            } else if(value[0].equals("two")) {
+                objectObjPic.getHolder().myProgressBarUpl.setProgress(85);
+                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 30,80);
+                objectAnimator.setDuration(3000);
+                objectAnimator.start();
+            } else if(value[0].equals("three")) {
+                objectObjPic.getHolder().myProgressBarUpl.setProgress(95);
+                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 80,95);
+                objectAnimator.setDuration(3000);
+                objectAnimator.start();
+            } else if(value[0].equals("four")) {
+                objectObjPic.getHolder().myProgressBarUpl.setProgress(99);
+                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 95,100);
+                objectAnimator.setDuration(3000);
+                objectAnimator.start();
+            } else if(value[0].equals("done")) {
+                backgroundJobs += 1;
+                retutnThreadCount += 1;
+                objectObjPic.getHolder().myProgressBarUpl.setProgress(100);
+                objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
+                objectObjPic.getHolder().myProgressBarUpl.setVisibility(View.GONE);
+                refresh();
+            }
+            super.onProgressUpdate(value);
         }
 
         @Override
         protected InputStream doInBackground(String... strings) {
-            connector = new Connector(context, save_object_url);
-            connector.addPostParameter("objectObject", MCrypt2.encodeToString(objectObject.toJson()));
-            connector.addPostParameter("detailsList",  MCrypt2.encodeToString(getDetailsArrayListJson(getObjectDetailsArrayList())));
-            connector.addPostParameter("pictureList",  MCrypt2.encodeToString(getPicArrayListJson(getObjectPicturesArrayList())));
+            publishProgress("start");
+            connector = new Connector(context, upload_picture_url);
+            connector.addPostParameter("objectId",      MCrypt2.encodeToString(String.valueOf(objectObject.getId())));
+            connector.addPostParameter("pictureName",   MCrypt2.encodeToString(objectObjPic.getPicName()));
+            publishProgress("one");
+            connector.addPostParameter("pictureSource", objectObjPic.ImgSource(context));
+            publishProgress("two");
             connector.send();
+            publishProgress("three");
             connector.receive();
+            publishProgress("four");
             connector.disconnect();
             String result = connector.getResult();
+            publishProgress("done");
             result = result;
-
             return null;
         }
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
-            /*String msg = "Problema!!!";
-            try {
-                connector.clearResponse();
-                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
-                String saveStatus = responseObject.getString("status");
-                msg = responseObject.getString("msg");
-                if (saveStatus.equals("1")) {
-                    String userId  = responseObject.getString("userId");
-                    String regDate = responseObject.getString("regDate");
-                    regDate = DateHelper.get_date_display(regDate);
-                    ((ActivityUserEdit) context).uSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_green));
-                    ((ActivityUserEdit) context).objectUser.setReg_date(regDate);
-                    ((ActivityUserEdit) context).uRegDate.setText(((ActivityUserEdit) context).objectUser.getReg_date());
-                    ((ActivityUserEdit) context).objectUser.setId(Integer.parseInt(userId));
 
-                    Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
-                }else if(saveStatus.equals("2")){
-                    ((ActivityUserEdit) context).uSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_green));
-                    Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
-                }else if(saveStatus.equals("9")){
-                    Toast.makeText(context, getResources().getString(R.string.user)+" '"+
-                            objectUser.getUname()+"' "+
-                            getResources().getString(R.string.exists), Toast.LENGTH_SHORT).show();
+            try {
+                connector.decodeResponse();
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String saveStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (saveStatus.equals("1")) {
+                    objectObjPic.setPicUrl(msg);
+                    objectObjPic.setPicUri("");
                 }
 
 
             }catch (Exception e){
                 e.printStackTrace();
-            }*/
-
+            }
             super.onPostExecute(inputStream);
         }
         private String getPicArrayListJson(ArrayList<ObjectObjPic> pictureList){
@@ -635,5 +748,50 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             }
             return userArrayList;
         }*/
+    }
+    class HttpsRequestSaveObject extends AsyncTask<String, Void, InputStream> {
+        private static final String save_object_url = "save_object.php";
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestSaveObject(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+            connector = new Connector(context, save_object_url);
+            connector.addPostParameter("objectObject", MCrypt2.encodeToString(objectObject.toJson()));
+            connector.addPostParameter("detailsList",  MCrypt2.encodeToString(getDetailsArrayListJson(getObjectDetailsArrayList())));
+            connector.addPostParameter("pictureList",  getPicArrayListJson(getObjectPicturesArrayList()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            refresh();
+
+            super.onPostExecute(inputStream);
+        }
+        private String getPicArrayListJson(ArrayList<ObjectObjPic> pictureList){
+            JSONArray jsonArray = new JSONArray();
+            for(int i=0; i < pictureList.size(); i++){
+                jsonArray.put(pictureList.get(i).toJson());
+            }
+            return jsonArray.toString();
+        }
+        private String getDetailsArrayListJson(ArrayList<ObjectObjDetails> detailsList){
+            JSONArray jsonArray = new JSONArray();
+            for(int i=0; i < detailsList.size(); i++){
+                jsonArray.put(detailsList.get(i).toJson());
+            }
+            return jsonArray.toString();
+        }
     }
 }

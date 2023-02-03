@@ -42,6 +42,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
     List<ObjectObject> myObjectList;
     List<ObjectObject> myObjectListFull;
 
+    ObjectObject clickObject;
     ObjectUser myUser;
     ViewGroup parentView;
     BottomSheetDialog bottomSheetDialog;
@@ -117,7 +118,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         //-----card click listener
         holder.myRow.setOnClickListener(v -> {
             //--todo lock parent view
-
+            clickObject = myObjectObject;
             //--lock Object in DB
             new MyAdapterObjectShow.HttpsRequestLockObject(context, myObjectObject.getId().toString(),"lock").execute();
             new MyAdapterObjectShow.HttpsRequestGetObjectDetails(context, myObjectObject).execute();
@@ -125,7 +126,11 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         });
 
     }
-
+    public void requestObjectDetails(Context cntx){
+        if (this.clickObject != null) {
+            new MyAdapterObjectShow.HttpsRequestGetObjectDetails(cntx, this.clickObject).execute();
+        }
+    }
     @Override
     public int getItemCount() {
         return this.myObjectList.size();
@@ -425,6 +430,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 });
 
                 bottomSheetDialog.setOnDismissListener(dialog -> {
+                    //clear bottomSheetView
                     //--unlock Object in DB
                     new HttpsRequestLockObject(context, clickObject.getId().toString(),"unlock").execute();
                     //((ActivityObjectShow) context).executeLockUnlock(myObjectObject.getId().toString(),"unlock");

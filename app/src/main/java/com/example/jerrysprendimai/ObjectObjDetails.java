@@ -112,7 +112,7 @@ public class ObjectObjDetails implements Parcelable {
             jsonObject.put("name",           this.getName());
             jsonObject.put("description",    this.getDescription());
             jsonObject.put("lockedByUserId", this.getLockedByUserId());
-            if (this.completed.equals(true)){
+            if (this.completed.equals("X")){
                 jsonObject.put("completed","X");
             }else{
                 jsonObject.put("completed","");

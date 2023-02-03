@@ -2,7 +2,6 @@ package com.example.jerrysprendimai;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -17,8 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -183,7 +180,7 @@ public class ActivityLogin extends AppCompatActivity {
                 findViewById(R.id.loginButton).setEnabled(true);
                 ((Button) findViewById(R.id.loginButton)).setBackground(background);
 
-               connector.clearResponse();
+               connector.decodeResponse();
 
                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
 

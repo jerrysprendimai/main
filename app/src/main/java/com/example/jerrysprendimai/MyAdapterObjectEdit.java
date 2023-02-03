@@ -251,6 +251,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 holder.oDJobDoneImgExtended.setVisibility(View.GONE);
                 holder.oDCompletedJobLabel.setVisibility(View.GONE);
             }
+            ((ActivityObjectEdit)context).calculateCompletness();
         };
         holder.oDCompleteJob.setOnCheckedChangeListener(myOnCheckedChangeListener);
         holder.oDRetractableButton.setOnClickListener(v -> {
@@ -361,6 +362,9 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 setDeletionMode(false);
                 holder.setDeletionModeButtons(false);
                 holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+
+                ((ActivityObjectEdit)context).setNeedSave(true);
+                ((ActivityObjectEdit)context).oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
             }
         });
         //----------add picture handler
@@ -427,10 +431,13 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                    ObjectObjPic newPic = new ObjectObjPic();
                    newPic.setPicUri(filePath.toString());
                    newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-                   newPic.setPosNr(holder.getAdapterPosition());
+                   //newPic.setPosNr(holder.getAdapterPosition());
                    newPic.setPicName(fileName);
                    myObjectListPic.add(newPic);
                    holder.filteredPics.add(newPic);
+
+                   ((ActivityObjectEdit)context).setNeedSave(true);
+                   ((ActivityObjectEdit)context).oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
                }
             }catch (Exception e){
                 //set image to image view
@@ -444,10 +451,13 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 ObjectObjPic newPic = new ObjectObjPic();
                 newPic.setPicUri(filePath.toString());
                 newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-                newPic.setPosNr(holder.getAdapterPosition());
+                //newPic.setPosNr(holder.getAdapterPosition());
                 newPic.setPicName(fileName);
                 myObjectListPic.add(newPic);
                 holder.filteredPics.add(newPic);
+
+                ((ActivityObjectEdit)context).setNeedSave(true);
+                ((ActivityObjectEdit)context).oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
             }
 
             holder.myAdapterObjectEditPicture.notifyDataSetChanged();
@@ -462,13 +472,15 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             ObjectObjPic newPic = new ObjectObjPic();
             newPic.setPicUri(getmCurrentPhotoUri().toString());//filePath.toString());
             newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-            newPic.setPosNr(holder.getAdapterPosition());
+            //newPic.setPosNr(holder.getAdapterPosition());
             newPic.setPicName(getmPhotoFile().getName());
             myObjectListPic.add(newPic);
             holder.filteredPics.add(newPic);
 
             holder.myAdapterObjectEditPicture.notifyDataSetChanged();
             ((ActivityObjectEdit)context).clearCallbackAdapterReference();
+            ((ActivityObjectEdit)context).setNeedSave(true);
+            ((ActivityObjectEdit)context).oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
         }else if(resultCode != resultOk && requestCode == REQUEST_IMAGE_CAPTURE){
             File photoImage = getmPhotoFile();
             if(photoImage.exists()){
@@ -494,7 +506,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 new MediaScannerConnection.OnScanCompletedListener() {
                     @Override
                     public void onScanCompleted(String path, Uri uri) {
-                        Log.v("smth", "file" + path + "was scanned: " + uri);
+                        Log.v("foto", "file" + path + "was scanned: " + uri);
                     }
                 }
         );

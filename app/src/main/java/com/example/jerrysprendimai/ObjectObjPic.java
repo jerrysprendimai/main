@@ -1,18 +1,26 @@
 package com.example.jerrysprendimai;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
+import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ObjectObjPic implements Parcelable{
     private Integer id, objectId, posNr;
     String picName, creationDate, picUrl;
     String picUri;
     Bitmap imageResource;
+    MyAdapterObjectEditPicture.MyViewHolder holder;
 
     protected ObjectObjPic(Parcel in) {
         if (in.readByte() == 0) {
@@ -35,21 +43,6 @@ public class ObjectObjPic implements Parcelable{
         picUrl = in.readString();
         picUri = in.readString();
         imageResource = in.readParcelable(Bitmap.class.getClassLoader());
-    }
-    public static final Creator<ObjectObjPic> CREATOR = new Creator<ObjectObjPic>() {
-        @Override
-        public ObjectObjPic createFromParcel(Parcel in) {
-            return new ObjectObjPic(in);
-        }
-
-        @Override
-        public ObjectObjPic[] newArray(int size) {
-            return new ObjectObjPic[size];
-        }
-    };
-    @Override
-    public int describeContents() {
-        return 0;
     }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -77,6 +70,21 @@ public class ObjectObjPic implements Parcelable{
         dest.writeString(picUri);
         dest.writeParcelable(imageResource, flags);
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    public static final Creator<ObjectObjPic> CREATOR = new Creator<ObjectObjPic>() {
+        @Override
+        public ObjectObjPic createFromParcel(Parcel in) {
+            return new ObjectObjPic(in);
+        }
+
+        @Override
+        public ObjectObjPic[] newArray(int size) {
+            return new ObjectObjPic[size];
+        }
+    };
 
     public ObjectObjPic(){
         this.id           = -1;
@@ -101,6 +109,7 @@ public class ObjectObjPic implements Parcelable{
             e.printStackTrace();
         }
     }
+
     public String toJson(){
         JSONObject jsonObject = new JSONObject();
         try {
@@ -116,68 +125,43 @@ public class ObjectObjPic implements Parcelable{
         }
         return jsonObject.toString();
     }
-    public Integer getId() {
-        return id;
-    }
+    public String ImgSource(Context context){
+        String str_img = "";
+        try {
+            if(this.getId().equals(-1)){
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Uri imageUri = Uri.parse(this.getPicUri());
+                Bitmap bitmap = null;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+                bitmap = ((BitmapDrawable)holder.myImage.getDrawable()).getBitmap();
+                //bitmap = holder.myImage.getDrawingCache();
 
-    public Integer getObjectId() {
-        return objectId;
+                //bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArray= baos.toByteArray();
+                str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return str_img;
     }
-
-    public void setObjectId(Integer objectId) {
-        this.objectId = objectId;
-    }
-
-    public Integer getPosNr() {
-        return posNr;
-    }
-
-    public void setPosNr(Integer posNr) {
-        this.posNr = posNr;
-    }
-
-    public String getPicName() {
-        return picName;
-    }
-
-    public void setPicName(String picName) {
-        this.picName = picName;
-    }
-
-    public String getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public String getPicUrl() {
-        return picUrl;
-    }
-
-    public void setPicUrl(String picUrl) {
-        this.picUrl = picUrl;
-    }
-
-    public String getPicUri() {
-        return picUri;
-    }
-
-    public void setPicUri(String picUri) {
-        this.picUri = picUri;
-    }
-
-    public Bitmap getImageResource() {
-        return imageResource;
-    }
-
-    public void setImageResource(Bitmap imageResource) {
-        this.imageResource = imageResource;
-    }
-
+    public Integer getId() {         return id;    }
+    public void setId(Integer id) {        this.id = id;    }
+    public Integer getObjectId() {        return objectId;    }
+    public void setObjectId(Integer objectId) {        this.objectId = objectId;    }
+    public Integer getPosNr() {        return posNr;    }
+    public void setPosNr(Integer posNr) {        this.posNr = posNr;    }
+    public String getPicName() {        return picName;    }
+    public void setPicName(String picName) {        this.picName = picName;    }
+    public String getCreationDate() {        return creationDate;    }
+    public void setCreationDate(String creationDate) {        this.creationDate = creationDate;    }
+    public String getPicUrl() {        return picUrl;    }
+    public void setPicUrl(String picUrl) {        this.picUrl = picUrl;    }
+    public String getPicUri() {        return picUri;    }
+    public void setPicUri(String picUri) {        this.picUri = picUri;    }
+    public Bitmap getImageResource() {        return imageResource;    }
+    public void setImageResource(Bitmap imageResource) {        this.imageResource = imageResource;    }
+    public MyAdapterObjectEditPicture.MyViewHolder getHolder() {        return holder;    }
+    public void setHolder(MyAdapterObjectEditPicture.MyViewHolder holder) {        this.holder = holder;    }
 }
