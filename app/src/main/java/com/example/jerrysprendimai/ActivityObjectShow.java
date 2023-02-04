@@ -6,10 +6,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.widget.LinearLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,13 +27,14 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
     ArrayList<ObjectObject> myObjectList;
     ArrayList<ObjectObject> myObjectListOriginal;
     SwipeRefreshLayout swipeRefreshLayout;
-
+    FloatingActionButton buttonAddObject;
     MyAdapterObjectShow myAdapterObjectShow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_object_show);
+
 
         //----------------SwipeRefreschLayout
         swipeRefreshLayout = findViewById(R.id.my_swipe_refresh);
@@ -43,6 +47,23 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
         this.myObjectListOriginal = new ArrayList<ObjectObject>();
         //---------------------Recycle View-------------------------------
         buildRecyclerView();
+
+        //----------------button Add Object
+        buttonAddObject = findViewById(R.id.button_object_add_new);
+        buttonAddObject.setOnClickListener(v->{
+            ObjectObject objectObject = new ObjectObject();
+            ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> objectUserArrayList       = new ArrayList<>();
+            ArrayList<ObjectObjPic> objectObjPicArrayList   = new ArrayList<>();
+
+            Intent intent = new Intent(this, ActivityObjectEdit.class);
+            intent.putExtra("myUser", myUser);
+            intent.putExtra("objectObject", objectObject);
+            intent.putParcelableArrayListExtra("listDetails",  objDetailsArrayList);
+            intent.putParcelableArrayListExtra("listtUser",    objectUserArrayList);
+            intent.putParcelableArrayListExtra("listPictures", objectObjPicArrayList);
+            startActivity(intent);
+        });
 
         new ActivityObjectShow.HttpsRequestGetObjectList(this).execute();
     }

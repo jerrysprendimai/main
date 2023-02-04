@@ -63,8 +63,8 @@ public class ObjectObject implements Parcelable {
         this.objectName     = "";
         this.objectAddress  = "";
         this.customerName   = "";
-        this.completeness   = "";
-        this.lockedByUserId = "0";
+        this.completeness   = "0.0";
+        this.lockedByUserId = "";
         this.lockedUname    = "";
     }
     public ObjectObject(JSONObject obj, String wa){

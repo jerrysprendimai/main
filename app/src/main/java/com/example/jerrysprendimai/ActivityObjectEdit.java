@@ -183,16 +183,43 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     return o2.compareTo(o1);
                 }
             });
+            ArrayList<ObjectObjDetails> toBeRemoveddDetails = new ArrayList<>();
+            ArrayList<ObjectObjPic> toBeRemovedPictures = new ArrayList<>();
+
             for(int i=0; i<toBeDeletedList.size();i++){
                 ObjectObjDetails objectObjDetailsToRemove = objectDetailsArrayList.get(toBeDeletedList.get(i));
-                objectDetailsArrayList.remove(objectObjDetailsToRemove);
-               //objectDetailsArrayList.remove(toBeDeletedList.get(i));
+                toBeRemoveddDetails.add(objectObjDetailsToRemove);
+                //objectDetailsArrayList.remove(objectObjDetailsToRemove);
+                for(int j=0; j < objectPicturesArrayList.size(); j++){
+                     if(objectPicturesArrayList.get(j).getPosNr().equals(objectObjDetailsToRemove.getPosNr())){
+                         //objectPicturesArrayList.remove(objectPicturesArrayList.get(j));
+                         toBeRemovedPictures.add(objectPicturesArrayList.get(j));
+                     }
+                }
+            }
+            for(int i=0;i< toBeRemoveddDetails.size();i++){
+                objectDetailsArrayList.remove(toBeRemoveddDetails.get(i));
+            }
+            for(int i=0; i< toBeRemovedPictures.size(); i++){
+                objectPicturesArrayList.remove(toBeRemovedPictures.get(i));
+            }
+            for(int i = 0; i < objectDetailsArrayList.size(); i++){
+                for(int j=0; j < objectPicturesArrayList.size(); j++){
+                    if(objectPicturesArrayList.get(j).getPosNr().equals(objectDetailsArrayList.get(i).getPosNr())){
+                        objectPicturesArrayList.get(j).setPosNr(i);
+                    }
+                }
+                objectDetailsArrayList.get(i).setPosNr(i);
+                //objectDetailsArrayList.get(i).setName(String.valueOf(i) +". "+objectDetailsArrayList.get(i).getName());
             }
             setDeletionMode(false);
             this.setSaveCancelVisibility(true);
             this.setDeleteButtonVisibility(false);
             this.toBeDeletedList = new ArrayList<Integer>();
             myAdapterObjectEdit.notifyDataSetChanged();
+
+            setNeedSave(true);
+            oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
         });
 
         //---- retractable button/view handling
@@ -200,16 +227,16 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         LinearLayout retractableLayoutLine = findViewById(R.id.objectEdit_retractableLine);
         Button retractableButton           = findViewById(R.id.objectEdit_retractable_button);
         retractableButton.setOnClickListener(v -> {
+            hideSoftKeyboard();
             if(retractableLayout.getVisibility()==View.GONE){
                 TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
                 retractableLayout.setVisibility(View.VISIBLE);
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_up_white);
             }else{
-                TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
+                //TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
                 retractableLayout.setVisibility(View.GONE);
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_down_white);
             }
-            hideSoftKeyboard();
         });
         retractableLayoutLine.setSoundEffectsEnabled(false);
         retractableLayoutLine.setOnClickListener(v -> retractableButton.performClick());
@@ -217,22 +244,24 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         //---- Add Job Button handling
         oAddJob.setOnClickListener(v ->{
+            hideSoftKeyboard();
             setDeletionMode(false);
             this.setSaveCancelVisibility(true);
             this.setDeleteButtonVisibility(false);
             this.toBeDeletedList = new ArrayList<Integer>();
 
             ObjectObjDetails newObjectObjDetails = new ObjectObjDetails();
+            //newObjectObjDetails.setObjectId(objectObject.getId());
             objectDetailsArrayList.add(0, newObjectObjDetails);
-            //myAdapterObjectEdit.setMyObjectList(objectDetailsArrayList);
-            //MyAdapterObjectEdit.MyViewHolder newViewHolder = myAdapterObjectEdit.onCreateViewHolder(this.recyclerView, 0);
-            //myAdapterObjectEdit.onBindViewHolder(newViewHolder, 0);
+            for(int i = 0; i < objectDetailsArrayList.size(); i++ ){
+                objectDetailsArrayList.get(i).setPosNr(i);
+            }
+            for(int i = 0; i < objectPicturesArrayList.size(); i++){
+                objectPicturesArrayList.get(i).setPosNr(objectPicturesArrayList.get(i).getPosNr()+1);
+            }
 
             myAdapterObjectEdit.notifyDataSetChanged();
-            /*for(int i=0; i<objectDetailsArrayList.size()-1; i++) {
-                //myAdapterObjectEdit.onBindViewHolder(myAdapterObjectEdit.getMyHolder(), i);
-                myAdapterObjectEdit.notifyItemChanged(i);
-            }*/
+
             oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_yellow));
         });
 
@@ -387,19 +416,17 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         return returnValue;
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        class RunnableTask implements Runnable{
-            Context context;
-            ObjectObjPic objectObjPic;
-            public RunnableTask(ActivityObjectEdit activityObjectEdit, ObjectObjPic objectObjPic) {
-                this.context = activityObjectEdit;
-                this.objectObjPic = objectObjPic;
-            }
-            @Override
-            public void run() {
-                boolean go = true;
-                while (go){
+    class RunnableTask implements Runnable{
+        Context context;
+        ObjectObjPic objectObjPic;
+        public RunnableTask(ActivityObjectEdit activityObjectEdit, ObjectObjPic objectObjPic) {
+            this.context = activityObjectEdit;
+            this.objectObjPic = objectObjPic;
+        }
+        @Override
+        public void run() {
+            boolean go = true;
+            while (go){
                 if(backgroundJobs >0){
                     backgroundJobs -= 1;
                     new HttpsRequestUploadPictures(context, objectObjPic).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
@@ -411,9 +438,23 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                         e.printStackTrace();
                     }
                 }
-              }
             }
         }
+    }
+
+    public void startPictureUpload(){
+        newPicCount = 0;
+        for(int i=0; i < getObjectPicturesArrayList().size(); i++){
+            //if(getObjectPicturesArrayList().get(i).getId().equals(-1)){
+                newPicCount += 1;
+                Thread thread = new Thread(new RunnableTask(this, getObjectPicturesArrayList().get(i)));
+                thread.start();
+            //}
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()) {
             case R.id.item_save:
@@ -441,14 +482,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     findViewById(R.id.objectEdit_customerName).setEnabled(false);
                     findViewById(R.id.objectEdit_objectAddress).setEnabled(false);
 
-                    newPicCount = 0;
-                    for(int i=0; i < getObjectPicturesArrayList().size(); i++){
-                      if(getObjectPicturesArrayList().get(i).getId().equals(-1)){
-                        newPicCount += 1;
-                        Thread thread = new Thread(new RunnableTask(this, getObjectPicturesArrayList().get(i)));
-                        thread.start();
-                        }
-                    }
                     new HttpsRequestSaveObject(this).execute();
                 }else{
                     Button retractableButton = findViewById(R.id.objectEdit_retractable_button);
@@ -699,6 +732,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 if (saveStatus.equals("1")) {
                     objectObjPic.setPicUrl(msg);
                     objectObjPic.setPicUri("");
+                }else{
+                    //error handling?
                 }
 
 
@@ -721,33 +756,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             }
             return jsonArray.toString();
         }
-
-        /*private ArrayList<ObjectUser>getUserList(Connector conn){
-            ArrayList<ObjectUser> userArrayList = new ArrayList<>();
-            try{
-                ObjectUser objectUser;
-                JSONArray responseObjects1 = (JSONArray) conn.getResultJsonArray();
-                for (int i = 0; i < responseObjects1.length(); i++) {
-                    objectUser = new ObjectUser((JSONObject) responseObjects1.get(i));
-
-                    switch (objectUser.getType()){
-                        case "1":
-                            objectUser.setUser_lv(getResources().getString(R.string.admin));
-                            break;
-                        case "2":
-                            objectUser.setUser_lv(getResources().getString(R.string.owner));
-                            break;
-                        case "3":
-                            objectUser.setUser_lv(getResources().getString(R.string.employee));
-                            break;
-                    }
-                    userArrayList.add(objectUser);
-                }
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            return userArrayList;
-        }*/
     }
     class HttpsRequestSaveObject extends AsyncTask<String, Void, InputStream> {
         private static final String save_object_url = "save_object.php";
@@ -757,7 +765,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         public HttpsRequestSaveObject(Context ctx){
             context = ctx;
         }
-
         @Override
         protected InputStream doInBackground(String... strings) {
             connector = new Connector(context, save_object_url);
@@ -769,13 +776,26 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             connector.disconnect();
             String result = connector.getResult();
             result = result;
-
             return null;
         }
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
-            refresh();
+            try {
+                connector.decodeResponse();
+                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                String save_status = object.getString("status");
+                if ((save_status.equals("1"))&&(objectObject.getId().equals(-1))) {
+                   objectObject.setId(Integer.parseInt(object.getString("object_id")));
+                   for(int i = 0; i< objectPicturesArrayList.size(); i++){
+                       objectPicturesArrayList.get(i).setObjectId(objectObject.getId());
+                   }
+                }
+                startPictureUpload();
+                refresh();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
             super.onPostExecute(inputStream);
         }

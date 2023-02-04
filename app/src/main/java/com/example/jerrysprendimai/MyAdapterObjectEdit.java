@@ -101,7 +101,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                      getRetractableButtonLayoutExtended, oDAddFotoButton, oDTakeFotoButton, oDDeleteFotoButton,
                      addButtonsLayout, deleteButtonsLayout, oDDeleteCancel;
         ImageView oDJobDoneImg, oDJobDoneImgExtended, oDJobDeleteImg, oDJobDeleteImgExtended;
-        TextView oDJobName, oDCompletedJobLabel;
+        TextView oDJobName, oDCompletedJobLabel, oDJobNameCount, oDJobNameCountExtended;
         TextInputEditText oDJobNameExtended, oDJobDescriptionExtended;
         RecyclerView oDFotoRecycleView;
         SwitchCompat oDCompleteJob;
@@ -126,7 +126,9 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             oDJobDeleteImg                     = itemView.findViewById(R.id.objectDetails_delete_image_view);
             oDJobDeleteImgExtended             = itemView.findViewById(R.id.objectDetails_delete_image_view_extended);
             oDJobName                          = itemView.findViewById(R.id.objectDetails_jobName);
+            oDJobNameCount                     = itemView.findViewById(R.id.objectDetails_jobName_count);
             oDJobNameExtended                  = itemView.findViewById(R.id.objectDetails_jobName_extended);
+            oDJobNameCountExtended             = itemView.findViewById(R.id.objectDetails_jobName_count_extended);
             oDJobDescriptionExtended           = itemView.findViewById(R.id.objectDetail_jobDescription_extended);
             oDRetractableButton                = itemView.findViewById(R.id.objectDetails_retractable_button);
             oDRetractableButtonExtended        = itemView.findViewById(R.id.objectDetails_retractable_button_extended);
@@ -205,6 +207,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         }
 
         holder.oDJobName.setText(myObjectObjDetails.getName());
+        holder.oDJobNameCount.setText((holder.getAdapterPosition()+1) +". ");
+        holder.oDJobNameCountExtended.setText((holder.getAdapterPosition()+1) +". ");
         holder.oDJobNameExtended.setText(myObjectObjDetails.getName());
         holder.oDJobDescriptionExtended.setText(myObjectObjDetails.getDescription());
 
@@ -428,10 +432,11 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
                    cursor.moveToFirst();
                    String fileName = cursor.getString(nameIndex);
+
                    ObjectObjPic newPic = new ObjectObjPic();
                    newPic.setPicUri(filePath.toString());
                    newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-                   //newPic.setPosNr(holder.getAdapterPosition());
+                   newPic.setPosNr(holder.getAdapterPosition());
                    newPic.setPicName(fileName);
                    myObjectListPic.add(newPic);
                    holder.filteredPics.add(newPic);
@@ -451,7 +456,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 ObjectObjPic newPic = new ObjectObjPic();
                 newPic.setPicUri(filePath.toString());
                 newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-                //newPic.setPosNr(holder.getAdapterPosition());
+                newPic.setPosNr(holder.getAdapterPosition());
                 newPic.setPicName(fileName);
                 myObjectListPic.add(newPic);
                 holder.filteredPics.add(newPic);
@@ -472,7 +477,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             ObjectObjPic newPic = new ObjectObjPic();
             newPic.setPicUri(getmCurrentPhotoUri().toString());//filePath.toString());
             newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-            //newPic.setPosNr(holder.getAdapterPosition());
+            newPic.setPosNr(holder.getAdapterPosition());
             newPic.setPicName(getmPhotoFile().getName());
             myObjectListPic.add(newPic);
             holder.filteredPics.add(newPic);
@@ -610,6 +615,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 break;
             }
         }
+
         if(this.toBeDeletedList.size() == 0){
             setDeletionMode(false);
             getMyHolder().setDeletionModeButtons(false);

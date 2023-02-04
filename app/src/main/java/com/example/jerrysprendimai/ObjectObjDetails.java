@@ -87,7 +87,7 @@ public class ObjectObjDetails implements Parcelable {
         this.posNr          = 0;
         this.name           = "";
         this.description    = "";
-        this.lockedByUserId = -1;
+        this.lockedByUserId = 0;
         this.completed      = "";
     }
     public ObjectObjDetails(JSONObject obj) {
