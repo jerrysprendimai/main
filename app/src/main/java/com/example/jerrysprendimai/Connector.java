@@ -53,6 +53,7 @@ public class Connector {
                 //Toast.makeText(context, "No SETTINGS data found", Toast.LENGTH_SHORT).show();
                 return;
             }
+            dbHelper.close();
 
             result.moveToNext();
             connDBUrl = result.getString(1);

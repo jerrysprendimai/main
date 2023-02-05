@@ -10,6 +10,8 @@ public class ObjectObjDetails implements Parcelable {
     private Integer id, objectId, posNr, lockedByUserId;
     private String name, description, completed;
 
+    MyAdapterObjectEdit.MyViewHolder holder;
+
     protected ObjectObjDetails(Parcel in) {
         if (in.readByte() == 0) {
             id = null;
@@ -34,6 +36,21 @@ public class ObjectObjDetails implements Parcelable {
         name = in.readString();
         description = in.readString();
         completed = in.readString();
+    }
+    public static final Creator<ObjectObjDetails> CREATOR = new Creator<ObjectObjDetails>() {
+        @Override
+        public ObjectObjDetails createFromParcel(Parcel in) {
+            return new ObjectObjDetails(in);
+        }
+
+        @Override
+        public ObjectObjDetails[] newArray(int size) {
+            return new ObjectObjDetails[size];
+        }
+    };
+    @Override
+    public int describeContents() {
+        return 0;
     }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -65,21 +82,6 @@ public class ObjectObjDetails implements Parcelable {
         dest.writeString(description);
         dest.writeString(completed);
     }
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-    public static final Creator<ObjectObjDetails> CREATOR = new Creator<ObjectObjDetails>() {
-        @Override
-        public ObjectObjDetails createFromParcel(Parcel in) {
-            return new ObjectObjDetails(in);
-        }
-
-        @Override
-        public ObjectObjDetails[] newArray(int size) {
-            return new ObjectObjDetails[size];
-        }
-    };
 
     public ObjectObjDetails(){
         this.id             = -1;
@@ -179,4 +181,8 @@ public class ObjectObjDetails implements Parcelable {
     public void setName(String name) {
         this.name = name;
     }
+
+    public MyAdapterObjectEdit.MyViewHolder getHolder() {        return holder;    }
+
+    public void setHolder(MyAdapterObjectEdit.MyViewHolder holder) {        this.holder = holder;    }
 }

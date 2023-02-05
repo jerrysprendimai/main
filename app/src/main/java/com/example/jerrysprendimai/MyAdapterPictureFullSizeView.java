@@ -75,6 +75,8 @@ public class MyAdapterPictureFullSizeView extends PagerAdapter {
             result.moveToNext();
             url = result.getString(1);
         }
+        dbHelper.close();
+
         //---------get relevant picture object
         ObjectObjPic objectObjPic = myPictureList.get(position);
 

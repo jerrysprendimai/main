@@ -1,5 +1,6 @@
 package com.example.jerrysprendimai;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -104,6 +105,10 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         holder.objectCustomer.setText(myObjectObject.getCustomerName());
         holder.progressBar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
         holder.progressBarLabel.setText(myObjectObject.getCompleteness()+"%");
+
+        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(holder.progressBar, "progress", 0,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
+        objectAnimator.setDuration(400);
+        objectAnimator.start();
 
         if(myObjectObject.getCompleteness().equals("100.0")){
             holder.progressBarLabel.setTextColor(((ActivityObjectShow)context).getResources().getColor(R.color.jerry_green));
@@ -428,6 +433,11 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
                     context.startActivity(intent);
                 });
+                //---- Delete Button click
+                FloatingActionButton deleteButton = bottomSheetView.findViewById(R.id.bottomsheet_delete_btn);
+                deleteButton.setOnClickListener( v -> {
+                    new HttpsRequestDeleteObject(context, getClickObject()).execute();
+                });
 
                 bottomSheetDialog.setOnDismissListener(dialog -> {
                     //clear bottomSheetView
@@ -438,6 +448,57 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
         }
 
+    }
+    class HttpsRequestDeleteObject extends AsyncTask<String, Void, InputStream> {
+        private static final String delete_object_url = "delete_object.php";
+
+        private Context context;
+        private ObjectObject clickObject;
+        private ArrayList assignedUserList;
+        Connector connector;
+
+
+        public HttpsRequestDeleteObject(Context ctx, ObjectObject obj){
+            context     = ctx;
+            clickObject = obj;
+
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, delete_object_url);
+            connector.addPostParameter("objectId", MCrypt2.encodeToString(String.valueOf(clickObject.getId())));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            try {
+                connector.decodeResponse();
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String saveStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
+                String objId      = MCrypt.decryptSingle(responseObject.getString("objectId"));
+                if (saveStatus.equals("1")) {
+                    if(bottomSheetDialog != null){
+                        bottomSheetDialog.dismiss();
+                    }
+                    Toast.makeText(context, "Ištrinta", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(context, "Klaida", Toast.LENGTH_SHORT).show();
+                    //error handling?
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     class HttpsRequestSetObjectUser extends AsyncTask<String, Void, InputStream> {

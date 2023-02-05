@@ -12,6 +12,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -74,7 +75,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     TextView oId, oNameLb, oDate, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
     ProgressBar oProgressbar;
 
-    boolean needSave, deletionMode, fieldCheckError;
+    boolean needSave, deletionMode, saveMode, fieldCheckError;
     FloatingActionButton oDeleteJobButton;
     LinearLayout oDeleteJobButtonLayout;
     Integer backButtonCount;
@@ -97,7 +98,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.objectPicturesArrayList = getIntent().getParcelableArrayListExtra("listPictures");
 
         //-----------------BackButton press counter
-        this.backButtonCount = 0;
+        //this.backButtonCount = 0;
+        setBackButtonCount(0);
         this.needSave = false;
 
         //-----------------Deletion Mode
@@ -136,6 +138,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         //---- Date Picker handling
         Context context = this;
         this.oDate.setOnClickListener(v->{
+            setBackButtonCount(0);
             View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_date_picker, null, false);
             TextView dialogDateLabel = dialogView.findViewById(R.id.datePicker_date_label);
             CalendarView datePickerCalender = dialogView.findViewById(R.id.datePicker_calenderView);
@@ -177,6 +180,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         });
         //---- Add Job button handling
         this.oDeleteJobButton.setOnClickListener(v ->{
+            setBackButtonCount(0);
             //--------sort list dscending
             Collections.sort(toBeDeletedList, new Comparator<Integer>() {
                 public int compare(Integer o1, Integer o2) {
@@ -212,6 +216,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 objectDetailsArrayList.get(i).setPosNr(i);
                 //objectDetailsArrayList.get(i).setName(String.valueOf(i) +". "+objectDetailsArrayList.get(i).getName());
             }
+            calculateCompletness();
             setDeletionMode(false);
             this.setSaveCancelVisibility(true);
             this.setDeleteButtonVisibility(false);
@@ -227,6 +232,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         LinearLayout retractableLayoutLine = findViewById(R.id.objectEdit_retractableLine);
         Button retractableButton           = findViewById(R.id.objectEdit_retractable_button);
         retractableButton.setOnClickListener(v -> {
+            setBackButtonCount(0);
             hideSoftKeyboard();
             if(retractableLayout.getVisibility()==View.GONE){
                 TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
@@ -244,6 +250,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         //---- Add Job Button handling
         oAddJob.setOnClickListener(v ->{
+            //backButtonCount = 0;
+            setBackButtonCount(0);
             hideSoftKeyboard();
             setDeletionMode(false);
             this.setSaveCancelVisibility(true);
@@ -260,9 +268,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 objectPicturesArrayList.get(i).setPosNr(objectPicturesArrayList.get(i).getPosNr()+1);
             }
 
-            myAdapterObjectEdit.notifyDataSetChanged();
+            //---- on adde Job recalculate completness
+            calculateCompletness();
 
+            myAdapterObjectEdit.notifyDataSetChanged();
             oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_yellow));
+            setNeedSave(true);
         });
 
         //-----------------Save-Cancel Menu Hide/Show depending on the Keyboard----------------
@@ -286,7 +297,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         }
     }
     private void fillFieldValues() {
-            Integer completeCount = 0;
+            int completeCount = 0;
 
             if(getDeletionMode().equals(false)){
                 oDeleteJobButtonLayout.setVisibility(View.GONE);
@@ -390,7 +401,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 backButtonCount++;
             } else {
                 //getIntent().removeExtra("myBaustelle");
-                backButtonCount = 0;
+                //backButtonCount = 0;
+                setBackButtonCount(0);
                 super.onBackPressed();
             }
         }
@@ -458,8 +470,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         switch (item.getItemId()) {
             case R.id.item_save:
-                backButtonCount = 0;
-
+                setBackButtonCount(0);
                 //---cehck if fields are not empty
                 setFieldCheckError(false);
                 if(isFieldValueError(this.objectObject.getObjectName(), this.oName)){
@@ -477,11 +488,37 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     findViewById(R.id.item_cancel).setEnabled(false);
                     findViewById(R.id.objectEdit_retractable_button).setEnabled(false);
                     findViewById(R.id.objectEdit_add_job_button).setEnabled(false);
+                    findViewById(R.id.objectEdit_add_job_button).setBackground(getDrawable(R.drawable.round_button_grey));
                     findViewById(R.id.objectEdit_date).setEnabled(false);
                     findViewById(R.id.objectEdit_objectName).setEnabled(false);
                     findViewById(R.id.objectEdit_customerName).setEnabled(false);
                     findViewById(R.id.objectEdit_objectAddress).setEnabled(false);
+                    findViewById(R.id.objectEdit_job_recycle_view).setEnabled(false);
+                    setSaveMode(true);
 
+                    //---- Disable View Buttons while saving
+                    for(int i = 0; i < objectDetailsArrayList.size();i++){
+                        try {
+                           objectDetailsArrayList.get(i).getHolder().oDCompleteJob.setEnabled(false);
+                           objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setEnabled(false);
+                           objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setEnabled(false);
+                           objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
+                           objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
+                           objectDetailsArrayList.get(i).getHolder().oDRetractableButton.setEnabled(false);
+                           objectDetailsArrayList.get(i).getHolder().oDRetractableButtonExtended.setEnabled(false);
+                           objectDetailsArrayList.get(i).getHolder().oDRetractableButtonToTopExtended.setEnabled(false);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    for(int i = 0; i < objectPicturesArrayList.size();i++){
+                        try {
+                            objectPicturesArrayList.get(i).getHolder().myImage.setEnabled(false);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    //myAdapterObjectEdit.notifyDataSetChanged();
                     new HttpsRequestSaveObject(this).execute();
                 }else{
                     Button retractableButton = findViewById(R.id.objectEdit_retractable_button);
@@ -491,8 +528,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 }
                 break;
             case R.id.item_cancel:
-                //--todo cancel changes
-                //--pop-up?
+                onBackPressed();
                 break;
 
         }
@@ -509,12 +545,16 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         int diff = total - count;
 
         double completness = Math.round(( 100 - ((double)(total-count)/total) * 100.0));
-
+        int oldValue = Integer.parseInt(objectObject.getCompleteness());
         objectObject.setCompleteness(new DecimalFormat("##.#").format(completness));
         oProgressbar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
         oProgressBarLabel.setText(objectObject.getCompleteness()+"%");
         oJobs.setText(String.valueOf(total));
         oJobsDone.setText(String.valueOf(count));
+
+        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(oProgressbar, "progress", oldValue,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
+        objectAnimator.setDuration(400);
+        objectAnimator.start();
     }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -630,9 +670,11 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public boolean isFieldCheckError() {
         return fieldCheckError;
     }
-    public void setFieldCheckError(boolean fieldCheckError) {
-        this.fieldCheckError = fieldCheckError;
-    }
+    public void setFieldCheckError(boolean fieldCheckError) {   this.fieldCheckError = fieldCheckError;    }
+    public boolean isSaveMode() {  return saveMode;  }
+    public void setSaveMode(boolean saveMode) {  this.saveMode = saveMode;  }
+    public Integer getBackButtonCount() {       return backButtonCount;    }
+    public void setBackButtonCount(Integer backButtonCount) {       this.backButtonCount = backButtonCount;    }
 
     public void refresh(){
         if(newPicCount == retutnThreadCount ){
@@ -640,12 +682,38 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             findViewById(R.id.item_cancel).setEnabled(true);
             findViewById(R.id.objectEdit_retractable_button).setEnabled(true);
             findViewById(R.id.objectEdit_add_job_button).setEnabled(true);
+            findViewById(R.id.objectEdit_add_job_button).setBackground(getDrawable(R.drawable.round_button));
             findViewById(R.id.objectEdit_date).setEnabled(true);
             findViewById(R.id.objectEdit_objectName).setEnabled(true);
             findViewById(R.id.objectEdit_customerName).setEnabled(true);
             findViewById(R.id.objectEdit_objectAddress).setEnabled(true);
+            findViewById(R.id.objectEdit_job_recycle_view).setEnabled(true);
+            setSaveMode(false);
 
-            myAdapterObjectEdit.notifyDataSetChanged();
+            //---- Enable View Buttons while saving
+            for(int i = 0; i < objectDetailsArrayList.size();i++){
+                try {
+                    objectDetailsArrayList.get(i).getHolder().oDCompleteJob.setEnabled(true);
+                    objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setEnabled(true);
+                    objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setEnabled(true);
+                    objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_blue));
+                    objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_blue));
+                    objectDetailsArrayList.get(i).getHolder().oDRetractableButton.setEnabled(true);
+                    objectDetailsArrayList.get(i).getHolder().oDRetractableButtonExtended.setEnabled(true);
+                    objectDetailsArrayList.get(i).getHolder().oDRetractableButtonToTopExtended.setEnabled(true);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            for(int i = 0; i < objectPicturesArrayList.size();i++){
+                try {
+                    objectPicturesArrayList.get(i).getHolder().myImage.setEnabled(true);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            //myAdapterObjectEdit.notifyDataSetChanged();
             retutnThreadCount = 0;
             setNeedSave(false);
             oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_green));
@@ -666,38 +734,47 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         @Override
         protected void onProgressUpdate(String... value) {
-            if (value[0].equals("start")) {
-                objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
-                objectObjPic.getHolder().myProgressBarUpl.setVisibility(View.VISIBLE);
-                objectObjPic.getHolder().myProgressBarUpl.setProgress(0);
-            } else if(value[0].equals("one")) {
-                objectObjPic.getHolder().myProgressBarUpl.setProgress(30);
-                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 5,30);
-                objectAnimator.setDuration(3000);
-                objectAnimator.start();
-            } else if(value[0].equals("two")) {
-                objectObjPic.getHolder().myProgressBarUpl.setProgress(85);
-                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 30,80);
-                objectAnimator.setDuration(3000);
-                objectAnimator.start();
-            } else if(value[0].equals("three")) {
-                objectObjPic.getHolder().myProgressBarUpl.setProgress(95);
-                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 80,95);
-                objectAnimator.setDuration(3000);
-                objectAnimator.start();
-            } else if(value[0].equals("four")) {
-                objectObjPic.getHolder().myProgressBarUpl.setProgress(99);
-                ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 95,100);
-                objectAnimator.setDuration(3000);
-                objectAnimator.start();
-            } else if(value[0].equals("done")) {
-                backgroundJobs += 1;
-                retutnThreadCount += 1;
-                objectObjPic.getHolder().myProgressBarUpl.setProgress(100);
-                objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
-                objectObjPic.getHolder().myProgressBarUpl.setVisibility(View.GONE);
-                refresh();
+            try {
+                if (value[0].equals("start")) {
+                    objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
+                    objectObjPic.getHolder().myProgressBarUpl.setVisibility(View.VISIBLE);
+                    objectObjPic.getHolder().myProgressBarUpl.setProgress(0);
+                } else if(value[0].equals("one")) {
+                    objectObjPic.getHolder().myProgressBarUpl.setProgress(30);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 5,30);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("two")) {
+                    objectObjPic.getHolder().myProgressBarUpl.setProgress(85);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 30,80);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("three")) {
+                    objectObjPic.getHolder().myProgressBarUpl.setProgress(95);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 80,95);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("four")) {
+                    objectObjPic.getHolder().myProgressBarUpl.setProgress(99);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(objectObjPic.getHolder().myProgressBarUpl, "progress", 95,100);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("done")) {
+                    objectObjPic.getHolder().myProgressBarUpl.setProgress(100);
+                    objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
+                    objectObjPic.getHolder().myProgressBarUpl.setVisibility(View.GONE);
+                    //refresh();
+                }
+            }catch (Exception e){
+                try {
+                    objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
+                    objectObjPic.getHolder().myImageUplFailed.setVisibility(View.VISIBLE);
+                    objectObjPic.getHolder().myImageUplFailed.setColorFilter(context.getResources().getColor(R.color.jerry_red), PorterDuff.Mode.SRC_ATOP);
+                }catch (Exception ee){
+                    ee.printStackTrace();
+                }
             }
+
             super.onProgressUpdate(value);
         }
 
@@ -735,11 +812,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 }else{
                     //error handling?
                 }
-
-
             }catch (Exception e){
                 e.printStackTrace();
             }
+            backgroundJobs += 1;
+            retutnThreadCount += 1;
+            refresh();
             super.onPostExecute(inputStream);
         }
         private String getPicArrayListJson(ArrayList<ObjectObjPic> pictureList){
@@ -791,12 +869,14 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                        objectPicturesArrayList.get(i).setObjectId(objectObject.getId());
                    }
                 }
-                startPictureUpload();
-                refresh();
+                if(objectPicturesArrayList.size() > 0){
+                    startPictureUpload();
+                }else{
+                    refresh();
+                }
             }catch (Exception e){
                 e.printStackTrace();
             }
-
             super.onPostExecute(inputStream);
         }
         private String getPicArrayListJson(ArrayList<ObjectObjPic> pictureList){

@@ -34,6 +34,15 @@
             </ImageView>
         </LinearLayout>
         <ImageView
+            android:id="@+id/objectDetailsPicture_upl_failed"
+            android:layout_gravity="bottom|center"
+            android:clickable="false"
+            android:src="@drawable/ic_cancel"
+            android:background="@android:color/transparent"
+            android:layout_width="25dp"
+            android:layout_height="25dp">
+        </ImageView>
+        <ImageView
             android:id="@+id/objectDetailsPicture_upl"
             android:layout_gravity="bottom|center"
             android:clickable="false"

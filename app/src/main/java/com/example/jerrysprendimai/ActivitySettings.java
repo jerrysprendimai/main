@@ -102,6 +102,7 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
                                                        dbNameInput.getText().toString(),
                                                        dbUserInput.getText().toString(),
                                                        dbPasswordInput.getText().toString());
+            this.dbHelper.close();
             return;
         }
 

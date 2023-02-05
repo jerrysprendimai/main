@@ -65,7 +65,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         boolean myHoldIndicator;
         //ImageButton myImage;
         ImageView myExpandedImage;
-        ImageView myImage, myImageUpl;
+        ImageView myImage, myImageUpl, myImageUplFailed;
         ProgressBar myProgressBar, myProgressBarUpl;
         LinearLayout myContainer;
         boolean bacgroundMarked;
@@ -78,6 +78,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             myImage          = itemView.findViewById(R.id.objectDetailsPicture_img);
             myExpandedImage  = itemView.findViewById(R.id.expanded_image);
             myImageUpl       = itemView.findViewById(R.id.objectDetailsPicture_upl);
+            myImageUplFailed = itemView.findViewById(R.id.objectDetailsPicture_upl_failed);
             myContainer      = itemView.findViewById(R.id.objectDetailsPicture_top_level);
             myProgressBar    = itemView.findViewById(R.id.objectDetailsPicture_progressBar);
             myProgressBarUpl = itemView.findViewById(R.id.objectDetailsPicture_progressBar_upl);
@@ -158,7 +159,10 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             result.moveToNext();
             url = result.getString(1);
         }
+        dbHelper.close();
+
         holder.myImageUpl.setVisibility(View.GONE);
+        holder.myImageUplFailed.setVisibility(View.GONE);
         holder.myProgressBarUpl.setVisibility(View.GONE);
 
         holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_picture_placeholder_white));
@@ -214,6 +218,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         holder.myImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((ActivityObjectEdit)context).setBackButtonCount(0);
                 if(!parentAdapterObjectEdit.getDeletionMode()){
                     if(!holder.isMyHoldIndicator()){
                         Intent intent = new Intent(context, ActivityPictureFullSizeView.class);

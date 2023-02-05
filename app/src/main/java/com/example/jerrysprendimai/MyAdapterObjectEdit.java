@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -17,7 +16,6 @@ import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -35,7 +33,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -98,7 +95,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         Integer pos;
         LinearLayout lockLayout, lockLayoutExtended, layoutSummary, layoutExtended, retractableButtonLayout,
-                     getRetractableButtonLayoutExtended, oDAddFotoButton, oDTakeFotoButton, oDDeleteFotoButton,
+                retractableButtonLayoutExtended, oDAddFotoButton, oDTakeFotoButton, oDDeleteFotoButton,
                      addButtonsLayout, deleteButtonsLayout, oDDeleteCancel;
         ImageView oDJobDoneImg, oDJobDoneImgExtended, oDJobDeleteImg, oDJobDeleteImgExtended;
         TextView oDJobName, oDCompletedJobLabel, oDJobNameCount, oDJobNameCountExtended;
@@ -118,7 +115,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             layoutSummary                      = itemView.findViewById(R.id.objectDetails_summary_line);
             layoutExtended                     = itemView.findViewById(R.id.objectDetails_summary_expanded);
             retractableButtonLayout            = itemView.findViewById(R.id.objectDetails_retractable_button_layout);
-            getRetractableButtonLayoutExtended = itemView.findViewById(R.id.objectDetails_retractable_button_layout_extended);
+            retractableButtonLayoutExtended    = itemView.findViewById(R.id.objectDetails_retractable_button_layout_extended);
             lockLayout                         = itemView.findViewById(R.id.objectDetails_lock_layout_visible);
             lockLayoutExtended                 = itemView.findViewById(R.id.objectDetails_lock_layout_extended);
             oDJobDoneImg                       = itemView.findViewById(R.id.objectDetails_image_view);
@@ -167,10 +164,13 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     }
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+
         setMyHolder(holder);
         setMyObjectObjDetails(this.myObjectList.get(holder.getAdapterPosition()));
         holder.setPos(holder.getAdapterPosition());
         ObjectObjDetails myObjectObjDetails = this.myObjectList.get(holder.getAdapterPosition());
+
+        myObjectObjDetails.setHolder(holder);
 
         holder.lockLayout.setVisibility(View.GONE);
         holder.lockLayoutExtended.setVisibility(View.GONE);
@@ -214,10 +214,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
         //TransitionManager.beginDelayedTransition(holder.layoutExtended, new AutoTransition());
         //TransitionManager.beginDelayedTransition(holder.layoutSummary, new AutoTransition());
-        if(holder.layoutSummary.getVisibility() == View.VISIBLE){
-            holder.layoutExtended.setVisibility(View.GONE);
-            holder.getRetractableButtonLayoutExtended.setVisibility(View.GONE);
-        }
+
 
         TextWatcher myTextWatcher = new TextWatcher() {
             @Override
@@ -241,6 +238,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             }
         };
         CompoundButton.OnCheckedChangeListener myOnCheckedChangeListener = (buttonView, isChecked) -> {
+            ((ActivityObjectEdit)context).setBackButtonCount(0);
             if((isChecked)&&(!myObjectList.get(holder.getAdapterPosition()).getCompleted().equals("X"))){
                 ((ActivityObjectEdit)context).oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
                 myObjectList.get(holder.getAdapterPosition()).setCompleted("X");
@@ -259,12 +257,13 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         };
         holder.oDCompleteJob.setOnCheckedChangeListener(myOnCheckedChangeListener);
         holder.oDRetractableButton.setOnClickListener(v -> {
+            ((ActivityObjectEdit)context).setBackButtonCount(0);
             if(((ActivityObjectEdit)context).getDeletionMode().equals(false)){
                 if((holder.layoutSummary.getVisibility() == View.VISIBLE)&&(holder.layoutExtended.getVisibility() == View.GONE)){
                     TransitionManager.beginDelayedTransition(holder.layoutExtended, new AutoTransition());
                     //TransitionManager.beginDelayedTransition(holder.layoutSummary, new AutoTransition());
                     holder.layoutExtended.setVisibility(View.VISIBLE);
-                    holder.getRetractableButtonLayoutExtended.setVisibility(View.VISIBLE);
+                    holder.retractableButtonLayoutExtended.setVisibility(View.VISIBLE);
                     holder.layoutSummary.setVisibility(View.GONE);
                     holder.retractableButtonLayout.setVisibility(View.GONE);
 
@@ -297,11 +296,12 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             return false;
         });
         holder.oDRetractableButtonExtended.setOnClickListener(v -> {
+            ((ActivityObjectEdit)context).setBackButtonCount(0);
             if((holder.layoutSummary.getVisibility() == View.GONE)&&(holder.layoutExtended.getVisibility() == View.VISIBLE)){
                 TransitionManager.beginDelayedTransition(holder.layoutExtended, new AutoTransition());
                 //TransitionManager.beginDelayedTransition(holder.layoutSummary, new AutoTransition());
                 holder.layoutExtended.setVisibility(View.GONE);
-                holder.getRetractableButtonLayoutExtended.setVisibility(View.GONE);
+                holder.retractableButtonLayoutExtended.setVisibility(View.GONE);
                 holder.layoutSummary.setVisibility(View.VISIBLE);
                 holder.retractableButtonLayout.setVisibility(View.VISIBLE);
 
@@ -325,6 +325,16 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             holder.oDRetractableButton.performLongClick();
             return false;
         });
+
+        if(holder.layoutSummary.getVisibility() == View.VISIBLE){
+            holder.layoutExtended.setVisibility(View.GONE);
+            holder.retractableButtonLayoutExtended.setVisibility(View.GONE);
+        }else{
+            holder.oDRetractableButtonExtended.setSoundEffectsEnabled(false);
+            holder.oDRetractableButtonExtended.performClick();
+            holder.oDRetractableButtonExtended.setSoundEffectsEnabled(true);
+        }
+
 
         //----picture handling
         holder.filteredPics = new ArrayList<>();
@@ -376,6 +386,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         holder.oDAddFotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((ActivityObjectEdit)context).setBackButtonCount(0);
                 ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "addFoto");
                 //check permission
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
@@ -400,7 +411,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         holder.oDTakeFotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "takeFoto");
+                ((ActivityObjectEdit)context).setBackButtonCount(0);
+                ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "takeFoto");
                 //check permission camera
                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {

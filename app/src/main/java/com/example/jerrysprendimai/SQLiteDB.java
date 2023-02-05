@@ -70,6 +70,7 @@ public class SQLiteDB extends SQLiteOpenHelper {
     public Cursor getData() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor data = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+        //db.close();
         return data;
     }
 }
