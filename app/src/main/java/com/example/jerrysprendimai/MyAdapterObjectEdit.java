@@ -33,6 +33,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -94,6 +95,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         Integer pos;
+        CardView summaryCardView, summaryExpandedCardView;
         LinearLayout lockLayout, lockLayoutExtended, layoutSummary, layoutExtended, retractableButtonLayout,
                 retractableButtonLayoutExtended, oDAddFotoButton, oDTakeFotoButton, oDDeleteFotoButton,
                      addButtonsLayout, deleteButtonsLayout, oDDeleteCancel;
@@ -112,6 +114,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         public MyViewHolder(@NonNull View itemView){
             super(itemView);
 
+            summaryCardView                    = itemView.findViewById(R.id.objectDetails_summary_cardView);
+            summaryExpandedCardView            = itemView.findViewById(R.id.objectDetails_summary_expanded_cardView);
             layoutSummary                      = itemView.findViewById(R.id.objectDetails_summary_line);
             layoutExtended                     = itemView.findViewById(R.id.objectDetails_summary_expanded);
             retractableButtonLayout            = itemView.findViewById(R.id.objectDetails_retractable_button_layout);
@@ -169,6 +173,9 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         setMyObjectObjDetails(this.myObjectList.get(holder.getAdapterPosition()));
         holder.setPos(holder.getAdapterPosition());
         ObjectObjDetails myObjectObjDetails = this.myObjectList.get(holder.getAdapterPosition());
+
+        holder.summaryCardView.setBackgroundResource(R.drawable.card_view_background2);
+        holder.summaryExpandedCardView.setBackgroundResource(R.drawable.card_view_background2);
 
         myObjectObjDetails.setHolder(holder);
 

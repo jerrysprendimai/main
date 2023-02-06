@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -68,7 +69,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     RecyclerView recyclerView;
     MyAdapterObjectEdit myAdapterObjectEdit;
     ScrollView scrollView;
-
+    CardView mainCardView;
     EditText editInvisibleFocusHolder;
     ImageView oSavedStatusIndicator;
     Button oAddJob;
@@ -123,6 +124,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.scrollView               = findViewById(R.id.objectEdit_job_scroll_view);
         this.oDeleteJobButton         = findViewById(R.id.objectEdit_delete_job);
         this.oDeleteJobButtonLayout   = findViewById(R.id.objectEdit_delete_job_layout);
+        this.mainCardView             = findViewById(R.id.cardView);
 
         fillFieldValues();
         buildRecyclerView();
@@ -298,6 +300,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     }
     private void fillFieldValues() {
             int completeCount = 0;
+            this.mainCardView.setBackgroundResource(R.drawable.card_view_background);
 
             if(getDeletionMode().equals(false)){
                 oDeleteJobButtonLayout.setVisibility(View.GONE);

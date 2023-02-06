@@ -74,10 +74,12 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         TextView objectCustomer;
         ProgressBar progressBar;
         TextView progressBarLabel;
+        CardView objectCardView;
 
 
         public MyViewHolder(@NonNull View itemView){
             super(itemView);
+            objectCardView       = itemView.findViewById(R.id.object_cardView);
             objectLockLayout     = itemView.findViewById(R.id.object_lock_layout);
             objectName           = itemView.findViewById(R.id.object_name);
             objectCustomer       = itemView.findViewById(R.id.object_customer);
@@ -92,6 +94,8 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ObjectObject myObjectObject = this.myObjectList.get(position);
+
+        holder.objectCardView.setBackgroundResource(R.drawable.card_view_background);
 
         //-------lock icon
         if(myObjectObject.getLockedByUserId().equals("0")){
@@ -336,6 +340,8 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 }
 
                 //---- fill bottomSheet values
+                //bottomSheetView.findViewById(R.id.bottomsheet_top_cardView)).setBackgroundResource(R.drawable.card_view_background);
+                (bottomSheetView.findViewById(R.id.bottomsheet_assigne_user_cardView)).setBackgroundResource(R.drawable.card_view_background2);
                 ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectName)).setText(clickObject.getObjectName());
                 ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_customerName)).setText(clickObject.getCustomerName());
                 ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_assigned_user_label)).setText(String.valueOf(objUserArrayList.size()));
