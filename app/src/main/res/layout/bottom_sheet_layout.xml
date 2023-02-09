@@ -134,7 +134,8 @@
                 <ScrollView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:layout_margin="2dp">
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/my_recycle_view_user_assigned"
                         android:layout_width="match_parent"

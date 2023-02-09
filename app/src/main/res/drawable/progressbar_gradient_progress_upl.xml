@@ -6,7 +6,7 @@
             android:shape="ring"
             android:useLevel="false"
             android:type="sweep"
-            android:thicknessRatio="12.0">
+            android:thicknessRatio="10.0">
             <solid android:color="@color/jerry_light_opacity"/>
         </shape>
     </item>
@@ -21,7 +21,7 @@
                 android:shape="ring"
                 android:angle="0"
                 android:type="sweep"
-                android:thicknessRatio="12.0">
+                android:thicknessRatio="10.0">
                 <solid android:color="@color/jerry_green"/>
             </shape>
         </rotate>

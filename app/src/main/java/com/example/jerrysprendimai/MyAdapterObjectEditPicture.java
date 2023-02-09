@@ -65,7 +65,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         boolean myHoldIndicator;
         //ImageButton myImage;
         ImageView myExpandedImage;
-        ImageView myImage, myImageUpl, myImageUplFailed;
+        ImageView myImage, myImageUpl, myImageUplFailed, myImageUplLock;
         ProgressBar myProgressBar, myProgressBarUpl;
         LinearLayout myContainer;
         boolean bacgroundMarked;
@@ -82,6 +82,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             myContainer      = itemView.findViewById(R.id.objectDetailsPicture_top_level);
             myProgressBar    = itemView.findViewById(R.id.objectDetailsPicture_progressBar);
             myProgressBarUpl = itemView.findViewById(R.id.objectDetailsPicture_progressBar_upl);
+            myImageUplLock   = itemView.findViewById(R.id.objectDetailsPicture_upl_lock);
         }
         public boolean isMyHoldIndicator() {return myHoldIndicator;}
         public void setMyHoldIndicator(boolean myHoldIndicator) {this.myHoldIndicator = myHoldIndicator;}
@@ -149,6 +150,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         ObjectObjPic objectObjPic = myPictureList.get(holder.getAdapterPosition());
         objectObjPic.setHolder(holder);
 
+        holder.myImageUplLock.setVisibility(View.GONE);
         holder.myContainer.setBackgroundColor(Color.TRANSPARENT);
         holder.setBacgroundMarked(false);
 
@@ -211,7 +213,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                         public void onLoadCleared(@Nullable Drawable placeholder) {
                         }
                     });
-            }
+        }
 
 
         //-----image click handling

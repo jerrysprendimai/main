@@ -60,11 +60,18 @@
             android:layout_gravity="center"
             android:layout_margin="0dp">
         </ProgressBar>
+        <ImageView
+            android:id="@+id/objectDetailsPicture_upl_lock"
+            android:layout_gravity="center"
+            android:background="@color/jerry_grey_opacity"
+            android:layout_width="65dp"
+            android:layout_height="65dp">
+        </ImageView>
         <ProgressBar
             android:id="@+id/objectDetailsPicture_progressBar_upl"
             android:background="@color/jerry_grey_opacity"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:progressDrawable="@drawable/progressbar_gradient_progress_upl"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_gravity="center"

@@ -516,6 +516,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     }
                     for(int i = 0; i < objectPicturesArrayList.size();i++){
                         try {
+                            objectPicturesArrayList.get(i).getHolder().myImageUplLock.setVisibility(View.VISIBLE);
                             objectPicturesArrayList.get(i).getHolder().myImage.setEnabled(false);
                         }catch (Exception e){
                             e.printStackTrace();
@@ -710,6 +711,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             }
             for(int i = 0; i < objectPicturesArrayList.size();i++){
                 try {
+                    objectPicturesArrayList.get(i).getHolder().myImageUplLock.setVisibility(View.GONE);
                     objectPicturesArrayList.get(i).getHolder().myImage.setEnabled(true);
                 }catch (Exception e){
                     e.printStackTrace();
@@ -766,6 +768,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     objectObjPic.getHolder().myProgressBarUpl.setProgress(100);
                     objectObjPic.getHolder().myImageUpl.setVisibility(View.GONE);
                     objectObjPic.getHolder().myProgressBarUpl.setVisibility(View.GONE);
+                    objectObjPic.getHolder().myImageUplLock.setVisibility(View.GONE);
                     //refresh();
                 }
             }catch (Exception e){

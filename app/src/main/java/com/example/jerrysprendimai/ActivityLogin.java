@@ -1,28 +1,48 @@
 package com.example.jerrysprendimai;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.ActivityOptions;
+import android.app.DownloadManager;
+import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.util.Base64;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dcastalia.localappupdate.DownloadApk;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.InputStream;
 
 public class ActivityLogin extends AppCompatActivity {
+
+    private final String appUrl = "https://jerry-sprendimai.eu/misc/jerry.apk";
 
     Integer backButtonCount = 0;
     TextInputEditText loginUser;
@@ -52,50 +72,18 @@ public class ActivityLogin extends AppCompatActivity {
         loginUser.setText("admin");
         loginPassword.setText("admin");
 
-        //----testing screen pan
-        /*Activity activityLogin = this;
-        currentlyScrolled = 0;
-        totalScreenHeight = shiftContainer.getHeight();
-        loginPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View focusedView, boolean hasFocus) {
-                if(hasFocus == true){
-                    if (focusedView == null){
-                        Toast.makeText(activityLogin, "focusedView is null", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    totalScreenHeight = shiftContainer.getHeight();
-                    int[] location = new int[2];
-                    focusedView.getLocationInWindow(location);
-                    int absX = location[0];
-                    int absY = location[1];
-
-                    int oneFourth = totalScreenHeight/4;
-                    if (absY > oneFourth){
-                        int distanceToScroll = absY - oneFourth + currentlyScrolled;
-                        currentlyScrolled = distanceToScroll;
-                        shiftContainer.scrollTo(absX,absY);
-                        shiftContainer.setVisibility(View.VISIBLE);
-                        //Toast.makeText(activity, "Shift up " + distanceToScroll, Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    currentlyScrolled = 0;
-                    shiftContainer.scrollTo(0,0);
-                }
-            }
-        });*/
-
         context = this;
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
                 findViewById(R.id.loginUser).setEnabled(false);
                 findViewById(R.id.loginPassword).setEnabled(false);
                 findViewById(R.id.loginButton).setEnabled(false);
                 background = ((Button) findViewById(R.id.loginButton)).getBackground();
                 ((Button) findViewById(R.id.loginButton)).setBackground(getDrawable(R.drawable.button_disabled));
-                new HttpsRequest(context).execute();
+                new HttpsLoginRequest(context).execute();
             }
         });
 
@@ -135,12 +123,12 @@ public class ActivityLogin extends AppCompatActivity {
         //super.onBackPressed();
     }
 
-    class HttpsRequest extends AsyncTask<String, Void, InputStream> {
+    class HttpsLoginRequest extends AsyncTask<String, Void, InputStream> {
         private static final String login_url       = "login.php";
         private Context context;
         Connector connector;
 
-        public HttpsRequest(Context ctx){
+        public HttpsLoginRequest(Context ctx){
             context = ctx;
         }
 
@@ -185,15 +173,107 @@ public class ActivityLogin extends AppCompatActivity {
                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
 
                String login_status = object.getString("status");
+               String version      = object.getString("version");
                 if (login_status.equals("1")) {
-                    JSONArray userArray = (JSONArray) connector.getResultJsonArray().get(1);
-                    JSONObject myObj = MCrypt.decryptJSONObject(userArray.getJSONObject(0));
-                    //JSONObject myObj = userArray.getJSONObject(0);
-                    ObjectUser myUser = new ObjectUser(myObj);
+                    //--check if new version is available
+                    int versionCode = BuildConfig.VERSION_CODE;
+                    String versionName = BuildConfig.VERSION_NAME;
+                    if(!versionName.equals(version)){
 
-                    Intent intent = new Intent(this.context, ActivityMenu.class);
-                    intent.putExtra("myUser", myUser);
-                    context.startActivity(intent);
+                        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_popup, null, false);
+                        TextView text = dialogView.findViewById(R.id.popup_text);
+                        text.setText(getResources().getString(R.string.new_version));
+                        AlertDialog.Builder builder = new AlertDialog.Builder((Context) context, R.style.AlertDialogTheme);
+                        builder.setView(dialogView);
+                        builder.setPositiveButton("Ok", (dialog, which) -> {
+                            //installtion permission
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                if (!getPackageManager().canRequestPackageInstalls()) {
+                                    startActivityForResult(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", getPackageName()))), 1234);
+                                } else {
+                                }
+                            }
+                            //Storage Permission
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(ActivityLogin.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                            }
+
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(ActivityLogin.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                            }
+
+                            String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
+                            String fileName = "Jerry.apk";
+                            destination += fileName;
+                            Uri uri = Uri.parse("file://" + destination);
+                            //Delete update file if exists
+                            File file = new File(destination);
+                            if (file.exists()){
+                              file.delete();
+                            }
+                            DownloadApk downloadApk = new DownloadApk(ActivityLogin.this);
+                            downloadApk.startDownloadingApk(appUrl, "Jerry.apk");
+                            //finish();
+                            //DownloadApk downloadApk = new DownloadApk(ActivityMain.getActivityMain());
+                            //downloadApk.startDownloadingApk(appUrl, fileName);
+/*
+                            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(appUrl));
+                            request.setDescription("jerry.apk");
+                            request.setTitle("jerry.apk");
+
+                            request.setDestinationUri(uri);
+
+                            DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                            long downloadId = manager.enqueue(request);
+                            BroadcastReceiver onComplete = new BroadcastReceiver() {
+                                @Override
+                                public void onReceive(Context cntx, Intent intent) {
+
+                                    //Intent install = new Intent(Intent.ACTION_VIEW).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    //Window window = getWindow();
+                                    //View view = window.getDecorView();
+                                    //install.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+                                    //install.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + fileName))
+                                    //        ,"application/vnd.android.package-archive");
+                                    //ActivityOptions.makeClipRevealAnimation(mView, left, top, width, height).setLaunchBounds(rect).setLaunchDisplayId(presentationDisplay.getDisplayId()).toBundle();
+                                    //install.setDataAndType(uri, manager.getMimeTypeForDownloadedFile(downloadId));
+                                    //getApplicationContext().startActivity(install);
+
+                                    try{
+                                        Intent install = new Intent(Intent.ACTION_VIEW);
+                                        install.setDataAndType(uri,"application/vnd.android.package-archive");
+                                        install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                        startActivity(intent);
+                                    } catch (ActivityNotFoundException e) {
+                                        // show message to user
+                                        e.printStackTrace();
+                                    }
+                                    //unregisterReceiver(this);
+                                    //finish();
+                                    //System.exit(0);
+                                }
+                            };
+                            registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+*/
+                        });
+
+                        builder.setNegativeButton("Cancel", (dialog, which) -> {
+                            onResume();
+                            return;
+                        });
+                        builder.create();
+                        builder.show();
+                    }else{
+                        JSONArray userArray = (JSONArray) connector.getResultJsonArray().get(1);
+                        JSONObject myObj = MCrypt.decryptJSONObject(userArray.getJSONObject(0));
+                        //JSONObject myObj = userArray.getJSONObject(0);
+                        ObjectUser myUser = new ObjectUser(myObj);
+
+                        Intent intent = new Intent(this.context, ActivityMenu.class);
+                        intent.putExtra("myUser", myUser);
+                        context.startActivity(intent);
+                    }
 
                 }else{
                     Toast.makeText(this.context, "Klaida", Toast.LENGTH_SHORT).show();
