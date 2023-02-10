@@ -248,20 +248,24 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             }
         });
 
-        holder.myImage.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                holder.myImage.setSoundEffectsEnabled(false);
-                holder.setMyHoldIndicator(true);
-                parentAdapterObjectEdit.setDeletionMode(true);
-                parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
-                parentHolder.setDeletionModeButtons(true);
-                holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
-                holder.setBacgroundMarked(true);
-                holder.myImage.setSoundEffectsEnabled(true);
-                return false;
-            }
-        });
+        //---- user mode handling
+        if (!((ActivityObjectEdit)context).isUserMode()){
+            //----only admin has an option to delete pictures
+            holder.myImage.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    holder.myImage.setSoundEffectsEnabled(false);
+                    holder.setMyHoldIndicator(true);
+                    parentAdapterObjectEdit.setDeletionMode(true);
+                    parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
+                    parentHolder.setDeletionModeButtons(true);
+                    holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
+                    holder.setBacgroundMarked(true);
+                    holder.myImage.setSoundEffectsEnabled(true);
+                    return false;
+                }
+            });
+        }
     }
     @Override
     public int getItemCount() {

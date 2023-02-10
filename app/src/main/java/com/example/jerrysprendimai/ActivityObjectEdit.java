@@ -21,6 +21,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -43,6 +44,7 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -55,7 +57,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class ActivityObjectEdit extends AppCompatActivity implements View.OnClickListener, KeyboardVisibilityEventListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, View.OnKeyListener {
-
+    final String user = "user";
     public static final int REQUEST_CODE = 101;
 
     private ArrayList<ObjectObjUser> objectUserArrayList;
@@ -64,6 +66,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     BottomNavigationView bottomNavigationView;
     ObjectObject objectObject;
     ObjectUser myUser;
+    ObjectObjDetails objectObjDetailsToUpdate;
     ArrayList<Integer> toBeDeletedList;
 
     RecyclerView recyclerView;
@@ -76,7 +79,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     TextView oId, oNameLb, oDate, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
     ProgressBar oProgressbar;
 
-    boolean needSave, deletionMode, saveMode, fieldCheckError;
+    boolean needSave, deletionMode, userMode, saveMode, fieldCheckError;
     FloatingActionButton oDeleteJobButton;
     LinearLayout oDeleteJobButtonLayout;
     Integer backButtonCount;
@@ -283,6 +286,30 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.bottomNavigationView = findViewById(R.id.save_cancel_buttons);
         this.bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
+        //---- user mode handling
+        if(this.myUser.getUser_lv().equals(user)){
+            this.userMode = true;
+            setSaveCancelVisibility(false);
+            oSavedStatusIndicator.setVisibility(View.GONE);
+            oAddJob.setVisibility(View.GONE);
+            oDate.setEnabled(false);
+            oDate.setTextColor(getResources().getColor(R.color.jerry_grey));
+            oName.setEnabled(false);
+            oCustomer.setEnabled(false);
+            oAddress.setEnabled(false);
+            retractableButton.setSoundEffectsEnabled(false);
+            retractableButton.performClick();
+            retractableButton.setSoundEffectsEnabled(true);
+        }else{
+            this.userMode = false;
+            setSaveCancelVisibility(true);
+            oSavedStatusIndicator.setVisibility(View.VISIBLE);
+            oAddJob.setVisibility(View.VISIBLE);
+            oDate.setEnabled(true);
+            oName.setEnabled(true);
+            oCustomer.setEnabled(true);
+            oAddress.setEnabled(true);
+        }
 
     }
     public void setSaveCancelVisibility(Boolean value){
@@ -403,8 +430,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 Toast.makeText(this, getResources().getString(R.string.not_saved), Toast.LENGTH_SHORT).show();
                 backButtonCount++;
             } else {
-                //getIntent().removeExtra("myBaustelle");
-                //backButtonCount = 0;
                 setBackButtonCount(0);
                 super.onBackPressed();
             }
@@ -474,6 +499,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()) {
             case R.id.item_save:
                 setBackButtonCount(0);
+
                 //---cehck if fields are not empty
                 setFieldCheckError(false);
                 if(isFieldValueError(this.objectObject.getObjectName(), this.oName)){
@@ -500,20 +526,22 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     setSaveMode(true);
 
                     //---- Disable View Buttons while saving
-                    for(int i = 0; i < objectDetailsArrayList.size();i++){
-                        try {
-                           objectDetailsArrayList.get(i).getHolder().oDCompleteJob.setEnabled(false);
-                           objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setEnabled(false);
-                           objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setEnabled(false);
-                           objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
-                           objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
-                           objectDetailsArrayList.get(i).getHolder().oDRetractableButton.setEnabled(false);
-                           objectDetailsArrayList.get(i).getHolder().oDRetractableButtonExtended.setEnabled(false);
-                           objectDetailsArrayList.get(i).getHolder().oDRetractableButtonToTopExtended.setEnabled(false);
-                        }catch (Exception e){
-                            e.printStackTrace();
+                    //if (!isUserMode()) {
+                        for (int i = 0; i < objectDetailsArrayList.size(); i++) {
+                            try {
+                                objectDetailsArrayList.get(i).getHolder().oDCompleteJob.setEnabled(false);
+                                objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setEnabled(false);
+                                objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setEnabled(false);
+                                objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
+                                objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
+                                objectDetailsArrayList.get(i).getHolder().oDRetractableButton.setEnabled(false);
+                                objectDetailsArrayList.get(i).getHolder().oDRetractableButtonExtended.setEnabled(false);
+                                objectDetailsArrayList.get(i).getHolder().oDRetractableButtonToTopExtended.setEnabled(false);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
+                    //}
                     for(int i = 0; i < objectPicturesArrayList.size();i++){
                         try {
                             objectPicturesArrayList.get(i).getHolder().myImageUplLock.setVisibility(View.VISIBLE);
@@ -654,7 +682,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.objectPicturesArrayList = objectPicturesArrayList;
     }
     public void setObjectDetailsArrayList(ArrayList<ObjectObjDetails> objectDetailsArrayList) {
-        this.objectDetailsArrayList = objectDetailsArrayList;
+        this.objectDetailsArrayList = new ArrayList<>();
+        this.objectDetailsArrayList.addAll(objectDetailsArrayList);
+        //this.objectDetailsArrayList = objectDetailsArrayList;
     }
     public ObjectUser getMyUser() {
         return myUser;
@@ -668,6 +698,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void setDeletionMode(Boolean deletionMode) {
         this.deletionMode = deletionMode;
     };
+    public ObjectObjDetails getObjectObjDetailsToUpdate() {
+        return objectObjDetailsToUpdate;
+    }
+    public void setObjectObjDetailsToUpdate(ObjectObjDetails objectObjDetailsToUpdate) {
+        this.objectObjDetailsToUpdate = objectObjDetailsToUpdate;
+    }
     public MyAdapterObjectEdit getAdatpreWa() {        return adatpreWa;    }
     public MyAdapterObjectEdit.MyViewHolder getHolderWa() {        return holderWa;    }
     public String getActionTypeWa() {  return actionTypeWa;    }
@@ -679,6 +715,14 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void setSaveMode(boolean saveMode) {  this.saveMode = saveMode;  }
     public Integer getBackButtonCount() {       return backButtonCount;    }
     public void setBackButtonCount(Integer backButtonCount) {       this.backButtonCount = backButtonCount;    }
+
+    public boolean isUserMode() {
+        return userMode;
+    }
+
+    public void setUserMode(boolean userMode) {
+        this.userMode = userMode;
+    }
 
     public void refresh(){
         if(newPicCount == retutnThreadCount ){
@@ -841,8 +885,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             return jsonArray.toString();
         }
     }
+
     class HttpsRequestSaveObject extends AsyncTask<String, Void, InputStream> {
         private static final String save_object_url = "save_object.php";
+        private static final String save_single_object_detail = "save_single_object_detail.php";
         private Context context;
         Connector connector;
 
@@ -851,37 +897,67 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         }
         @Override
         protected InputStream doInBackground(String... strings) {
-            connector = new Connector(context, save_object_url);
-            connector.addPostParameter("objectObject", MCrypt2.encodeToString(objectObject.toJson()));
-            connector.addPostParameter("detailsList",  MCrypt2.encodeToString(getDetailsArrayListJson(getObjectDetailsArrayList())));
-            connector.addPostParameter("pictureList",  getPicArrayListJson(getObjectPicturesArrayList()));
-            connector.send();
-            connector.receive();
-            connector.disconnect();
-            String result = connector.getResult();
-            result = result;
+            if (!isUserMode()){
+                connector = new Connector(context, save_object_url);
+                connector.addPostParameter("objectObject", MCrypt2.encodeToString(objectObject.toJson()));
+                connector.addPostParameter("detailsList",  MCrypt2.encodeToString(getDetailsArrayListJson(getObjectDetailsArrayList())));
+                connector.addPostParameter("pictureList",  getPicArrayListJson(getObjectPicturesArrayList()));
+                connector.send();
+                connector.receive();
+                connector.disconnect();
+                String result = connector.getResult();
+                result = result;
+            }else{
+                connector = new Connector(context, save_single_object_detail);
+                connector.addPostParameter("objectObject", MCrypt2.encodeToString(objectObject.toJson()));
+                connector.addPostParameter("objectDetails", MCrypt2.encodeToString(getObjectObjDetailsToUpdate().toJson()));
+                connector.send();
+                connector.receive();
+                connector.disconnect();
+                String result = connector.getResult();
+                result = result;
+            }
             return null;
         }
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
-            try {
-                connector.decodeResponse();
-                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
-                String save_status = object.getString("status");
-                if ((save_status.equals("1"))&&(objectObject.getId().equals(-1))) {
-                   objectObject.setId(Integer.parseInt(object.getString("object_id")));
-                   for(int i = 0; i< objectPicturesArrayList.size(); i++){
-                       objectPicturesArrayList.get(i).setObjectId(objectObject.getId());
-                   }
+            if(!isUserMode()){
+                try {
+                    connector.decodeResponse();
+                    JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                    String save_status = object.getString("status");
+                    if ((save_status.equals("1"))&&(objectObject.getId().equals(-1))) {
+                       objectObject.setId(Integer.parseInt(object.getString("object_id")));
+                       for(int i = 0; i< objectPicturesArrayList.size(); i++){
+                           objectPicturesArrayList.get(i).setObjectId(objectObject.getId());
+                       }
+                    }
+                    if(objectPicturesArrayList.size() > 0){
+                        startPictureUpload();
+                    }else{
+                        refresh();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                if(objectPicturesArrayList.size() > 0){
-                    startPictureUpload();
-                }else{
-                    refresh();
+            }else{
+                try {
+                    connector.decodeResponse();
+                    JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                    String save_status = object.getString("status");
+                    String msg = object.getString("msg");
+                    if (save_status.equals("0")){
+                    }else if(save_status.equals("1")){
+                    }else if(save_status.equals("2")){
+                        Toast.makeText(context, "Užrakinta " +  msg, Toast.LENGTH_SHORT).show();
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-            }catch (Exception e){
-                e.printStackTrace();
+                refresh();
+                new HttpsRequestGetObjectDetails(context, objectObject).execute();
             }
             super.onPostExecute(inputStream);
         }
@@ -898,6 +974,104 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 jsonArray.put(detailsList.get(i).toJson());
             }
             return jsonArray.toString();
+        }
+    }
+    class HttpsRequestGetObjectDetails extends AsyncTask<String, Void, InputStream> {
+        private static final String get_object_details_url = "get_object_details.php";
+
+        private Context context;
+        private ObjectObject clickObject;
+        Connector connector;
+
+        public HttpsRequestGetObjectDetails(Context ctx, ObjectObject obj){
+            context     = ctx;
+            clickObject = obj;
+        }
+
+        public ObjectObject getClickObject() { return clickObject; }
+        public void setClickObject(ObjectObject clickObject) { this.clickObject = clickObject; }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+            connector = new Connector(context, get_object_details_url);
+            connector.addPostParameter("object_id", Base64.encodeToString(MCrypt.encrypt(String.valueOf(clickObject.getId()).getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            //super.onPostExecute(inputStream);
+            ArrayList<ObjectObjUser> objUserArrayList = new ArrayList<>();
+            ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
+            ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
+            ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
+
+            JSONArray responseObjDetails = new JSONArray();
+            JSONArray responseObjUser    = new JSONArray();
+            JSONArray responseObjPic     = new JSONArray();
+            JSONArray responseEmployee   = new JSONArray();
+            JSONArray responseObject     = new JSONArray();
+            Integer completeCount = 0;
+            try {
+                responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
+                responseObjUser    = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(1));
+                responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
+                responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
+                responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            try{
+                for(int i = 0; i < responseObjDetails.length(); i++){
+                    ObjectObjDetails objectObjDetails = new ObjectObjDetails((JSONObject) responseObjDetails.get(i));
+                    objDetailsArrayList.add(objectObjDetails);
+                    if(objectObjDetails.getCompleted().equals("X")){
+                        completeCount += 1;
+                    }
+                }
+                setObjectDetailsArrayList(objDetailsArrayList);
+
+                for(int i = 0; i < responseObjUser.length(); i++){
+                    ObjectObjUser objectObjUser = new ObjectObjUser((JSONObject) responseObjUser.get(i));
+                    objUserArrayList.add(objectObjUser);
+                }
+                //setObjectUserArrayList(objUserArrayList);
+
+                for(int i = 0; i < responseObjPic.length(); i++){
+                    ObjectObjPic objectObjPic = new ObjectObjPic((JSONObject) responseObjPic.get(i));
+                    objPicsArrayList.add(objectObjPic);
+                }
+                setObjectPicturesArrayList(objPicsArrayList);
+
+                for(int i =0; i < responseEmployee.length(); i++){
+                    ObjectUser objectUser = new ObjectUser((JSONObject) responseEmployee.get(i));
+                    employeeArrayList.add(objectUser);
+                }
+
+                for(int i = 0; i < responseObject.length(); i++ ){
+                    ObjectObject updatedObject = new ObjectObject((JSONObject) responseObject.get(i), "wa");
+                    if(updatedObject != null){
+                        setClickObject(updatedObject);
+                        break;
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            myAdapterObjectEdit.notifyDataSetChanged();
+            oDate.setText(getClickObject().getDate());
+            oName.setText(getClickObject().getObjectName());
+            oCustomer.setText(getClickObject().getCustomerName());
+            oAddress.setText(getClickObject().getObjectAddress());
+            calculateCompletness();
+            //refresh();
         }
     }
 }

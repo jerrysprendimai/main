@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ActivityMenu extends AppCompatActivity {
-
+    final String user = "user";
     ObjectUser myUser;
     LinearLayout mainContainer;
     GridLayout gridLayout;
@@ -105,7 +105,7 @@ public class ActivityMenu extends AppCompatActivity {
     }
 
     private void setUserLevelView() {
-        if (this.myUser.getUser_lv().equals("user")){
+        if (this.myUser.getUser_lv().equals(user)){
             ((CardView) findViewById(R.id.CardView_main_menu_dealers)).setVisibility(View.GONE);
             ((CardView) findViewById(R.id.CardView_main_menu_user)).setVisibility(View.GONE);
         }else{

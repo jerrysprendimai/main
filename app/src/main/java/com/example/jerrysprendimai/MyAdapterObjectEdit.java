@@ -20,6 +20,8 @@ import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,6 +34,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.menu.ActionMenuItem;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -40,6 +43,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.jerrysprendimai.interfaces.OnIntentReceived;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
@@ -261,6 +266,14 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 holder.oDCompletedJobLabel.setVisibility(View.GONE);
             }
             ((ActivityObjectEdit)context).calculateCompletness();
+
+            if(((ActivityObjectEdit)context).isUserMode()){
+                BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
+                Menu menu = navigationView.getMenu();
+                MenuItem menuItemSave = menu.findItem(R.id.item_save);
+                ((ActivityObjectEdit)context).setObjectObjDetailsToUpdate(myObjectObjDetails);
+                ((ActivityObjectEdit)context).onNavigationItemSelected(menuItemSave);
+            }
         };
         holder.oDCompleteJob.setOnCheckedChangeListener(myOnCheckedChangeListener);
         holder.oDRetractableButton.setOnClickListener(v -> {
@@ -437,6 +450,14 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                }
             }
         });
+
+        if (((ActivityObjectEdit) context).isUserMode()){
+            holder.oDJobName.setEnabled(false);
+            holder.oDJobNameExtended.setEnabled(false);
+            holder.oDJobDescriptionExtended.setEnabled(false);
+            holder.addButtonsLayout.setVisibility(View.GONE);
+            holder.deleteButtonsLayout.setVisibility(View.GONE);
+        }
 
     }
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data, MyViewHolder holder, int resultOk, String actionTp){

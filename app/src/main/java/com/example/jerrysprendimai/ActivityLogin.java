@@ -69,8 +69,8 @@ public class ActivityLogin extends AppCompatActivity {
         shiftContainer = findViewById(R.id.shift_container);
 
         //----------to remove
-        loginUser.setText("admin");
-        loginPassword.setText("admin");
+        loginUser.setText("user");
+        loginPassword.setText("user");
 
         context = this;
         buttonLogin.setOnClickListener(new View.OnClickListener() {
@@ -163,11 +163,6 @@ public class ActivityLogin extends AppCompatActivity {
         @Override
         protected void onPostExecute(InputStream inputStream) {
             try{
-                findViewById(R.id.loginUser).setEnabled(true);
-                findViewById(R.id.loginPassword).setEnabled(true);
-                findViewById(R.id.loginButton).setEnabled(true);
-                ((Button) findViewById(R.id.loginButton)).setBackground(background);
-
                connector.decodeResponse();
 
                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
@@ -213,49 +208,6 @@ public class ActivityLogin extends AppCompatActivity {
                             }
                             DownloadApk downloadApk = new DownloadApk(ActivityLogin.this);
                             downloadApk.startDownloadingApk(appUrl, "Jerry.apk");
-                            //finish();
-                            //DownloadApk downloadApk = new DownloadApk(ActivityMain.getActivityMain());
-                            //downloadApk.startDownloadingApk(appUrl, fileName);
-/*
-                            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(appUrl));
-                            request.setDescription("jerry.apk");
-                            request.setTitle("jerry.apk");
-
-                            request.setDestinationUri(uri);
-
-                            DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                            long downloadId = manager.enqueue(request);
-                            BroadcastReceiver onComplete = new BroadcastReceiver() {
-                                @Override
-                                public void onReceive(Context cntx, Intent intent) {
-
-                                    //Intent install = new Intent(Intent.ACTION_VIEW).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                    //Window window = getWindow();
-                                    //View view = window.getDecorView();
-                                    //install.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-                                    //install.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + fileName))
-                                    //        ,"application/vnd.android.package-archive");
-                                    //ActivityOptions.makeClipRevealAnimation(mView, left, top, width, height).setLaunchBounds(rect).setLaunchDisplayId(presentationDisplay.getDisplayId()).toBundle();
-                                    //install.setDataAndType(uri, manager.getMimeTypeForDownloadedFile(downloadId));
-                                    //getApplicationContext().startActivity(install);
-
-                                    try{
-                                        Intent install = new Intent(Intent.ACTION_VIEW);
-                                        install.setDataAndType(uri,"application/vnd.android.package-archive");
-                                        install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                        startActivity(intent);
-                                    } catch (ActivityNotFoundException e) {
-                                        // show message to user
-                                        e.printStackTrace();
-                                    }
-                                    //unregisterReceiver(this);
-                                    //finish();
-                                    //System.exit(0);
-                                }
-                            };
-                            registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-*/
                         });
 
                         builder.setNegativeButton("Cancel", (dialog, which) -> {
@@ -283,6 +235,11 @@ public class ActivityLogin extends AppCompatActivity {
             }catch(Exception e){
                 e.printStackTrace();
             }
+            findViewById(R.id.loginUser).setEnabled(true);
+            findViewById(R.id.loginPassword).setEnabled(true);
+            findViewById(R.id.loginButton).setEnabled(true);
+            ((Button) findViewById(R.id.loginButton)).setBackground(background);
+            findViewById(R.id.progressBar).setVisibility(View.GONE);
             //super.onPostExecute(inputStream);
         }
     }

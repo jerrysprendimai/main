@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class ActivityObjectShow extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+    final String user = "user";
     RecyclerView recyclerView;
     ObjectUser myUser;
     ArrayList<ObjectObject> myObjectList;
@@ -29,6 +31,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
     SwipeRefreshLayout swipeRefreshLayout;
     FloatingActionButton buttonAddObject;
     MyAdapterObjectShow myAdapterObjectShow;
+    boolean userMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,14 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
             startActivity(intent);
         });
 
+        //---- user mode handling
+        if(myUser.getUser_lv().equals(user)){
+            setUserMode(true);
+            buttonAddObject.setVisibility(View.GONE);
+        }else{
+            setUserMode(false);
+            buttonAddObject.setVisibility(View.VISIBLE);
+        }
         new ActivityObjectShow.HttpsRequestGetObjectList(this).execute();
     }
 
@@ -107,18 +118,18 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
 
             connector = new Connector(context, get_object_list_url);
             connector.addPostParameter("user_type",  Base64.encodeToString(MCrypt.encrypt(myUser.getType().getBytes()), Base64.DEFAULT));
-            connector.addPostParameter("user_uname", Base64.encodeToString(MCrypt.encrypt(myUser.getUname().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_uname", Base64.encodeToString(MCrypt.encrypt(Base64.encodeToString(myUser.getUname().getBytes(), Base64.DEFAULT).getBytes()), Base64.DEFAULT));
             connector.send();
             connector.receive();
             connector.disconnect();
             String result = connector.getResult();
             result = result;
-
             return null;
         }
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
+            connector.decodeResponse();
             ArrayList<ObjectObject> objectArryList = getObjectList(connector);
             ((ActivityObjectShow) context).myObjectList.removeAll(((ActivityObjectShow) context).myObjectListOriginal);
             ((ActivityObjectShow) context).myObjectList.addAll(objectArryList);
@@ -146,4 +157,11 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
         }
     }
 
+    public boolean isUserMode() {
+        return userMode;
+    }
+
+    public void setUserMode(boolean userMode) {
+        this.userMode = userMode;
+    }
 }

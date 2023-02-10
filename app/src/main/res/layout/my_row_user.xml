@@ -97,6 +97,7 @@
                                 style="@style/recycleView_Item_Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:singleLine="true"
                                 android:layout_gravity="left"
                                 android:ems="10"
                                 android:hint="U_N_A_M_E"
@@ -127,6 +128,7 @@
                                 android:includeFontPadding="false"
                                 style="@style/recycleView_Item_Text"
                                 android:hint="a_d_m_i_n"
+                                android:singleLine="true"
                                 android:ems="10"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -157,6 +159,7 @@
                         android:includeFontPadding="false"
                         style="@style/recycleView_Item_Text"
                         android:hint="V_a_r_d_e_n_i_s"
+                        android:singleLine="true"
                         android:ems="10"/>
                 </LinearLayout>
                 <LinearLayout
@@ -184,6 +187,7 @@
                         android:includeFontPadding="false"
                         style="@style/recycleView_Item_Text"
                         android:hint="P_a_v_a_r_d_e_n_i_s"
+                        android:singleLine="true"
                         android:ems="10"/>
                 </LinearLayout>
             </LinearLayout>

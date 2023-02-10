@@ -128,10 +128,11 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         holder.myRow.setOnClickListener(v -> {
             //--todo lock parent view
             clickObject = myObjectObject;
-            //--lock Object in DB
-            new MyAdapterObjectShow.HttpsRequestLockObject(context, myObjectObject.getId().toString(),"lock").execute();
+            if(!((ActivityObjectShow) context).isUserMode()){
+              //--lock Object in DB
+              new MyAdapterObjectShow.HttpsRequestLockObject(context, myObjectObject.getId().toString(),"lock").execute();
+            }
             new MyAdapterObjectShow.HttpsRequestGetObjectDetails(context, myObjectObject).execute();
-
         });
 
     }
@@ -335,7 +336,8 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     setBottomSheetView(bottomSheetView);
                     doCloseRetractable = true;
                 }
-                if(!bottomSheetDialog.isShowing()){
+                //----check user mode
+                if((!bottomSheetDialog.isShowing())&&(!((ActivityObjectShow)context).isUserMode())){
                    bottomSheetDialog.show();
                 }
 
@@ -451,7 +453,11 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     new HttpsRequestLockObject(context, clickObject.getId().toString(),"unlock").execute();
                     //((ActivityObjectShow) context).executeLockUnlock(myObjectObject.getId().toString(),"unlock");
                 });
-
+               if(((ActivityObjectShow)context).isUserMode()){
+                   editButton.setSoundEffectsEnabled(false);
+                   editButton.performClick();
+                   editButton.setSoundEffectsEnabled(true);
+               }
         }
 
     }
