@@ -76,10 +76,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     EditText editInvisibleFocusHolder;
     ImageView oSavedStatusIndicator;
     Button oAddJob;
-    TextView oId, oNameLb, oDate, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
+    TextView oId, oNameLb, oDate, oDateLabel, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
     ProgressBar oProgressbar;
 
-    boolean needSave, deletionMode, userMode, saveMode, fieldCheckError;
+    boolean needSave, deletionMode, userMode, saveMode, fieldCheckError, objectLocked;
     FloatingActionButton oDeleteJobButton;
     LinearLayout oDeleteJobButtonLayout;
     Integer backButtonCount;
@@ -117,6 +117,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oSavedStatusIndicator    = findViewById(R.id.objectEdit_savedStatus_img);
         this.oDate                    = findViewById(R.id.objectEdit_date);
         this.oName                    = findViewById(R.id.objectEdit_objectName);
+        this.oDateLabel               = findViewById(R.id.objectEdit_date_label);
         this.oCustomer                = findViewById(R.id.objectEdit_customerName);
         this.oAddress                 = findViewById(R.id.objectEdit_objectAddress);
         this.oJobs                    = findViewById(R.id.objectEdit_objectJobs);
@@ -154,29 +155,23 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
             long milliTime = calendar.getTimeInMillis();
             datePickerCalender.setDate(milliTime);
-            datePickerCalender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-                @Override
-                public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, month );
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
-                    long milliTime = calendar.getTimeInMillis();
-                    datePickerCalender.setDate(milliTime);
-                }
+            datePickerCalender.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month );
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
+                long milliTime1 = calendar.getTimeInMillis();
+                datePickerCalender.setDate(milliTime1);
             });
             AlertDialog.Builder datePickerDialog = new AlertDialog.Builder((Context) this, R.style.AlertDialogTheme);
-            datePickerDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    String dialogDate = dateFormat.format(datePickerCalender.getDate());
-                    objectObject.setDate(dialogDate);
-                    oDate.setText(dialogDate);
+            datePickerDialog.setPositiveButton("Ok", (dialog, which) -> {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String dialogDate = dateFormat.format(datePickerCalender.getDate());
+                objectObject.setDate(dialogDate);
+                oDate.setText(dialogDate);
 
-                    setNeedSave(true);
-                    oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
-                }
+                setNeedSave(true);
+                oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_yellow));
             });
             datePickerDialog.setNegativeButton("Cancel", null);
             datePickerDialog.setView(dialogView);
@@ -187,11 +182,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oDeleteJobButton.setOnClickListener(v ->{
             setBackButtonCount(0);
             //--------sort list dscending
-            Collections.sort(toBeDeletedList, new Comparator<Integer>() {
-                public int compare(Integer o1, Integer o2) {
-                    return o2.compareTo(o1);
-                }
-            });
+            Collections.sort(toBeDeletedList, (o1, o2) -> o2.compareTo(o1));
             ArrayList<ObjectObjDetails> toBeRemoveddDetails = new ArrayList<>();
             ArrayList<ObjectObjPic> toBeRemovedPictures = new ArrayList<>();
 
@@ -236,6 +227,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         LinearLayout retractableLayout     = findViewById(R.id.objectEdit_retractable_layout);
         LinearLayout retractableLayoutLine = findViewById(R.id.objectEdit_retractableLine);
         Button retractableButton           = findViewById(R.id.objectEdit_retractable_button);
+        LinearLayout progressBarLayout     = findViewById(R.id.objectEdit_progrss_bar_layout);
+        LinearLayout leftPart              = findViewById(R.id.objectEdit_retractable_layout_leftPart);
         retractableButton.setOnClickListener(v -> {
             setBackButtonCount(0);
             hideSoftKeyboard();
@@ -243,10 +236,26 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
                 retractableLayout.setVisibility(View.VISIBLE);
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_up_white);
+                /*if (isUserMode()){
+                    oDateLabel.setVisibility(View.VISIBLE);
+                    oDate.setVisibility(View.VISIBLE);
+                    oName.setVisibility(View.VISIBLE);
+                    oCustomer.setVisibility(View.VISIBLE);
+                    oAddress.setVisibility(View.VISIBLE);
+                    progressBarLayout.setOrientation(LinearLayout.VERTICAL);
+                }*/
             }else{
                 //TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
-                retractableLayout.setVisibility(View.GONE);
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_down_white);
+                retractableLayout.setVisibility(View.GONE);
+                /*if (isUserMode()){
+                    oDateLabel.setVisibility(View.GONE);
+                    oDate.setVisibility(View.GONE);
+                    oName.setVisibility(View.GONE);
+                    oCustomer.setVisibility(View.GONE);
+                    oAddress.setVisibility(View.GONE);
+                    progressBarLayout.setOrientation(LinearLayout.HORIZONTAL);
+                }*/
             }
         });
         retractableLayoutLine.setSoundEffectsEnabled(false);
@@ -577,7 +586,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         int diff = total - count;
 
         double completness = Math.round(( 100 - ((double)(total-count)/total) * 100.0));
-        int oldValue = Integer.parseInt(objectObject.getCompleteness());
+        int oldValue = 0;
+        try{
+            oldValue = Integer.parseInt(objectObject.getCompleteness());
+        }catch (Exception e){
+
+        }
         objectObject.setCompleteness(new DecimalFormat("##.#").format(completness));
         oProgressbar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
         oProgressBarLabel.setText(objectObject.getCompleteness()+"%");
@@ -682,9 +696,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.objectPicturesArrayList = objectPicturesArrayList;
     }
     public void setObjectDetailsArrayList(ArrayList<ObjectObjDetails> objectDetailsArrayList) {
-        this.objectDetailsArrayList = new ArrayList<>();
-        this.objectDetailsArrayList.addAll(objectDetailsArrayList);
-        //this.objectDetailsArrayList = objectDetailsArrayList;
+        //this.objectDetailsArrayList = new ArrayList<>();
+        //this.objectDetailsArrayList.addAll(objectDetailsArrayList);
+        this.objectDetailsArrayList = objectDetailsArrayList;
     }
     public ObjectUser getMyUser() {
         return myUser;
@@ -715,14 +729,14 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void setSaveMode(boolean saveMode) {  this.saveMode = saveMode;  }
     public Integer getBackButtonCount() {       return backButtonCount;    }
     public void setBackButtonCount(Integer backButtonCount) {       this.backButtonCount = backButtonCount;    }
-
     public boolean isUserMode() {
         return userMode;
     }
-
     public void setUserMode(boolean userMode) {
         this.userMode = userMode;
     }
+    public boolean isObjectLocked() { return objectLocked;   }
+    public void setObjectLocked(boolean objectLocked) {      this.objectLocked = objectLocked;   }
 
     public void refresh(){
         if(newPicCount == retutnThreadCount ){
@@ -739,16 +753,16 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             setSaveMode(false);
 
             //---- Enable View Buttons while saving
-            for(int i = 0; i < objectDetailsArrayList.size();i++){
+            for(int i = 0; i < getObjectDetailsArrayList().size();i++){
                 try {
-                    objectDetailsArrayList.get(i).getHolder().oDCompleteJob.setEnabled(true);
-                    objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setEnabled(true);
-                    objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setEnabled(true);
-                    objectDetailsArrayList.get(i).getHolder().oDAddFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_blue));
-                    objectDetailsArrayList.get(i).getHolder().oDTakeFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_blue));
-                    objectDetailsArrayList.get(i).getHolder().oDRetractableButton.setEnabled(true);
-                    objectDetailsArrayList.get(i).getHolder().oDRetractableButtonExtended.setEnabled(true);
-                    objectDetailsArrayList.get(i).getHolder().oDRetractableButtonToTopExtended.setEnabled(true);
+                    getObjectDetailsArrayList().get(i).getHolder().oDCompleteJob.setEnabled(true);
+                    getObjectDetailsArrayList().get(i).getHolder().oDAddFotoButton.setEnabled(true);
+                    getObjectDetailsArrayList().get(i).getHolder().oDTakeFotoButton.setEnabled(true);
+                    getObjectDetailsArrayList().get(i).getHolder().oDAddFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_blue));
+                    getObjectDetailsArrayList().get(i).getHolder().oDTakeFotoButton.setBackgroundColor(getResources().getColor(R.color.jerry_blue));
+                    getObjectDetailsArrayList().get(i).getHolder().oDRetractableButton.setEnabled(true);
+                    getObjectDetailsArrayList().get(i).getHolder().oDRetractableButtonExtended.setEnabled(true);
+                    getObjectDetailsArrayList().get(i).getHolder().oDRetractableButtonToTopExtended.setEnabled(true);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -766,7 +780,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             retutnThreadCount = 0;
             setNeedSave(false);
             oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_green));
-            Toast.makeText( this, "Išsaugota", Toast.LENGTH_SHORT).show();
+            if(!isObjectLocked()){
+                Toast.makeText( this, "Išsaugota", Toast.LENGTH_SHORT).show();
+            }else{
+                setObjectLocked(false);
+            }
+
         }
     }
 
@@ -950,13 +969,14 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     if (save_status.equals("0")){
                     }else if(save_status.equals("1")){
                     }else if(save_status.equals("2")){
-                        Toast.makeText(context, "Užrakinta " +  msg, Toast.LENGTH_SHORT).show();
+                        setObjectLocked(true);
+                        Toast.makeText(context, "Užrakinta. Redaguoja: " +  msg, Toast.LENGTH_SHORT).show();
                     }
 
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                refresh();
+                //refresh();
                 new HttpsRequestGetObjectDetails(context, objectObject).execute();
             }
             super.onPostExecute(inputStream);
@@ -1006,7 +1026,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
-            //super.onPostExecute(inputStream);
+
             ArrayList<ObjectObjUser> objUserArrayList = new ArrayList<>();
             ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
@@ -1065,13 +1085,33 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            myAdapterObjectEdit.notifyDataSetChanged();
             oDate.setText(getClickObject().getDate());
             oName.setText(getClickObject().getObjectName());
             oCustomer.setText(getClickObject().getCustomerName());
             oAddress.setText(getClickObject().getObjectAddress());
             calculateCompletness();
-            //refresh();
+
+            myAdapterObjectEdit.getMyObjectList().removeAll(myAdapterObjectEdit.getMyObjectList());
+            myAdapterObjectEdit.getMyObjectList().addAll(objDetailsArrayList);
+            /*myAdapterObjectEdit.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onChanged() {
+                    super.onChanged();
+                    refresh();
+                }
+
+            });*/
+            View.OnLayoutChangeListener layoutChangeListener = new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    refresh();
+                    recyclerView.removeOnLayoutChangeListener(this);
+                }
+            };
+            recyclerView.addOnLayoutChangeListener(layoutChangeListener);
+            myAdapterObjectEdit.notifyDataSetChanged();
+
+            super.onPostExecute(inputStream);
         }
     }
 }

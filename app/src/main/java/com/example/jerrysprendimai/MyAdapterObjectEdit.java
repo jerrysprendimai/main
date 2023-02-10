@@ -457,6 +457,18 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             holder.oDJobDescriptionExtended.setEnabled(false);
             holder.addButtonsLayout.setVisibility(View.GONE);
             holder.deleteButtonsLayout.setVisibility(View.GONE);
+            holder.oDRetractableButton.setOnLongClickListener(v ->{
+                holder.oDRetractableButton.setSoundEffectsEnabled(false);
+                holder.oDRetractableButton.performClick();
+                holder.oDRetractableButton.setSoundEffectsEnabled(true);
+                return false;
+            });
+            holder.layoutSummary.setOnLongClickListener(v -> {
+                holder.oDRetractableButton.setSoundEffectsEnabled(false);
+                holder.oDRetractableButton.performLongClick();
+                holder.oDRetractableButton.setSoundEffectsEnabled(true);
+                return false;
+            });
         }
 
     }
@@ -703,4 +715,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     public Uri getmCurrentPhotoUri() {        return mCurrentPhotoUri;    }
     public File getmPhotoFile() {        return mPhotoFile;    }
     public void setmPhotoFile(File mPhotoFile) {        this.mPhotoFile = mPhotoFile;    }
+    public ArrayList<ObjectObjDetails> getMyObjectList() { return myObjectList;  }
+    public void setMyObjectList(ArrayList<ObjectObjDetails> myObjectList) {  this.myObjectList = myObjectList;   }
+    public ArrayList<ObjectObjPic> getMyObjectListPic() {   return myObjectListPic;   }
+    public void setMyObjectListPic(ArrayList<ObjectObjPic> myObjectListPic) {   this.myObjectListPic = myObjectListPic;  }
 }
