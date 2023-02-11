@@ -217,43 +217,55 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
 
 
         //-----image click handling
-        holder.myImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ActivityObjectEdit)context).setBackButtonCount(0);
-                if(!parentAdapterObjectEdit.getDeletionMode()){
-                    if(!holder.isMyHoldIndicator()){
-                        Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
-                        intent.putParcelableArrayListExtra("myPictureList", myPictureList);
-                        intent.putExtra("myPosition", holder.getAdapterPosition());
-                        context.startActivity(intent);
-                    }else{
-                        holder.setMyHoldIndicator(false);
+        holder.myImage.setOnClickListener(v -> {
+            ((ActivityObjectEdit)context).setBackButtonCount(0);
+            if(!parentAdapterObjectEdit.getDeletionMode()){
+                if(!holder.isMyHoldIndicator()){
+                    Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
+                    intent.putParcelableArrayListExtra("myPictureList", myPictureList);
+                    intent.putExtra("myPosition", holder.getAdapterPosition());
+                    context.startActivity(intent);
+                }else{
+                    holder.setMyHoldIndicator(false);
+                }
+            }else{
+                if(!holder.isMyHoldIndicator()) {
+                    if (holder.isBacgroundMarked()) {
+                        holder.setBacgroundMarked(false);
+                        holder.myContainer.setBackgroundColor(Color.TRANSPARENT);
+                        parentAdapterObjectEdit.removeToBeDeleted(parentHolder, objectObjPic);
+                    } else {
+                        holder.setBacgroundMarked(true);
+                        holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow_opacity));
+                        parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
                     }
                 }else{
-                    if(!holder.isMyHoldIndicator()) {
-                        if (holder.isBacgroundMarked()) {
-                            holder.setBacgroundMarked(false);
-                            holder.myContainer.setBackgroundColor(Color.TRANSPARENT);
-                            parentAdapterObjectEdit.removeToBeDeleted(objectObjPic);
-                        } else {
-                            holder.setBacgroundMarked(true);
-                            holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow_opacity));
-                            parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
-                        }
-                    }else{
-                        holder.setMyHoldIndicator(false);
-                    }
+                    holder.setMyHoldIndicator(false);
                 }
             }
         });
 
         //---- user mode handling
         if (!((ActivityObjectEdit)context).isUserMode()){
-            //----only admin has an option to delete pictures
-            holder.myImage.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
+            //----admin has an option to delete all pictures
+            holder.myImage.setOnLongClickListener(v -> {
+                holder.myImage.setSoundEffectsEnabled(false);
+                holder.setMyHoldIndicator(true);
+                parentAdapterObjectEdit.setDeletionMode(true);
+                parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
+                parentHolder.setDeletionModeButtons(true);
+                holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
+                holder.setBacgroundMarked(true);
+                holder.myImage.setSoundEffectsEnabled(true);
+                return false;
+            });
+        }else{
+            if(!objectObjPic.getUserId().equals(myUser.getId())){
+                holder.myImageUplLock.setVisibility(View.VISIBLE);
+            }
+            //----user can delete only own pictures
+            holder.myImage.setOnLongClickListener(v -> {
+                if(objectObjPic.getUserId().equals(myUser.getId())){
                     holder.myImage.setSoundEffectsEnabled(false);
                     holder.setMyHoldIndicator(true);
                     parentAdapterObjectEdit.setDeletionMode(true);
@@ -262,8 +274,8 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                     holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
                     holder.setBacgroundMarked(true);
                     holder.myImage.setSoundEffectsEnabled(true);
-                    return false;
                 }
+                return false;
             });
         }
     }

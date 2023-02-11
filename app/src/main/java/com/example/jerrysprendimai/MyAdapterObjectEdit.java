@@ -109,7 +109,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         TextInputEditText oDJobNameExtended, oDJobDescriptionExtended;
         RecyclerView oDFotoRecycleView;
         SwitchCompat oDCompleteJob;
-        Button oDRetractableButton, oDRetractableButtonExtended, oDRetractableButtonToTopExtended;
+        Button oDRetractableButton, oDRetractableButtonExtended, oDRetractableButtonToTopExtended, oDUserModeSaveDetail;
         EditText oDfocusHolder;
         boolean myHoldIndicator;
         MyAdapterObjectEditPicture myAdapterObjectEditPicture;
@@ -139,6 +139,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             oDRetractableButton                = itemView.findViewById(R.id.objectDetails_retractable_button);
             oDRetractableButtonExtended        = itemView.findViewById(R.id.objectDetails_retractable_button_extended);
             oDRetractableButtonToTopExtended   = itemView.findViewById(R.id.objectDetails_retractable_button_toTop_extended);
+            oDUserModeSaveDetail               = itemView.findViewById(R.id.objectDetails_retractable_button_save_userMode_extended);
             oDCompleteJob                      = itemView.findViewById(R.id.objectDetails_switchButton);
             oDCompletedJobLabel                = itemView.findViewById(R.id.objectDetails_switchButton_label);
             oDfocusHolder                      = itemView.findViewById(R.id.objectDetails_invisibleFocusHolder);
@@ -267,12 +268,13 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             }
             ((ActivityObjectEdit)context).calculateCompletness();
 
+            //---- save action in user mode
             if(((ActivityObjectEdit)context).isUserMode()){
-                BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
-                Menu menu = navigationView.getMenu();
-                MenuItem menuItemSave = menu.findItem(R.id.item_save);
-                ((ActivityObjectEdit)context).setObjectObjDetailsToUpdate(myObjectObjDetails);
-                ((ActivityObjectEdit)context).onNavigationItemSelected(menuItemSave);
+               // BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
+               // Menu menu = navigationView.getMenu();
+               // MenuItem menuItemSave = menu.findItem(R.id.item_save);
+               // ((ActivityObjectEdit)context).setObjectObjDetailsToUpdate(myObjectObjDetails);
+               // ((ActivityObjectEdit)context).onNavigationItemSelected(menuItemSave);
             }
         };
         holder.oDCompleteJob.setOnCheckedChangeListener(myOnCheckedChangeListener);
@@ -390,7 +392,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                     holder.filteredPics.remove(toBeDeletedList.get(i));
                 }
                 for(int i=0; i<toBeDeletedList.size();i++){
+                    ArrayList<ObjectObjPic> tmp = ((ActivityObjectEdit) context).getObjectPicturesArrayList();
+                    tmp.size();
                     myObjectListPic.remove(toBeDeletedList.get(i));
+                    ((ActivityObjectEdit)context).getObjectPicturesArrayList().remove(toBeDeletedList.get(i));
                 }
                 toBeDeletedList = new ArrayList<>();
                 setDeletionMode(false);
@@ -455,8 +460,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             holder.oDJobName.setEnabled(false);
             holder.oDJobNameExtended.setEnabled(false);
             holder.oDJobDescriptionExtended.setEnabled(false);
-            holder.addButtonsLayout.setVisibility(View.GONE);
-            holder.deleteButtonsLayout.setVisibility(View.GONE);
+
+            //holder.setDeletionModeButtons(getDeletionMode());
+            //holder.addButtonsLayout.setVisibility(View.GONE);
+            //holder.deleteButtonsLayout.setVisibility(View.GONE);
             holder.oDRetractableButton.setOnLongClickListener(v ->{
                 holder.oDRetractableButton.setSoundEffectsEnabled(false);
                 holder.oDRetractableButton.performClick();
@@ -469,6 +476,17 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 holder.oDRetractableButton.setSoundEffectsEnabled(true);
                 return false;
             });
+
+            holder.oDUserModeSaveDetail.setVisibility(View.VISIBLE);
+            holder.oDUserModeSaveDetail.setOnClickListener(v ->{
+                BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
+                Menu menu = navigationView.getMenu();
+                MenuItem menuItemSave = menu.findItem(R.id.item_save);
+                ((ActivityObjectEdit)context).setObjectObjDetailsToUpdate(myObjectObjDetails);
+                ((ActivityObjectEdit)context).onNavigationItemSelected(menuItemSave);
+            });
+        }else{
+            holder.oDUserModeSaveDetail.setVisibility(View.GONE);
         }
 
     }
@@ -483,9 +501,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                    int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
 
                    cursor.moveToFirst();
-                   String fileName = cursor.getString(nameIndex);
+                   String fileName = myUser.getId().toString() + "_" + myObjectObjDetails.getObjectId().toString() + "_" + cursor.getString(nameIndex);
 
                    ObjectObjPic newPic = new ObjectObjPic();
+                   newPic.setUserId(myUser.getId());
                    newPic.setPicUri(filePath.toString());
                    newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
                    newPic.setPosNr(holder.getAdapterPosition());
@@ -503,9 +522,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
                 cursor.moveToFirst();
-                String fileName = cursor.getString(nameIndex);
+                String fileName = myUser.getId().toString() + "_" + myObjectObjDetails.getObjectId().toString() + "_" + cursor.getString(nameIndex);
 
                 ObjectObjPic newPic = new ObjectObjPic();
+                newPic.setUserId(myUser.getId());
                 newPic.setPicUri(filePath.toString());
                 newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
                 newPic.setPosNr(holder.getAdapterPosition());
@@ -527,6 +547,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             //Uri filePath = data.getData();
             galleryAddPic();
             ObjectObjPic newPic = new ObjectObjPic();
+            newPic.setUserId(myUser.getId());
             newPic.setPicUri(getmCurrentPhotoUri().toString());//filePath.toString());
             newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
             newPic.setPosNr(holder.getAdapterPosition());
@@ -570,7 +591,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     }
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageName = timeStamp+"_";
+        String imageName = myUser.getId().toString() + "_" + myObjectObjDetails.getObjectId().toString() + "_" + timeStamp+"_";
         File storageDir = //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
                 context.getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/Jerry");//Environment.getExternalStorageDirectory();
         File image = File.createTempFile(imageName, ".jpg", storageDir );
@@ -599,7 +620,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 ex.printStackTrace();
             }
             if (photoFile != null) {
-                Uri imageUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider",photoFile);
+                Uri imageUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".provider",photoFile);
+                //Uri imageUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider",photoFile);
                 setmCurrentPhotoUri(imageUri);
                 setmPhotoFile(photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -660,7 +682,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     }
 
 
-    public void removeToBeDeleted(ObjectObjPic objectObjPic){
+    public void removeToBeDeleted(MyViewHolder holder, ObjectObjPic objectObjPic){
         for(int i=0; i<this.toBeDeletedList.size(); i++){
             if(this.toBeDeletedList.get(i).equals(objectObjPic)){
                 this.toBeDeletedList.remove(i);
@@ -670,8 +692,12 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
         if(this.toBeDeletedList.size() == 0){
             setDeletionMode(false);
-            getMyHolder().setDeletionModeButtons(false);
-            getMyHolder().myAdapterObjectEditPicture.notifyDataSetChanged();
+            holder.setDeletionModeButtons(false);
+            holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+            //getMyHolder().setDeletionModeButtons(false);
+            //getMyHolder().myAdapterObjectEditPicture.notifyDataSetChanged();
+            //getMyObjectObjDetails().getHolder().oDDeleteCancel.performClick();
+            //getMyObjectObjDetails().getHolder().oDDeleteCancel.setBackgroundColor(context.getResources().getColor(R.color.jerry_red));
         }
     }
     public void addToBeDeleted(ObjectObjPic objectObjPic){
@@ -697,6 +723,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
     public void setMyObjectObjDetails(ObjectObjDetails myObjectObjDetails) {
         this.myObjectObjDetails = myObjectObjDetails;
+    }
+
+    public ObjectObjDetails getMyObjectObjDetails() {
+        return myObjectObjDetails;
     }
 
     public ArrayList<MyViewHolder> getMyViewHolderList() {

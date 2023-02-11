@@ -26,6 +26,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -76,8 +77,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     EditText editInvisibleFocusHolder;
     ImageView oSavedStatusIndicator;
     Button oAddJob;
-    TextView oId, oNameLb, oDate, oDateLabel, oName, oCustomer, oAddress, oJobs, oJobsDone, oProgressBarLabel;
-    ProgressBar oProgressbar;
+    TextView oId, oNameLb, oDate, oDateLabel, oName, oCustomer, oAddress, oJobs, oJobsUserMode, oJobsDone, oJobsDoneUserMode, oProgressBarLabel, oProgressBarLabelUserMode;
+    ProgressBar oProgressbar, oProgressbarUserMode;
 
     boolean needSave, deletionMode, userMode, saveMode, fieldCheckError, objectLocked;
     FloatingActionButton oDeleteJobButton;
@@ -121,9 +122,13 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oCustomer                = findViewById(R.id.objectEdit_customerName);
         this.oAddress                 = findViewById(R.id.objectEdit_objectAddress);
         this.oJobs                    = findViewById(R.id.objectEdit_objectJobs);
+        this.oJobsUserMode            = findViewById(R.id.objectEdit_objectJobs_userMode);
         this.oJobsDone                = findViewById(R.id.objectEdit_objectJobsDone);
+        this.oJobsDoneUserMode        = findViewById(R.id.objectEdit_objectJobsDone_userMode);
         this.oProgressbar             = findViewById(R.id.objectEdit_progess_bar);
+        this.oProgressbarUserMode     = findViewById(R.id.objectEdit_progess_bar_userMode);
         this.oProgressBarLabel        = findViewById(R.id.objectEdit_progess_bar_label);
+        this.oProgressBarLabelUserMode = findViewById(R.id.objectEdit_progess_bar_label_userMode);
         this.oAddJob                  = findViewById(R.id.objectEdit_add_job_button);
         this.scrollView               = findViewById(R.id.objectEdit_job_scroll_view);
         this.oDeleteJobButton         = findViewById(R.id.objectEdit_delete_job);
@@ -224,11 +229,13 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         });
 
         //---- retractable button/view handling
+        LinearLayout userModeprogressBar   = findViewById(R.id.objectEdit_progrss_bar_layout_userMode);
         LinearLayout retractableLayout     = findViewById(R.id.objectEdit_retractable_layout);
         LinearLayout retractableLayoutLine = findViewById(R.id.objectEdit_retractableLine);
         Button retractableButton           = findViewById(R.id.objectEdit_retractable_button);
         LinearLayout progressBarLayout     = findViewById(R.id.objectEdit_progrss_bar_layout);
         LinearLayout leftPart              = findViewById(R.id.objectEdit_retractable_layout_leftPart);
+        userModeprogressBar.setVisibility(View.GONE);
         retractableButton.setOnClickListener(v -> {
             setBackButtonCount(0);
             hideSoftKeyboard();
@@ -236,26 +243,21 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
                 retractableLayout.setVisibility(View.VISIBLE);
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_up_white);
-                /*if (isUserMode()){
+                if (isUserMode()){
+                    userModeprogressBar.setVisibility(View.GONE);
                     oDateLabel.setVisibility(View.VISIBLE);
                     oDate.setVisibility(View.VISIBLE);
-                    oName.setVisibility(View.VISIBLE);
-                    oCustomer.setVisibility(View.VISIBLE);
-                    oAddress.setVisibility(View.VISIBLE);
-                    progressBarLayout.setOrientation(LinearLayout.VERTICAL);
-                }*/
+                }
             }else{
                 //TransitionManager.beginDelayedTransition(retractableLayout, new AutoTransition());
                 retractableButton.setBackgroundResource(R.drawable.ic_arrow_down_white);
                 retractableLayout.setVisibility(View.GONE);
-                /*if (isUserMode()){
+                if (isUserMode()){
+                    TransitionManager.beginDelayedTransition(userModeprogressBar, new AutoTransition());
+                    userModeprogressBar.setVisibility(View.VISIBLE);
                     oDateLabel.setVisibility(View.GONE);
                     oDate.setVisibility(View.GONE);
-                    oName.setVisibility(View.GONE);
-                    oCustomer.setVisibility(View.GONE);
-                    oAddress.setVisibility(View.GONE);
-                    progressBarLayout.setOrientation(LinearLayout.HORIZONTAL);
-                }*/
+                }
             }
         });
         retractableLayoutLine.setSoundEffectsEnabled(false);
@@ -299,7 +301,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         if(this.myUser.getUser_lv().equals(user)){
             this.userMode = true;
             setSaveCancelVisibility(false);
-            oSavedStatusIndicator.setVisibility(View.GONE);
+            //oSavedStatusIndicator.setVisibility(View.GONE);
             oAddJob.setVisibility(View.GONE);
             oDate.setEnabled(false);
             oDate.setTextColor(getResources().getColor(R.color.jerry_grey));
@@ -365,9 +367,13 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             this.oCustomer.setText(this.objectObject.getCustomerName());
             this.oAddress.setText(this.objectObject.getObjectAddress());
             this.oJobs.setText(String.valueOf(this.objectDetailsArrayList.size()));
+            this.oJobsUserMode.setText(String.valueOf(this.objectDetailsArrayList.size()));
             this.oJobsDone.setText(String.valueOf(completeCount));
+            this.oJobsDoneUserMode.setText(String.valueOf(completeCount));
             this.oProgressBarLabel.setText(String.valueOf(this.objectObject.getCompleteness()) + "%");
+            this.oProgressBarLabelUserMode.setText(String.valueOf(this.objectObject.getCompleteness()) + "%");
             this.oProgressbar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(this.objectObject.getCompleteness())))));
+            this.oProgressbarUserMode.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(this.objectObject.getCompleteness())))));
 
     }
     private void buildRecyclerView() {
@@ -501,6 +507,16 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             //}
         }
     }
+    public void startUserModePictureUpload(){
+        newPicCount = 0;
+        for(int i=0; i < getObjectPicturesArrayList().size(); i++){
+            if(getObjectPicturesArrayList().get(i).getUserId().equals(myUser.getId())){
+              newPicCount += 1;
+              Thread thread = new Thread(new RunnableTask(this, getObjectPicturesArrayList().get(i)));
+              thread.start();
+            }
+        }
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -594,13 +610,20 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         }
         objectObject.setCompleteness(new DecimalFormat("##.#").format(completness));
         oProgressbar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
+        oProgressbarUserMode.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
         oProgressBarLabel.setText(objectObject.getCompleteness()+"%");
+        oProgressBarLabelUserMode.setText(objectObject.getCompleteness()+"%");
         oJobs.setText(String.valueOf(total));
+        oJobsUserMode.setText(String.valueOf(total));
         oJobsDone.setText(String.valueOf(count));
+        oJobsDoneUserMode.setText(String.valueOf(count));
 
         ObjectAnimator objectAnimator = ObjectAnimator.ofInt(oProgressbar, "progress", oldValue,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
         objectAnimator.setDuration(400);
         objectAnimator.start();
+        ObjectAnimator objectAnimatorUserMode = ObjectAnimator.ofInt(oProgressbarUserMode, "progress", oldValue,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(objectObject.getCompleteness())))));
+        objectAnimatorUserMode.setDuration(400);
+        objectAnimatorUserMode.start();
     }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -737,7 +760,11 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     }
     public boolean isObjectLocked() { return objectLocked;   }
     public void setObjectLocked(boolean objectLocked) {      this.objectLocked = objectLocked;   }
-
+    public void refreshUserMode(){
+        if(newPicCount == retutnThreadCount ){
+            new HttpsRequestGetObjectDetails(this, objectObject).execute();
+        }
+    }
     public void refresh(){
         if(newPicCount == retutnThreadCount ){
             findViewById(R.id.item_save).setEnabled(true);
@@ -886,7 +913,11 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             }
             backgroundJobs += 1;
             retutnThreadCount += 1;
-            refresh();
+            if(!isUserMode()){
+                refresh();
+            }else{
+                refreshUserMode();
+            }
             super.onPostExecute(inputStream);
         }
         private String getPicArrayListJson(ArrayList<ObjectObjPic> pictureList){
@@ -928,8 +959,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 result = result;
             }else{
                 connector = new Connector(context, save_single_object_detail);
-                connector.addPostParameter("objectObject", MCrypt2.encodeToString(objectObject.toJson()));
+                connector.addPostParameter("objectObject",  MCrypt2.encodeToString(objectObject.toJson()));
                 connector.addPostParameter("objectDetails", MCrypt2.encodeToString(getObjectObjDetailsToUpdate().toJson()));
+                connector.addPostParameter("pictureList",   getUserModePicArrayListJson(getObjectPicturesArrayList()));
                 connector.send();
                 connector.receive();
                 connector.disconnect();
@@ -968,6 +1000,17 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     String msg = object.getString("msg");
                     if (save_status.equals("0")){
                     }else if(save_status.equals("1")){
+                        boolean hasPictures = false;
+                        for(int i=0; i<objectPicturesArrayList.size(); i++){
+                            if(objectPicturesArrayList.get(i).getUserId().equals(myUser.getId())){
+                                startUserModePictureUpload();
+                                hasPictures = true;
+                                break;
+                            }
+                        }
+                        if (!hasPictures){
+                            new HttpsRequestGetObjectDetails(context, objectObject).execute();
+                        }
                     }else if(save_status.equals("2")){
                         setObjectLocked(true);
                         Toast.makeText(context, "Užrakinta. Redaguoja: " +  msg, Toast.LENGTH_SHORT).show();
@@ -977,7 +1020,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     e.printStackTrace();
                 }
                 //refresh();
-                new HttpsRequestGetObjectDetails(context, objectObject).execute();
+                //new HttpsRequestGetObjectDetails(context, objectObject).execute();
             }
             super.onPostExecute(inputStream);
         }
@@ -985,6 +1028,15 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             JSONArray jsonArray = new JSONArray();
             for(int i=0; i < pictureList.size(); i++){
                 jsonArray.put(pictureList.get(i).toJson());
+            }
+            return jsonArray.toString();
+        }
+        private String getUserModePicArrayListJson(ArrayList<ObjectObjPic> pictureList){
+            JSONArray jsonArray = new JSONArray();
+            for(int i=0; i < pictureList.size(); i++){
+                if (pictureList.get(i).getUserId().equals(myUser.getId())){
+                    jsonArray.put(pictureList.get(i).toJson());
+                }
             }
             return jsonArray.toString();
         }
@@ -1056,7 +1108,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                         completeCount += 1;
                     }
                 }
-                setObjectDetailsArrayList(objDetailsArrayList);
+                getObjectDetailsArrayList().removeAll(getObjectDetailsArrayList());
+                getObjectDetailsArrayList().addAll(objDetailsArrayList);
+                //setObjectDetailsArrayList(objDetailsArrayList);
 
                 for(int i = 0; i < responseObjUser.length(); i++){
                     ObjectObjUser objectObjUser = new ObjectObjUser((JSONObject) responseObjUser.get(i));
@@ -1068,7 +1122,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     ObjectObjPic objectObjPic = new ObjectObjPic((JSONObject) responseObjPic.get(i));
                     objPicsArrayList.add(objectObjPic);
                 }
-                setObjectPicturesArrayList(objPicsArrayList);
+
+                getObjectPicturesArrayList().removeAll(getObjectPicturesArrayList());
+                getObjectPicturesArrayList().addAll(objPicsArrayList);
+                //setObjectPicturesArrayList(objPicsArrayList);
 
                 for(int i =0; i < responseEmployee.length(); i++){
                     ObjectUser objectUser = new ObjectUser((JSONObject) responseEmployee.get(i));

@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class ObjectObjPic implements Parcelable{
-    private Integer id, objectId, posNr;
+    private Integer id, objectId, posNr, userId;
     String picName, creationDate, picUrl;
     String picUri;
     Bitmap imageResource;
@@ -37,6 +37,11 @@ public class ObjectObjPic implements Parcelable{
             posNr = null;
         } else {
             posNr = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            userId = null;
+        } else {
+            userId = in.readInt();
         }
         picName = in.readString();
         creationDate = in.readString();
@@ -63,6 +68,12 @@ public class ObjectObjPic implements Parcelable{
         } else {
             dest.writeByte((byte) 1);
             dest.writeInt(posNr);
+        }
+        if (userId == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(userId);
         }
         dest.writeString(picName);
         dest.writeString(creationDate);
@@ -92,6 +103,7 @@ public class ObjectObjPic implements Parcelable{
         this.posNr        = -1;
         this.picName      = "";
         this.creationDate = DateHelper.get_current_date_disply();
+        this.userId       = -1;
         this.picUrl       = "";
         this.picUri       = "";
     }
@@ -104,6 +116,7 @@ public class ObjectObjPic implements Parcelable{
             this.picName      = obj.getString("PicName");
             this.creationDate = obj.getString("CreationDate");
             this.picUrl       = obj.getString("PicURL");
+            this.userId       = Integer.parseInt(obj.getString("User_id"));
             this.picUri       = "";
         }catch (JSONException e) {
             e.printStackTrace();
@@ -118,6 +131,7 @@ public class ObjectObjPic implements Parcelable{
             jsonObject.put("posNr",        this.getPosNr());
             jsonObject.put("picName",      this.getPicName());
             jsonObject.put("creationDate", this.getCreationDate());
+            jsonObject.put("userId",       this.getUserId());
             jsonObject.put("picUrl",       this.getPicUrl());
             jsonObject.put("picUri",       this.getPicUri());
         }catch (Exception e){
@@ -137,6 +151,13 @@ public class ObjectObjPic implements Parcelable{
                 //bitmap = holder.myImage.getDrawingCache();
 
                 //bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArray= baos.toByteArray();
+                str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
+            }else{
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Bitmap bitmap = null;
+                bitmap = ((BitmapDrawable)holder.myImage.getDrawable()).getBitmap();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] byteArray= baos.toByteArray();
                 str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
@@ -164,4 +185,6 @@ public class ObjectObjPic implements Parcelable{
     public void setImageResource(Bitmap imageResource) {        this.imageResource = imageResource;    }
     public MyAdapterObjectEditPicture.MyViewHolder getHolder() {        return holder;    }
     public void setHolder(MyAdapterObjectEditPicture.MyViewHolder holder) {        this.holder = holder;    }
+    public Integer getUserId() {        return userId;    }
+    public void setUserId(Integer userId) {        this.userId = userId;    }
 }

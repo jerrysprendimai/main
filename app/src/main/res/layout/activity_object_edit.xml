@@ -182,7 +182,104 @@
                             android:textAllCaps="false"
                             android:textColor="@color/white"
                             android:textSize="12sp" />
+                        <LinearLayout
+                            android:id="@+id/objectEdit_progrss_bar_layout_userMode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="right">
+                            <TableLayout
+                                android:showDividers="middle|end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="0dp"
+                                android:layout_marginLeft="0dp"
+                                android:layout_marginRight="8dp"
+                                android:divider="@drawable/divider_list">
 
+                                <TableRow
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content">
+                                    <TextView
+                                        style="@style/recycleView_Item_Text"
+                                        android:includeFontPadding="false"
+                                        android:hint="@string/object_work_count"
+                                        android:textStyle="bold"
+                                        android:textAlignment="viewStart"
+                                        android:layout_weight="0"
+                                        />
+                                    <TextView
+                                        android:id="@+id/objectEdit_objectJobs_userMode"
+                                        style="@style/recycleView_Item_Text"
+                                        android:includeFontPadding="false"
+                                        android:text="999"
+                                        android:layout_weight="1"
+                                        android:textSize="14sp"
+                                        android:textAlignment="viewStart"
+                                        android:textColor="@color/jerry_blue" />
+                                </TableRow>
+                                <TableRow
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content">
+                                    <TextView
+                                        style="@style/recycleView_Item_Text"
+                                        android:hint="@string/object_work_done"
+                                        android:textAlignment="viewStart"
+                                        android:textStyle="bold"
+                                        android:includeFontPadding="false" />
+                                    <TextView
+                                        android:id="@+id/objectEdit_objectJobsDone_userMode"
+                                        style="@style/recycleView_Item_Text"
+                                        android:text="999"
+                                        android:textSize="14dp"
+                                        android:textAlignment="viewStart"
+                                        android:includeFontPadding="false"
+                                        android:textColor="@color/jerry_blue" />
+                                </TableRow>
+                            </TableLayout>
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="0dp">
+                                <ProgressBar
+                                    android:id="@+id/objectEdit_progess_bar_userMode"
+                                    android:layout_width="95dp"
+                                    android:layout_height="95dp"
+                                    android:backgroundTint="@color/jerry_blue"
+                                    android:progressDrawable="@drawable/progressbar_gradient_progress"
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_gravity="left"
+                                    android:progress="45"
+                                    android:max="100"
+                                    android:min="1"
+                                    android:textStyle="bold"
+                                    android:includeFontPadding="false">
+                                </ProgressBar>
+
+                                <TextView
+                                    android:id="@+id/objectEdit_progess_bar_label_userMode"
+                                    style="@style/recycleView_Item_Text"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignLeft="@id/objectEdit_progess_bar_userMode"
+                                    android:layout_alignTop="@id/objectEdit_progess_bar_userMode"
+                                    android:layout_alignRight="@id/objectEdit_progess_bar_userMode"
+                                    android:layout_alignBottom="@id/objectEdit_progess_bar_userMode"
+                                    android:background="@android:color/transparent"
+                                    android:gravity="center"
+                                    android:text="100.0%"
+                                    android:textColor="@color/jerry_blue"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold" />
+                            </RelativeLayout>
+
+                        </LinearLayout>
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="match_parent"
