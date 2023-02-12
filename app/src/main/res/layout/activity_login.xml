@@ -9,26 +9,31 @@
     android:background="@drawable/background"
     tools:context=".ActivityLogin">
 
-    <ImageView
-        android:id="@+id/jerryIcon"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="20dp"
-        android:background="@android:color/transparent"
-        app:srcCompat="@mipmap/ic_jerry_foreground" />
-
-    <LinearLayout
-        android:id="@+id/shift_container"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:orientation="vertical">
-
-        <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3">
+        <ImageView
+            android:id="@+id/jerryIcon"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="20dp"
+            android:background="@android:color/transparent"
+            app:srcCompat="@mipmap/ic_jerry_foreground"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+          <LinearLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+              app:layout_constraintBottom_toBottomOf="parent"
+              app:layout_constraintEnd_toEndOf="@id/jerryIcon"
+              app:layout_constraintStart_toStartOf="@id/jerryIcon">
             <ProgressBar
                 android:layout_gravity="top"
                 android:id="@+id/progressBar"
@@ -38,93 +43,125 @@
                 android:indeterminateTint="@color/jerry_blue"
                 android:layout_marginBottom="-10dp"/>
         </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="6"
+        android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Login_Input_layout"
-            android:labelFor="@+id/etUser">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/loginUser"
-                android:layout_width="wrap_content"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/shift_container"
+                android:layout_gravity="center|top"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:backgroundTint="@color/jerry_light_blue"
-                android:drawableStart="@drawable/ic_user"
-                android:ems="10"
-                android:fontFamily="@font/poppinsmedium"
-                android:hint="@string/user"
-                android:inputType="textEmailAddress"
-                android:padding="5dp"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black"
-                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Login_Input_layout"
-            app:passwordToggleEnabled="true"
-            android:labelFor="@+id/etPassword">
+                <EditText android:id="@+id/login_invisibleFocusHolder"
+                    style="@style/InvisibleFocusHolder"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/loginPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/jerry_light_blue"
-                android:drawableStart="@drawable/ic_password"
-                android:ems="10"
-                android:fontFamily="@font/poppinsmedium"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:padding="5dp"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black"
-                tools:ignore="SpeakableTextPresentCheck" />
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Login_Input_layout"
+                    android:labelFor="@+id/etUser">
 
-        <Button
-            android:id="@+id/loginButton"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="220dp"
-            android:layout_height="35dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/round_button"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/loginUser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:backgroundTint="@color/jerry_light_blue"
+                        android:drawableStart="@drawable/ic_user"
+                        android:ems="10"
+                        android:fontFamily="@font/poppinsmedium"
+                        android:hint="@string/user"
+                        android:inputType="textEmailAddress"
+                        android:padding="5dp"
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/black"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Login_Input_layout"
+                    app:passwordToggleEnabled="true"
+                    android:labelFor="@+id/etPassword">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/loginPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/jerry_light_blue"
+                        android:drawableStart="@drawable/ic_password"
+                        android:ems="10"
+                        android:fontFamily="@font/poppinsmedium"
+                        android:hint="@string/password"
+                        android:inputType="textPassword"
+                        android:padding="5dp"
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/black"
+                        tools:ignore="SpeakableTextPresentCheck" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/loginButton"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="220dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="true"
+                    android:padding="5dp"
+                    android:text="@string/login"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    tools:ignore="TouchTargetSizeCheck" />
+
+            </LinearLayout>
+        </ScrollView>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+            android:id="@+id/login_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:clickable="true"
-            android:padding="5dp"
-            android:text="@string/login"
-            android:textColor="@color/white"
+            android:fontFamily="@font/poppinsmedium"
+            android:text="@string/settings"
+            android:textColor="@color/jerry_light_blue"
             android:textSize="15sp"
-            android:textStyle="bold"
             tools:ignore="TouchTargetSizeCheck" />
+            <TextView
+            android:id="@+id/login_error_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
+            android:fontFamily="@font/poppinsmedium"
+            android:textSize="12sp"
+            android:textStyle="bold|italic"
+            android:visibility="visible"
+            android:textColor="@color/jerry_red"
+            android:text="@string/error_login"
+            android:ems="10">
+        </TextView>
 
+        </LinearLayout>
+        <include layout="@layout/layout_footer" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/login_settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:clickable="true"
-        android:fontFamily="@font/poppinsmedium"
-        android:text="@string/settings"
-        android:textColor="@color/jerry_light_blue"
-        android:textSize="15sp"
-        tools:ignore="TouchTargetSizeCheck" />
 
-    <TextView
-        android:id="@+id/login_error_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="center"
-        android:fontFamily="@font/poppinsmedium"
-        android:textSize="12sp"
-        android:textStyle="bold|italic"
-        android:visibility="visible"
-        android:textColor="@color/jerry_red"
-        android:text="@string/error_login"
-        android:ems="10">
-    </TextView>
-    <include layout="@layout/layout_footer" />
+
+
 </LinearLayout>

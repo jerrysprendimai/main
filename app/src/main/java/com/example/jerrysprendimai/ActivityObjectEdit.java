@@ -67,6 +67,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     BottomNavigationView bottomNavigationView;
     ObjectObject objectObject;
     ObjectUser myUser;
+    ArrayList<ObjectObjDetails> objectObjDetailsToUpdateArrayList;
     ObjectObjDetails objectObjDetailsToUpdate;
     ArrayList<Integer> toBeDeletedList;
 
@@ -297,10 +298,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.bottomNavigationView = findViewById(R.id.save_cancel_buttons);
         this.bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
+        this.objectObjDetailsToUpdateArrayList = new ArrayList<>();
+
         //---- user mode handling
         if(this.myUser.getUser_lv().equals(user)){
             this.userMode = true;
-            setSaveCancelVisibility(false);
+            //setSaveCancelVisibility(false);
             //oSavedStatusIndicator.setVisibility(View.GONE);
             oAddJob.setVisibility(View.GONE);
             oDate.setEnabled(false);
@@ -723,6 +726,11 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         //this.objectDetailsArrayList.addAll(objectDetailsArrayList);
         this.objectDetailsArrayList = objectDetailsArrayList;
     }
+
+    public ObjectObject getObjectObject() {      return objectObject;    }
+    public void setObjectObject(ObjectObject objectObject) {  this.objectObject = objectObject;   }
+    public ArrayList<ObjectObjDetails> getObjectObjDetailsToUpdateArrayList() {       return objectObjDetailsToUpdateArrayList;   }
+    public void setObjectObjDetailsToUpdateArrayList(ArrayList<ObjectObjDetails> objectObjDetailsToUpdateArrayList) {      this.objectObjDetailsToUpdateArrayList = objectObjDetailsToUpdateArrayList;    }
     public ObjectUser getMyUser() {
         return myUser;
     }
@@ -735,31 +743,22 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     public void setDeletionMode(Boolean deletionMode) {
         this.deletionMode = deletionMode;
     };
-    public ObjectObjDetails getObjectObjDetailsToUpdate() {
-        return objectObjDetailsToUpdate;
-    }
-    public void setObjectObjDetailsToUpdate(ObjectObjDetails objectObjDetailsToUpdate) {
-        this.objectObjDetailsToUpdate = objectObjDetailsToUpdate;
-    }
+    public ObjectObjDetails getObjectObjDetailsToUpdate() {        return objectObjDetailsToUpdate;    }
+    public void setObjectObjDetailsToUpdate(ObjectObjDetails objectObjDetailsToUpdate) {     this.objectObjDetailsToUpdate = objectObjDetailsToUpdate;    }
     public MyAdapterObjectEdit getAdatpreWa() {        return adatpreWa;    }
     public MyAdapterObjectEdit.MyViewHolder getHolderWa() {        return holderWa;    }
     public String getActionTypeWa() {  return actionTypeWa;    }
-    public boolean isFieldCheckError() {
-        return fieldCheckError;
-    }
+    public boolean isFieldCheckError() {        return fieldCheckError;    }
     public void setFieldCheckError(boolean fieldCheckError) {   this.fieldCheckError = fieldCheckError;    }
     public boolean isSaveMode() {  return saveMode;  }
     public void setSaveMode(boolean saveMode) {  this.saveMode = saveMode;  }
     public Integer getBackButtonCount() {       return backButtonCount;    }
     public void setBackButtonCount(Integer backButtonCount) {       this.backButtonCount = backButtonCount;    }
-    public boolean isUserMode() {
-        return userMode;
-    }
-    public void setUserMode(boolean userMode) {
-        this.userMode = userMode;
-    }
+    public boolean isUserMode() {        return userMode;    }
+    public void setUserMode(boolean userMode) {        this.userMode = userMode;    }
     public boolean isObjectLocked() { return objectLocked;   }
     public void setObjectLocked(boolean objectLocked) {      this.objectLocked = objectLocked;   }
+
     public void refreshUserMode(){
         if(newPicCount == retutnThreadCount ){
             new HttpsRequestGetObjectDetails(this, objectObject).execute();
@@ -938,7 +937,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
     class HttpsRequestSaveObject extends AsyncTask<String, Void, InputStream> {
         private static final String save_object_url = "save_object.php";
-        private static final String save_single_object_detail = "save_single_object_detail.php";
+        private static final String save_user_object_detail = "save_user_object_detail.php";
         private Context context;
         Connector connector;
 
@@ -958,9 +957,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 String result = connector.getResult();
                 result = result;
             }else{
-                connector = new Connector(context, save_single_object_detail);
+                connector = new Connector(context, save_user_object_detail);
                 connector.addPostParameter("objectObject",  MCrypt2.encodeToString(objectObject.toJson()));
-                connector.addPostParameter("objectDetails", MCrypt2.encodeToString(getObjectObjDetailsToUpdate().toJson()));
+                connector.addPostParameter("detailsList",   MCrypt2.encodeToString(getDetailsArrayListJson(getObjectObjDetailsToUpdateArrayList())));
+                connector.addPostParameter("userId",        MCrypt2.encodeToString(myUser.getId().toString()));
                 connector.addPostParameter("pictureList",   getUserModePicArrayListJson(getObjectPicturesArrayList()));
                 connector.send();
                 connector.receive();
@@ -993,6 +993,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     e.printStackTrace();
                 }
             }else{
+                getObjectObjDetailsToUpdateArrayList().removeAll(getObjectObjDetailsToUpdateArrayList());
                 try {
                     connector.decodeResponse();
                     JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
@@ -1033,9 +1034,13 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         }
         private String getUserModePicArrayListJson(ArrayList<ObjectObjPic> pictureList){
             JSONArray jsonArray = new JSONArray();
-            for(int i=0; i < pictureList.size(); i++){
-                if (pictureList.get(i).getUserId().equals(myUser.getId())){
-                    jsonArray.put(pictureList.get(i).toJson());
+            for(int i = 0; i < getObjectObjDetailsToUpdateArrayList().size(); i++){
+                for(int j = 0; j < pictureList.size(); j++){
+                    if(getObjectObjDetailsToUpdateArrayList().get(i).getPosNr().equals(pictureList.get(j).getPosNr())) {
+                        if ((pictureList.get(j).getUserId().equals(myUser.getId()))) {
+                            jsonArray.put(pictureList.get(j).toJson());
+                        }
+                    }
                 }
             }
             return jsonArray.toString();

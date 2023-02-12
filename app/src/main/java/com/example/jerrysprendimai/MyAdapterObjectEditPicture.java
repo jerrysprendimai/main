@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,7 +58,6 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         this.parentHolder        = myHolder;
         this.parentView          = parentView;
         this.myUser              = user;
-
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
@@ -67,6 +67,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         ImageView myExpandedImage;
         ImageView myImage, myImageUpl, myImageUplFailed, myImageUplLock;
         ProgressBar myProgressBar, myProgressBarUpl;
+        TextView myPictureUname;
         LinearLayout myContainer;
         boolean bacgroundMarked;
 
@@ -83,6 +84,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             myProgressBar    = itemView.findViewById(R.id.objectDetailsPicture_progressBar);
             myProgressBarUpl = itemView.findViewById(R.id.objectDetailsPicture_progressBar_upl);
             myImageUplLock   = itemView.findViewById(R.id.objectDetailsPicture_upl_lock);
+            myPictureUname   = itemView.findViewById(R.id.objectDetailsPicture_uname);
         }
         public boolean isMyHoldIndicator() {return myHoldIndicator;}
         public void setMyHoldIndicator(boolean myHoldIndicator) {this.myHoldIndicator = myHoldIndicator;}
@@ -245,6 +247,9 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             }
         });
 
+        holder.myPictureUname.setText(objectObjPic.getFirstName());
+        holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.teal_700));
+
         //---- user mode handling
         if (!((ActivityObjectEdit)context).isUserMode()){
             //----admin has an option to delete all pictures
@@ -261,7 +266,10 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             });
         }else{
             if(!objectObjPic.getUserId().equals(myUser.getId())){
-                holder.myImageUplLock.setVisibility(View.VISIBLE);
+                //holder.myImageUplLock.setVisibility(View.VISIBLE);
+                holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.jerry_grey));
+            }else{
+                holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.teal_700));
             }
             //----user can delete only own pictures
             holder.myImage.setOnLongClickListener(v -> {

@@ -539,7 +539,7 @@
                                 android:paddingTop="4dp"
                                 android:orientation="vertical"
                                 android:layout_gravity="left">
-                            <Button
+                            <!--<Button
                                 android:id="@+id/objectDetails_retractable_button_save_userMode_extended"
                                 android:layout_width="110dp"
                                 android:layout_height="35dp"
@@ -549,7 +549,7 @@
                                 android:textColor="@color/white"
                                 android:textStyle="bold"
                                 android:layout_gravity="left"
-                                android:layout_marginLeft="15dp"/>
+                                android:layout_marginLeft="15dp"/>-->
 
                             </LinearLayout>
                             <LinearLayout

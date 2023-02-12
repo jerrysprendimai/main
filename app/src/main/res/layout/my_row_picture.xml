@@ -64,8 +64,8 @@
             android:id="@+id/objectDetailsPicture_upl_lock"
             android:layout_gravity="center"
             android:background="@color/jerry_grey_opacity"
-            android:layout_width="65dp"
-            android:layout_height="65dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
         </ImageView>
         <ProgressBar
             android:id="@+id/objectDetailsPicture_progressBar_upl"
@@ -89,5 +89,15 @@
         android:layout_height="match_parent"
         android:visibility="invisible"
         android:contentDescription="@string/object_jobName" />
-
+    <TextView
+        android:id="@+id/objectDetailsPicture_uname"
+        android:layout_marginTop="-5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppinsmedium"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="10sp"
+        android:text="uname"
+        />
 </LinearLayout>

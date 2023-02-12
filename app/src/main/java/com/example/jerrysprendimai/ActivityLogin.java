@@ -21,12 +21,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.text.InputType;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +55,7 @@ public class ActivityLogin extends AppCompatActivity {
     LinearLayout shiftContainer;
     Drawable background;
     Context context;
+    EditText loginFocusHolder;
 
     int currentlyScrolled;
     int totalScreenHeight;
@@ -61,12 +65,16 @@ public class ActivityLogin extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        //----resize window to push the Login button up
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         findViewById(R.id.login_error_msg).setVisibility(View.GONE);
         findViewById(R.id.progressBar).setVisibility(View.GONE);
-        loginUser     = findViewById(R.id.loginUser);
-        loginPassword = findViewById(R.id.loginPassword);
-        buttonLogin   = findViewById(R.id.loginButton);
-        shiftContainer = findViewById(R.id.shift_container);
+        loginFocusHolder = findViewById(R.id.login_invisibleFocusHolder);
+        loginUser        = findViewById(R.id.loginUser);
+        loginPassword    = findViewById(R.id.loginPassword);
+        buttonLogin      = findViewById(R.id.loginButton);
+        shiftContainer   = findViewById(R.id.shift_container);
 
         //----------to remove
         loginUser.setText("user");
@@ -98,6 +106,9 @@ public class ActivityLogin extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        loginFocusHolder.setInputType(InputType.TYPE_NULL);
+        loginFocusHolder.requestFocus();
+
         findViewById(R.id.progressBar).setVisibility(View.GONE);
         ((TextView) findViewById(R.id.login_error_msg)).setVisibility(View.GONE);
         ((TextView) findViewById(R.id.login_error_msg)).setText("");

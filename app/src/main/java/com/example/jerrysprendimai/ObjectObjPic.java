@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public class ObjectObjPic implements Parcelable{
     private Integer id, objectId, posNr, userId;
-    String picName, creationDate, picUrl;
+    String picName, creationDate, picUrl, firstName;
     String picUri;
     Bitmap imageResource;
     MyAdapterObjectEditPicture.MyViewHolder holder;
@@ -46,6 +46,7 @@ public class ObjectObjPic implements Parcelable{
         picName = in.readString();
         creationDate = in.readString();
         picUrl = in.readString();
+        firstName = in.readString();
         picUri = in.readString();
         imageResource = in.readParcelable(Bitmap.class.getClassLoader());
     }
@@ -78,6 +79,7 @@ public class ObjectObjPic implements Parcelable{
         dest.writeString(picName);
         dest.writeString(creationDate);
         dest.writeString(picUrl);
+        dest.writeString(firstName);
         dest.writeString(picUri);
         dest.writeParcelable(imageResource, flags);
     }
@@ -106,6 +108,7 @@ public class ObjectObjPic implements Parcelable{
         this.userId       = -1;
         this.picUrl       = "";
         this.picUri       = "";
+        this.firstName    = "";
     }
 
     public ObjectObjPic(JSONObject obj) {
@@ -118,6 +121,7 @@ public class ObjectObjPic implements Parcelable{
             this.picUrl       = obj.getString("PicURL");
             this.userId       = Integer.parseInt(obj.getString("User_id"));
             this.picUri       = "";
+            this.firstName    = obj.getString("FirstName");
         }catch (JSONException e) {
             e.printStackTrace();
         }
@@ -134,6 +138,7 @@ public class ObjectObjPic implements Parcelable{
             jsonObject.put("userId",       this.getUserId());
             jsonObject.put("picUrl",       this.getPicUrl());
             jsonObject.put("picUri",       this.getPicUri());
+            //jsonObject.put("firstName",    this.getPicUri());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -187,4 +192,6 @@ public class ObjectObjPic implements Parcelable{
     public void setHolder(MyAdapterObjectEditPicture.MyViewHolder holder) {        this.holder = holder;    }
     public Integer getUserId() {        return userId;    }
     public void setUserId(Integer userId) {        this.userId = userId;    }
+    public String getFirstName() {        return firstName;    }
+    public void setFirstName(String firstName) {        this.firstName = firstName;    }
 }
