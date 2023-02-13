@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -36,6 +37,7 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
     SQLiteDB dbHelper;
     Connector connector;
 
+    TextView version;
     TextInputEditText urlInput;
     TextInputEditText dbServerInput;
     TextInputEditText dbNameInput;
@@ -57,6 +59,8 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
         //-----------------Internal Database Handling
         this.dbHelper = new SQLiteDB(this);
 
+        //-----------------Version handling
+        version = findViewById(R.id.settings_version);
         //-----------------Editable Fields handling
         urlInput = findViewById(R.id.settings_URL);
         dbServerInput = findViewById(R.id.settings_dbServer);
@@ -93,6 +97,9 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
     }
 
     public void fillFieldValues() {
+
+        version.setHint("- " + version.getHint() + " " + BuildConfig.VERSION_NAME + " -");
+
         Cursor result = this.dbHelper.getData();
         if (result.getCount() == 0) {
             Toast.makeText(this, "Išsaugotų Duomenų Nėra", Toast.LENGTH_SHORT).show();

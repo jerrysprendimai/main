@@ -202,6 +202,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
+
                     //.apply(new RequestOptions().override(500,500).centerInside())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
@@ -216,7 +217,6 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                         }
                     });
         }
-
 
         //-----image click handling
         holder.myImage.setOnClickListener(v -> {
@@ -255,8 +255,8 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             }
         });
 
-        holder.myPictureUname.setText(objectObjPic.getFirstName());
-        holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.teal_700));
+        holder.myPictureUname.setHint(objectObjPic.getFirstName());
+        holder.myPictureUname.setHintTextColor(context.getResources().getColor(R.color.teal_700));
 
         //---- user mode handling
         if (!((ActivityObjectEdit)context).isUserMode()){
@@ -274,10 +274,10 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             });
         }else{
             if(!objectObjPic.getUserId().equals(myUser.getId())){
-                //holder.myImageUplLock.setVisibility(View.VISIBLE);
-                holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.jerry_grey));
+              //holder.myPictureUname.setHintTextColor(context.getResources().getColor(R.color.jerry_grey));
+              holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.jerry_grey));
             }else{
-                holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.teal_700));
+              holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.teal_700));
             }
             //----user can delete only own pictures
             holder.myImage.setOnLongClickListener(v -> {

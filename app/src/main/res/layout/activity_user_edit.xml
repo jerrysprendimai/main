@@ -282,7 +282,7 @@
 
         </LinearLayout>
         <include layout="@layout/layout_save_cancel" />
-        <include layout="@layout/layout_footer" />
+        <!--<include layout="@layout/layout_footer" />-->
     </androidx.cardview.widget.CardView>
 
 </LinearLayout>

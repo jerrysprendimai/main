@@ -56,4 +56,5 @@
     <string name="job_begin">Darbų pradžia</string>
     <string name="not_saved">Pakeitimai neišsaugoti. Išeiti?</string>
     <string name="new_version">Yra nauja \"Jerry\" versija. Parsisiųsti?</string>
+    <string name="version">versija</string>
 </resources>

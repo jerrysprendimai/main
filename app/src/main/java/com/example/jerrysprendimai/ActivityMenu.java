@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 public class ActivityMenu extends AppCompatActivity {
     final String user = "user";
+    final String admin = "admin";
     ObjectUser myUser;
     LinearLayout mainContainer;
     GridLayout gridLayout;
@@ -23,6 +24,10 @@ public class ActivityMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        ((TextView) findViewById(R.id.jerry_version)).setHint("- " + ((TextView) findViewById(R.id.jerry_version)).getHint() + " " + BuildConfig.VERSION_NAME + " -");
+        findViewById(R.id.jerry_version).setVisibility(View.VISIBLE);
+        findViewById(R.id.jerry_copyright).setVisibility(View.GONE);
 
         findViewById(R.id.progressBar).setVisibility(View.GONE);
         Context context = this;
@@ -106,11 +111,17 @@ public class ActivityMenu extends AppCompatActivity {
 
     private void setUserLevelView() {
         if (this.myUser.getUser_lv().equals(user)){
-            ((CardView) findViewById(R.id.CardView_main_menu_dealers)).setVisibility(View.GONE);
-            ((CardView) findViewById(R.id.CardView_main_menu_user)).setVisibility(View.GONE);
+            ((CardView) findViewById(R.id.main_menu_user_indicator)).setCardBackgroundColor(getResources().getColor(R.color.teal_700));
+            findViewById(R.id.CardView_main_menu_dealers).setVisibility(View.GONE);
+            findViewById(R.id.CardView_main_menu_user).setVisibility(View.GONE);
+        }else if(this.myUser.getUser_lv().equals(admin)){
+            ((CardView) findViewById(R.id.main_menu_user_indicator)).setCardBackgroundColor(getResources().getColor(R.color.jerry_grey));
+            findViewById(R.id.CardView_main_menu_dealers).setVisibility(View.VISIBLE);
+            findViewById(R.id.CardView_main_menu_user).setVisibility(View.VISIBLE);
         }else{
-            ((CardView) findViewById(R.id.CardView_main_menu_dealers)).setVisibility(View.VISIBLE);
-            ((CardView) findViewById(R.id.CardView_main_menu_user)).setVisibility(View.VISIBLE);
+            ((CardView) findViewById(R.id.main_menu_user_indicator)).setCardBackgroundColor(getResources().getColor(R.color.jerry_blue));
+            findViewById(R.id.CardView_main_menu_dealers).setVisibility(View.VISIBLE);
+            findViewById(R.id.CardView_main_menu_user).setVisibility(View.VISIBLE);
         }
 
     }

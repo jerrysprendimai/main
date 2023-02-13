@@ -91,13 +91,13 @@
         android:contentDescription="@string/object_jobName" />
     <TextView
         android:id="@+id/objectDetailsPicture_uname"
-        android:layout_marginTop="-5dp"
+        android:layout_marginTop="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppinsmedium"
         android:gravity="center"
         android:textStyle="bold"
         android:textSize="10sp"
-        android:text="uname"
+        android:hint="uname"
         />
 </LinearLayout>

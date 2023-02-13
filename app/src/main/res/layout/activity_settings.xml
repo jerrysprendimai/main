@@ -55,13 +55,20 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="10dp"
                             android:orientation="vertical">
-
+                            <TextView
+                                android:padding="5dp"
+                                android:id="@+id/settings_version"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/version"
+                                android:fontFamily="@font/poppinsmedium"
+                                android:textColorHint="@color/jerry_grey">
+                            </TextView>
                             <com.google.android.material.textfield.TextInputLayout
                                 style="@style/Input_layout"
                                 android:layout_gravity="left"
                                 android:padding="5dp"
                                 app:passwordToggleEnabled="true">
-
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/settings_URL"
                                     android:layout_width="wrap_content"
@@ -249,6 +256,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <include layout="@layout/layout_footer" />
+    <!--<include layout="@layout/layout_footer" />-->
     <include layout="@layout/layout_save_cancel"/>
 </androidx.drawerlayout.widget.DrawerLayout>
