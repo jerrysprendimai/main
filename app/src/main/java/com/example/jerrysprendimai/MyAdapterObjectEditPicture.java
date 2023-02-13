@@ -237,9 +237,17 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                         holder.myContainer.setBackgroundColor(Color.TRANSPARENT);
                         parentAdapterObjectEdit.removeToBeDeleted(parentHolder, objectObjPic);
                     } else {
-                        holder.setBacgroundMarked(true);
-                        holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow_opacity));
-                        parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
+                        if(!((ActivityObjectEdit)context).isUserMode()){
+                            holder.setBacgroundMarked(true);
+                            holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow_opacity));
+                            parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
+                        }else{
+                            if(objectObjPic.getUserId().equals(myUser.getId())){
+                                holder.setBacgroundMarked(true);
+                                holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow_opacity));
+                                parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
+                            }
+                        }
                     }
                 }else{
                     holder.setMyHoldIndicator(false);

@@ -766,6 +766,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     }
     public void refresh(){
         if(newPicCount == retutnThreadCount ){
+            newPicCount = 0;
+            retutnThreadCount = 0;
             findViewById(R.id.item_save).setEnabled(true);
             findViewById(R.id.item_cancel).setEnabled(true);
             findViewById(R.id.objectEdit_retractable_button).setEnabled(true);
@@ -793,10 +795,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     e.printStackTrace();
                 }
             }
-            for(int i = 0; i < objectPicturesArrayList.size();i++){
+            for(int i = 0; i < getObjectPicturesArrayList().size();i++){
                 try {
-                    objectPicturesArrayList.get(i).getHolder().myImageUplLock.setVisibility(View.GONE);
-                    objectPicturesArrayList.get(i).getHolder().myImage.setEnabled(true);
+                    getObjectPicturesArrayList().get(i).getHolder().myImageUplLock.setVisibility(View.GONE);
+                    getObjectPicturesArrayList().get(i).getHolder().myImage.setEnabled(true);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -1084,6 +1086,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         @Override
         protected void onPostExecute(InputStream inputStream) {
 
+            //connector.decodeResponse();
             ArrayList<ObjectObjUser> objUserArrayList = new ArrayList<>();
             ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
@@ -1173,6 +1176,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             recyclerView.addOnLayoutChangeListener(layoutChangeListener);
             myAdapterObjectEdit.notifyDataSetChanged();
 
+            //refresh();
             super.onPostExecute(inputStream);
         }
     }
