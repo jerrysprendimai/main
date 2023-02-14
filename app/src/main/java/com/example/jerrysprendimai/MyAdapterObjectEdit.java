@@ -72,7 +72,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     ObjectUser myUser;
     ViewGroup parentView;
     MyViewHolder myHolder;
-    Boolean deletionMode;
+    boolean deletionMode;
+    MyAdapterObjectEditPicture.MyViewHolder deletionModeViewHolder;
     ArrayList<ObjectObjPic> toBeDeletedList;
     String mCurrentPhotoPath;
     Uri mCurrentPhotoUri;
@@ -239,7 +240,6 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         //TransitionManager.beginDelayedTransition(holder.layoutExtended, new AutoTransition());
         //TransitionManager.beginDelayedTransition(holder.layoutSummary, new AutoTransition());
 
-
         TextWatcher myTextWatcher = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {}
@@ -330,6 +330,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         });
         holder.oDRetractableButton.setOnLongClickListener(v ->{
             ((ActivityObjectEdit)context).setDeletionMode(true);
+
             ((ActivityObjectEdit)context).setDeleteButtonVisibility(true);
             ((ActivityObjectEdit)context).setSaveCancelVisibility(false);
             ((ActivityObjectEdit)context).addToBeDeleted(position);
@@ -389,6 +390,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         }
         holder.setDeletionModeButtons(false);
         setDeletionMode(false);
+        //setDeletionModeViewHolder(null);
         holder.myAdapterObjectEditPicture = new MyAdapterObjectEditPicture(context, this, holder, parentView, holder.filteredPics, myUser);
         holder.oDFotoRecycleView.setAdapter(holder.myAdapterObjectEditPicture);
         holder.oDFotoRecycleView.setLayoutManager(new GridLayoutManager(context, 3));
@@ -399,8 +401,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             @Override
             public void onClick(View v) {
                 setDeletionMode(false);
+                //setDeletionModeViewHolder(null);
                 holder.setDeletionModeButtons(false);
                 holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+                toBeDeletedList.removeAll(toBeDeletedList);
             }
         });
         //---------delete handler
@@ -417,8 +421,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                     myObjectListPic.remove(toBeDeletedList.get(i));
                     ((ActivityObjectEdit)context).getObjectPicturesArrayList().remove(toBeDeletedList.get(i));
                 }
-                toBeDeletedList = new ArrayList<>();
+                //toBeDeletedList = new ArrayList<>();
+                toBeDeletedList.removeAll(toBeDeletedList);
                 setDeletionMode(false);
+                //setDeletionModeViewHolder(null);
                 holder.setDeletionModeButtons(false);
                 holder.myAdapterObjectEditPicture.notifyDataSetChanged();
 
@@ -537,6 +543,44 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             */
         }else{
             //holder.oDUserModeSaveDetail.setVisibility(View.GONE);
+        }
+
+        //---- locked object handling
+        if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0")){
+            //Toast.makeText(context, context.getResources().getString(R.string.locked_by) + " "
+            //        + ((ActivityObjectEdit)context).getObjectObject().getLockedUname(), Toast.LENGTH_SHORT).show();
+            holder.oDAddFotoButton.setEnabled(false);
+            holder.oDDeleteFotoButton.setEnabled(false);
+            holder.oDTakeFotoButton.setEnabled(false);
+            holder.oDDeleteCancel.setEnabled(false);
+
+            holder.oDAddFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+            holder.oDDeleteFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+            holder.oDTakeFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+            holder.oDDeleteCancel.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+
+            holder.oDCompleteJob.setEnabled(false);
+            //holder.oDCompleteJob.setThumbDrawable(context.getDrawable(R.drawable.));
+
+            BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
+            Menu menu = navigationView.getMenu();
+            menu.findItem(R.id.item_save).setEnabled(false);
+        }else{
+            holder.oDAddFotoButton.setEnabled(true);
+            holder.oDDeleteFotoButton.setEnabled(true);
+            holder.oDTakeFotoButton.setEnabled(true);
+            holder.oDDeleteCancel.setEnabled(true);
+
+            holder.oDAddFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_blue));
+            holder.oDDeleteFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_blue));
+            holder.oDTakeFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_blue));
+            holder.oDDeleteCancel.setBackgroundColor(context.getResources().getColor(R.color.jerry_blue));
+
+            holder.oDCompleteJob.setEnabled(true);
+
+            BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
+            Menu menu = navigationView.getMenu();
+            menu.findItem(R.id.item_save).setEnabled(true);
         }
 
     }
@@ -765,25 +809,33 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
 
     public void removeToBeDeleted(MyViewHolder holder, ObjectObjPic objectObjPic){
-        for(int i=0; i<this.toBeDeletedList.size(); i++){
+        if(toBeDeletedList.contains(objectObjPic)){
+            this.toBeDeletedList.remove(objectObjPic);
+
+            if(this.toBeDeletedList.size() == 0){
+                setDeletionMode(false);
+                //setDeletionModeViewHolder(null);
+                holder.setDeletionModeButtons(false);
+                holder.myAdapterObjectEditPicture.notifyDataSetChanged();
+            }
+        }
+        /*for(int i=0; i<this.toBeDeletedList.size(); i++){
             if(this.toBeDeletedList.get(i).equals(objectObjPic)){
                 this.toBeDeletedList.remove(i);
                 break;
             }
         }
-
         if(this.toBeDeletedList.size() == 0){
             setDeletionMode(false);
             holder.setDeletionModeButtons(false);
             holder.myAdapterObjectEditPicture.notifyDataSetChanged();
-            //getMyHolder().setDeletionModeButtons(false);
-            //getMyHolder().myAdapterObjectEditPicture.notifyDataSetChanged();
-            //getMyObjectObjDetails().getHolder().oDDeleteCancel.performClick();
-            //getMyObjectObjDetails().getHolder().oDDeleteCancel.setBackgroundColor(context.getResources().getColor(R.color.jerry_red));
-        }
+        }*/
     }
     public void addToBeDeleted(ObjectObjPic objectObjPic){
-        boolean found = false;
+        if(!toBeDeletedList.contains(objectObjPic)){
+            this.toBeDeletedList.add(objectObjPic);
+        }
+        /*boolean found = false;
         for(int i=0; i<this.toBeDeletedList.size(); i++){
             if(this.toBeDeletedList.get(i).equals(objectObjPic)){
                 found = true;
@@ -792,7 +844,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         }
         if(!found){
             this.toBeDeletedList.add(objectObjPic);
-        }
+        }*/
     }
 
     public void setMyHolder(MyViewHolder myHolder) {        this.myHolder = myHolder;    }
@@ -800,6 +852,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
     public ArrayList<MyViewHolder> getMyViewHolderList() {        return myViewHolderList;    }
     public Boolean getDeletionMode() {        return deletionMode;    }
     public void setDeletionMode(Boolean deletionMode) {       this.deletionMode = deletionMode;    }
+
     public String getmCurrentPhotoPath() { return mCurrentPhotoPath;    }
     public void setmCurrentPhotoPath(String mCurrentPhotoPath) {        this.mCurrentPhotoPath = mCurrentPhotoPath;    }
     public void setmCurrentPhotoUri(Uri mCurrentPhotoUri){       this.mCurrentPhotoUri = mCurrentPhotoUri;    }

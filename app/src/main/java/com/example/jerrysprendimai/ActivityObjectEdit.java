@@ -91,6 +91,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     private int backgroundJobs = 10;
     private int newPicCount = 0;
     private int retutnThreadCount = 0;
+    private MyAdapterObjectEdit.MyViewHolder deletionModeAdapterObjectEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -472,6 +473,13 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             field.setError(null);
         }
         return returnValue;
+    }
+
+    public void setDeletePictureViewHolder(MyAdapterObjectEdit.MyViewHolder deletionModeAdapterObjectEdit) {
+        this.deletionModeAdapterObjectEdit = deletionModeAdapterObjectEdit;
+    }
+    public MyAdapterObjectEdit.MyViewHolder getDeletePictureViewHolder() {
+        return this.deletionModeAdapterObjectEdit;
     }
 
     class RunnableTask implements Runnable{

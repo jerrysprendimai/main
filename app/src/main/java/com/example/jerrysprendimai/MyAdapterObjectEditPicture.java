@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -222,6 +223,17 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         holder.myImage.setOnClickListener(v -> {
             ((ActivityObjectEdit)context).setBackButtonCount(0);
             if(!parentAdapterObjectEdit.getDeletionMode()){
+                if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
+                    if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
+                        for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
+                            parentAdapterObjectEdit.toBeDeletedList.get(i).getHolder().myContainer.setBackgroundColor(Color.TRANSPARENT);
+                        }
+                        parentAdapterObjectEdit.toBeDeletedList.removeAll(parentAdapterObjectEdit.toBeDeletedList);
+                        ((ActivityObjectEdit)context).getDeletePictureViewHolder().setDeletionModeButtons(false);
+                        ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
+                        //parentAdapterObjectEdit.setDeletionModeViewHolder(parentAdapterObjectEdit);
+                    }
+                }
                 if(!holder.isMyHoldIndicator()){
                     Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
                     intent.putParcelableArrayListExtra("myPictureList", myPictureList);
@@ -231,6 +243,19 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                     holder.setMyHoldIndicator(false);
                 }
             }else{
+                if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
+                    if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
+                        for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
+                            parentAdapterObjectEdit.toBeDeletedList.get(i).getHolder().myContainer.setBackgroundColor(Color.TRANSPARENT);
+                        }
+                        parentAdapterObjectEdit.toBeDeletedList.removeAll(parentAdapterObjectEdit.toBeDeletedList);
+                        ((ActivityObjectEdit)context).getDeletePictureViewHolder().setDeletionModeButtons(false);
+                        ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
+                        parentAdapterObjectEdit.setDeletionMode(false);
+                        return;
+                        //parentAdapterObjectEdit.setDeletionModeViewHolder(parentAdapterObjectEdit);
+                    }
+                }
                 if(!holder.isMyHoldIndicator()) {
                     if (holder.isBacgroundMarked()) {
                         holder.setBacgroundMarked(false);
@@ -261,12 +286,32 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         //---- user mode handling
         if (!((ActivityObjectEdit)context).isUserMode()){
             //----admin has an option to delete all pictures
+            //parentAdapterObjectEdit.setDeletionModeViewHolder(holder);
             holder.myImage.setOnLongClickListener(v -> {
+                if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0")){
+                    Toast.makeText(context, context.getResources().getString(R.string.locked_by) + " "
+                            + ((ActivityObjectEdit)context).getObjectObject().getLockedUname(), Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
+                    if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
+                        for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
+                            parentAdapterObjectEdit.toBeDeletedList.get(i).getHolder().myContainer.setBackgroundColor(Color.TRANSPARENT);
+                        }
+                        parentAdapterObjectEdit.toBeDeletedList.removeAll(parentAdapterObjectEdit.toBeDeletedList);
+                        ((ActivityObjectEdit)context).getDeletePictureViewHolder().setDeletionModeButtons(false);
+                        ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
+                        parentAdapterObjectEdit.setDeletionMode(false);
+                        //parentAdapterObjectEdit.setDeletionModeViewHolder(parentAdapterObjectEdit);
+                    }
+                }
+
                 holder.myImage.setSoundEffectsEnabled(false);
                 holder.setMyHoldIndicator(true);
                 parentAdapterObjectEdit.setDeletionMode(true);
                 parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
                 parentHolder.setDeletionModeButtons(true);
+                ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
                 holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
                 holder.setBacgroundMarked(true);
                 holder.myImage.setSoundEffectsEnabled(true);
@@ -281,18 +326,38 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             }
             //----user can delete only own pictures
             holder.myImage.setOnLongClickListener(v -> {
+                //---- locked object handling
+                if(!(((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0"))){
+                    Toast.makeText(context, context.getResources().getString(R.string.locked_by) + " "
+                            + ((ActivityObjectEdit)context).getObjectObject().getLockedUname(), Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 if(objectObjPic.getUserId().equals(myUser.getId())){
+                    if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
+                        if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
+                            for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
+                                parentAdapterObjectEdit.toBeDeletedList.get(i).getHolder().myContainer.setBackgroundColor(Color.TRANSPARENT);
+                            }
+                            parentAdapterObjectEdit.toBeDeletedList.removeAll(parentAdapterObjectEdit.toBeDeletedList);
+                            ((ActivityObjectEdit)context).getDeletePictureViewHolder().setDeletionModeButtons(false);
+                            ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
+                            parentAdapterObjectEdit.setDeletionMode(false);
+                            //parentAdapterObjectEdit.setDeletionModeViewHolder(parentAdapterObjectEdit);
+                        }
+                    }
                     holder.myImage.setSoundEffectsEnabled(false);
                     holder.setMyHoldIndicator(true);
                     parentAdapterObjectEdit.setDeletionMode(true);
                     parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
                     parentHolder.setDeletionModeButtons(true);
+                    ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
                     holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
                     holder.setBacgroundMarked(true);
                     holder.myImage.setSoundEffectsEnabled(true);
                 }
                 return false;
             });
+
         }
     }
     @Override
