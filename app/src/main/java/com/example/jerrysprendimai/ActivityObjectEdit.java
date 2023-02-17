@@ -417,9 +417,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
     @Override
     protected void onResume() {
+        new HttpsRequestCheckSessionAlive(this).execute();
+
         super.onResume();
-        editInvisibleFocusHolder.setInputType(InputType.TYPE_NULL);
-        editInvisibleFocusHolder.requestFocus();
+
+        //editInvisibleFocusHolder.setInputType(InputType.TYPE_NULL);
+        //editInvisibleFocusHolder.requestFocus();
     }
     public void scrollToPosition(){
         int nY_Pos = this.scrollView.getTop();
@@ -822,6 +825,56 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 setObjectLocked(false);
             }
 
+        }
+    }
+
+    class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {
+        private static final String check_session_alive_url = "check_session_alive.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestCheckSessionAlive(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, check_session_alive_url);
+            connector.addPostParameter("user_id", MCrypt2.encodeToString(myUser.getId().toString()));
+            connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            connector.decodeResponse();
+
+            JSONObject object = null;
+            try {
+                object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                String status  = object.getString("status");
+                String msg     = object.getString("msg");
+                //String control = object.getString("control");
+                if (status.equals("1")) {
+                    //---here actions than should continue if session still valid
+                    editInvisibleFocusHolder.setInputType(InputType.TYPE_NULL);
+                    editInvisibleFocusHolder.requestFocus();
+                }else{
+                    //session and last activity deleted in DB, app will log-out
+                    Toast.makeText(context, context.getResources().getString(R.string.session_expired), Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            super.onPostExecute(inputStream);
         }
     }
 

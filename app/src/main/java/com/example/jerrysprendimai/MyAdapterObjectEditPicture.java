@@ -237,6 +237,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                 if(!holder.isMyHoldIndicator()){
                     Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
                     intent.putParcelableArrayListExtra("myPictureList", myPictureList);
+                    intent.putExtra("myUser", myUser);
                     intent.putExtra("myPosition", holder.getAdapterPosition());
                     context.startActivity(intent);
                 }else{
