@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
@@ -26,7 +25,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -55,7 +53,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 
 public class ActivityObjectEdit extends AppCompatActivity implements View.OnClickListener, KeyboardVisibilityEventListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, View.OnKeyListener {
     final String user = "user";
@@ -156,9 +153,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             TextView dialogDateLabel = dialogView.findViewById(R.id.datePicker_date_label);
             CalendarView datePickerCalender = dialogView.findViewById(R.id.datePicker_calenderView);
             Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR, Integer.parseInt(DateHelper.get_YMD_from_date_display("year",        this.objectObject.getDate())));
-            calendar.set(Calendar.MONTH, Integer.parseInt(DateHelper.get_YMD_from_date_display("month",      this.objectObject.getDate())) - 1);
-            calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(DateHelper.get_YMD_from_date_display("day", this.objectObject.getDate())));
+            calendar.set(Calendar.YEAR, Integer.parseInt(HelperDate.get_YMD_from_date_display("year",        this.objectObject.getDate())));
+            calendar.set(Calendar.MONTH, Integer.parseInt(HelperDate.get_YMD_from_date_display("month",      this.objectObject.getDate())) - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(HelperDate.get_YMD_from_date_display("day", this.objectObject.getDate())));
             dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
             long milliTime = calendar.getTimeInMillis();
             datePickerCalender.setDate(milliTime);
@@ -286,7 +283,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 objectPicturesArrayList.get(i).setPosNr(objectPicturesArrayList.get(i).getPosNr()+1);
             }
 
-            //---- on adde Job recalculate completness
+            //---- on add Job recalculate completness
             calculateCompletness();
 
             myAdapterObjectEdit.notifyDataSetChanged();

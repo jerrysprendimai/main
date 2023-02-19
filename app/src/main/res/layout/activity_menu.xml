@@ -191,6 +191,21 @@
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
+                            android:id="@+id/CardView_main_menu_calendar"
+                            style="@style/Menu_Item_CardView">
+                            <LinearLayout
+                                style="@style/Menu_Item_LinearLayout"
+                                android:id="@+id/main_menu_calendar">
+                                <ImageView
+                                    style="@style/Menu_Item_ImageView"
+                                    android:src="@drawable/ic_calendar_white" />
+                                <TextView
+                                    style="@style/Menu_Item_EditText"
+                                    android:text="@string/calendar" />
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
                             android:id="@+id/CardView_main_menu_settings"
                             style="@style/Menu_Item_CardView">
                             <LinearLayout

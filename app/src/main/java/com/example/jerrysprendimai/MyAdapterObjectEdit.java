@@ -546,25 +546,27 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         }
 
         //---- locked object handling
+        //---check if object is loked
         if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0")){
-            //Toast.makeText(context, context.getResources().getString(R.string.locked_by) + " "
-            //        + ((ActivityObjectEdit)context).getObjectObject().getLockedUname(), Toast.LENGTH_SHORT).show();
-            holder.oDAddFotoButton.setEnabled(false);
-            holder.oDDeleteFotoButton.setEnabled(false);
-            holder.oDTakeFotoButton.setEnabled(false);
-            holder.oDDeleteCancel.setEnabled(false);
+            //---check if object is loked but not by me
+            if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals(myUser.getId().toString())){
 
-            holder.oDAddFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
-            holder.oDDeleteFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
-            holder.oDTakeFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
-            holder.oDDeleteCancel.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+                holder.oDAddFotoButton.setEnabled(false);
+                holder.oDDeleteFotoButton.setEnabled(false);
+                holder.oDTakeFotoButton.setEnabled(false);
+                holder.oDDeleteCancel.setEnabled(false);
 
-            holder.oDCompleteJob.setEnabled(false);
-            //holder.oDCompleteJob.setThumbDrawable(context.getDrawable(R.drawable.));
+                holder.oDAddFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+                holder.oDDeleteFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+                holder.oDTakeFotoButton.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
+                holder.oDDeleteCancel.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey));
 
-            BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
-            Menu menu = navigationView.getMenu();
-            menu.findItem(R.id.item_save).setEnabled(false);
+                holder.oDCompleteJob.setEnabled(false);
+
+                BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
+                Menu menu = navigationView.getMenu();
+                menu.findItem(R.id.item_save).setEnabled(false);
+            }
         }else{
             holder.oDAddFotoButton.setEnabled(true);
             holder.oDDeleteFotoButton.setEnabled(true);

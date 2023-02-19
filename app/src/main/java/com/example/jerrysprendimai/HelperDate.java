@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DateHelper {
+public class HelperDate {
   public static String get_timestamp_display(String timestamp){
       SimpleDateFormat mysqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
       SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");

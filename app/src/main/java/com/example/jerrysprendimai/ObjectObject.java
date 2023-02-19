@@ -2,7 +2,6 @@ package com.example.jerrysprendimai;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,7 +58,7 @@ public class ObjectObject implements Parcelable {
 
     public ObjectObject(){
         this.id             = -1;
-        this.date           = DateHelper.get_current_date_disply();
+        this.date           = HelperDate.get_current_date_disply();
         this.objectName     = "";
         this.objectAddress  = "";
         this.customerName   = "";
@@ -70,7 +69,7 @@ public class ObjectObject implements Parcelable {
     public ObjectObject(JSONObject obj, String wa){
         try {
             this.id             = Integer.parseInt(obj.getString("id"));
-            this.date           = DateHelper.get_date_display(obj.getString("Date"));
+            this.date           = HelperDate.get_date_display(obj.getString("Date"));
             this.objectName     = obj.getString("ObjectName");
             this.customerName   = obj.getString("CustomerName");
             this.objectAddress  = obj.getString("ObjectAddress");
@@ -84,7 +83,7 @@ public class ObjectObject implements Parcelable {
     public ObjectObject(JSONObject obj){
         try {
             this.id             = Integer.parseInt(MCrypt.decryptSingle(obj.getString("id")));
-            this.date           = DateHelper.get_date_display(MCrypt.decryptSingle(obj.getString("Date")));
+            this.date           = HelperDate.get_date_display(MCrypt.decryptSingle(obj.getString("Date")));
             this.objectName     = MCrypt.decryptSingle(obj.getString("ObjectName"));
             this.objectAddress  = MCrypt.decryptSingle(obj.getString("ObjectAddress"));
             this.customerName   = MCrypt.decryptSingle(obj.getString("CustomerName"));

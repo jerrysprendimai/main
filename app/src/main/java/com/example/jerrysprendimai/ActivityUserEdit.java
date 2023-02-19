@@ -388,7 +388,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                 if (saveStatus.equals("1")) {
                     String userId  = responseObject.getString("userId");
                     String regDate = responseObject.getString("regDate");
-                    regDate = DateHelper.get_date_display(regDate);
+                    regDate = HelperDate.get_date_display(regDate);
                     ((ActivityUserEdit) context).uSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_green));
                     ((ActivityUserEdit) context).objectUser.setReg_date(regDate);
                     ((ActivityUserEdit) context).uRegDate.setText(((ActivityUserEdit) context).objectUser.getReg_date());

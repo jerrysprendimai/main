@@ -44,7 +44,8 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    //download and install apk
+
+    //-----------download and install apk
     implementation 'com.github.Piashsarker:AndroidAppUpdateLibrary:1.0.4'
     //-----------PhotoView
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'

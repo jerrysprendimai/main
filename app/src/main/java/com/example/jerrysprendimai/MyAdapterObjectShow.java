@@ -2,11 +2,8 @@ package com.example.jerrysprendimai;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Parcel;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Base64;
@@ -14,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -532,7 +528,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             connector = new Connector(context, set_object_user_url);
             connector.addPostParameter("user_id",   Base64.encodeToString(MCrypt.encrypt(String.valueOf(myUser.getId()).getBytes()), Base64.DEFAULT));
             connector.addPostParameter("object_id", Base64.encodeToString(MCrypt.encrypt(clickObject.getId().toString().getBytes()), Base64.DEFAULT));
-            connector.addPostParameter("date",      Base64.encodeToString(MCrypt.encrypt(DateHelper.get_current_date_mysql().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("date",      Base64.encodeToString(MCrypt.encrypt(HelperDate.get_current_date_mysql().getBytes()), Base64.DEFAULT));
             connector.addPostParameter("user",      Base64.encodeToString(MCrypt.encrypt(assignedUserList.toString().getBytes()), Base64.DEFAULT));
             connector.send();
             connector.receive();

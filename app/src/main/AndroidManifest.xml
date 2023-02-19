@@ -3,19 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.jerrysprendimai">
 
-    <uses-feature android:name="android.hardware.camera"
-                  android:required="true"/>
-    <uses-feature android:name="android.hardware.camera.flash"
-        android:required="false">
-    </uses-feature>
-    <uses-feature android:name="android.hardware.camera.autofocus"
-        android:required="false">
-    </uses-feature>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false"></uses-feature>
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false"></uses-feature>
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
 
     <application
         android:allowBackup="true"
@@ -27,6 +31,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
+        <activity
+            android:name=".ActivityCalendar"
+            android:exported="false" />
         <activity
             android:name=".ActivityPictureFullSizeView"
             android:exported="false" />
@@ -50,11 +57,12 @@
             android:exported="false" />
         <activity
             android:name=".ActivityLogin"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="true" >
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.ActivityLogin" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -67,23 +75,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-         <provider
-             android:name="androidx.core.content.FileProvider"
-             android:authorities="${applicationId}.provider"
-             android:exported="false"
-             android:grantUriPermissions="true">
-             <meta-data
-                 android:name="android.support.FILE_PROVIDER_PATHS"
-                 android:resource="@xml/file_path"/>
-         </provider>
-        <!--  <provider
-              android:name="androidx.core.content.FileProvider"
-              android:authorities="com.example.android.fileprovider"
-              android:exported="false"
-              android:grantUriPermissions="true">
-              <meta-data
-                  android:name="android.support.FILE_PROVIDER_PATHS"
-                  android:resource="@xml/file_path"/>
-          </provider>-->
-      </application>
-  </manifest>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_path" />
+        </provider>
+    </application>
+
+</manifest>

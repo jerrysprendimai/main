@@ -6,14 +6,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.MediaStore;
 import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 public class ObjectObjPic implements Parcelable{
     private Integer id, objectId, posNr, userId;
@@ -104,7 +102,7 @@ public class ObjectObjPic implements Parcelable{
         this.objectId     = -1;
         this.posNr        = -1;
         this.picName      = "";
-        this.creationDate = DateHelper.get_current_date_disply();
+        this.creationDate = HelperDate.get_current_date_disply();
         this.userId       = -1;
         this.picUrl       = "";
         this.picUri       = "";

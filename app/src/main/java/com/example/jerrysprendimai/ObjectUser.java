@@ -32,6 +32,7 @@ public class ObjectUser implements Parcelable {
         last_login = in.readString();
         user_lv = in.readString();
         sessionId = in.readString();
+        last_action = in.readString();
         byte tmpChecked = in.readByte();
         checked = tmpChecked == 0 ? null : tmpChecked == 1;
     }
@@ -69,6 +70,7 @@ public class ObjectUser implements Parcelable {
         dest.writeString(last_login);
         dest.writeString(user_lv);
         dest.writeString(sessionId);
+        dest.writeString(last_action);
         dest.writeByte((byte) (checked == null ? 0 : checked ? 1 : 2));
     }
 
@@ -98,8 +100,8 @@ public class ObjectUser implements Parcelable {
             this.first_name  = MCrypt.decryptSingle(obj.getString("first_name"));
             this.last_name   = MCrypt.decryptSingle(obj.getString("last_name"));
             this.passwd      = MCrypt.decryptDouble(obj.getString("passwd"));
-            this.reg_date    = DateHelper.get_date_display(MCrypt.decryptSingle(obj.getString("reg_date")));
-            this.last_login  = DateHelper.get_timestamp_display(MCrypt.decryptSingle(obj.getString("last_login")));
+            this.reg_date    = HelperDate.get_date_display(MCrypt.decryptSingle(obj.getString("reg_date")));
+            this.last_login  = HelperDate.get_timestamp_display(MCrypt.decryptSingle(obj.getString("last_login")));
             this.user_lv     = MCrypt.decryptSingle(obj.getString("user_lv"));
             this.sessionId   = MCrypt.decryptSingle(obj.getString("session"));
             this.last_action = MCrypt.decryptSingle(obj.getString("last_activity"));
@@ -115,8 +117,8 @@ public class ObjectUser implements Parcelable {
                 this.first_name  = obj.getString("FirstName");
                 this.last_name   = obj.getString("LastName");
                 this.passwd      = obj.getString("Passwd");
-                this.reg_date    = DateHelper.get_date_display(obj.getString("RegDate"));
-                this.last_login  = DateHelper.get_timestamp_display(obj.getString("LastLogin"));
+                this.reg_date    = HelperDate.get_date_display(obj.getString("RegDate"));
+                this.last_login  = HelperDate.get_timestamp_display(obj.getString("LastLogin"));
                 this.user_lv     = obj.getString("user_lv");
                 this.sessionId   = obj.getString("Session");
                 this.last_action = obj.getString("LastActivity");
@@ -167,7 +169,7 @@ public class ObjectUser implements Parcelable {
             jsonObject.put("lname",this.getLast_name());
             jsonObject.put("password",encPaswd);
             //jsonObject.put("password",this.getPasswd());
-            jsonObject.put("regDate", DateHelper.get_date_mysql(this.getReg_date()));
+            jsonObject.put("regDate", HelperDate.get_date_mysql(this.getReg_date()));
             jsonObject.put("cheked", this.getChecked().toString());
         }catch(Exception e){
             e.printStackTrace();
@@ -278,4 +280,10 @@ public class ObjectUser implements Parcelable {
     public void setChecked(Boolean checked) {
         this.checked = checked;
     }
+
+    public String getLast_action() {        return last_action;    }
+
+    public void setLast_action(String last_action) {        this.last_action = last_action;    }
+
+
 }

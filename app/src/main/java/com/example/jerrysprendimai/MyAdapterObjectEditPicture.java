@@ -290,9 +290,11 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             //parentAdapterObjectEdit.setDeletionModeViewHolder(holder);
             holder.myImage.setOnLongClickListener(v -> {
                 if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0")){
+                    if((!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals(myUser.getId().toString()))){
                     Toast.makeText(context, context.getResources().getString(R.string.locked_by) + " "
                             + ((ActivityObjectEdit)context).getObjectObject().getLockedUname(), Toast.LENGTH_SHORT).show();
                     return false;
+                    }
                 }
                 if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
                     if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
@@ -328,10 +330,12 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             //----user can delete only own pictures
             holder.myImage.setOnLongClickListener(v -> {
                 //---- locked object handling
-                if(!(((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0"))){
+                if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0")){
+                    if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals(myUser.getId().toString())){
                     Toast.makeText(context, context.getResources().getString(R.string.locked_by) + " "
                             + ((ActivityObjectEdit)context).getObjectObject().getLockedUname(), Toast.LENGTH_SHORT).show();
                     return false;
+                    }
                 }
                 if(objectObjPic.getUserId().equals(myUser.getId())){
                     if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
