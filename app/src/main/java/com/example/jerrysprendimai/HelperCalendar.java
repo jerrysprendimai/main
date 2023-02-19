@@ -9,8 +9,10 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.provider.CalendarContract;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,6 +61,11 @@ public class HelperCalendar {
             String title       = cursor.getString(4);  //title
             String description = cursor.getString(5);  //description
 
+            SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(Long.parseLong(dstart));
+            String eventDate = displayDateFormat.format(calendar.getTime());
+
             //------find cooresponding object
             ObjectObject myObject = null;
             for(int j = 0; j < myObjectList.size(); j++){
@@ -77,38 +84,51 @@ public class HelperCalendar {
                         myObject.getCustomerName() +"\n"+
                         myObject.getObjectAddress();
                 if(!title.equals(myObject.getObjectName())){
-                    //contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
-
+                    contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
                     contentResolver.delete(HelperCalendar.asSyncAdapter(CalendarContract.Events.CONTENT_URI), "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
-                    //contentResolver.delete(CalendarContract.Events.CONTENT_URI, "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
-
+                    continue;
+                }
+                if(!description.equals(expectedEventName)){
+                    contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
+                    contentResolver.delete(HelperCalendar.asSyncAdapter(CalendarContract.Events.CONTENT_URI), "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
+                    continue;
+                }
+                if(!eventDate.equals(myObject.getDate())){
+                    contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
+                    contentResolver.delete(HelperCalendar.asSyncAdapter(CalendarContract.Events.CONTENT_URI), "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
                     continue;
                 }
 
-                /*if(!description.equals(expectedEventName)){
-                    //contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
-                    contentResolver.delete(CalendarContract.Events.CONTENT_URI, "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
-                    continue;
-                }*/
             }
 
             cursor.moveToNext();
         }
-
-
 
         //----adding events
         selectionClause = "CALENDAR_ID = ? AND TITLE = ?";
         for(int i= 0; i<myObjectList.size(); i++){
             String[] selectionsArgs2 = new String[]{this.calenderID, myObjectList.get(i).getObjectName()};
             Cursor cursor2 = contentResolver.query(CalendarContract.Events.CONTENT_URI, FIELDS, selectionClause, selectionsArgs2, null);
-            int cusrsorCount = cursor.getCount();
+            int cusrsorCount = cursor2.getCount();
 
-            if(cursor.getCount() == 0){
+            if(cursor2.getCount() == 0){
                 //----create new event
                 ContentValues eventValues = new ContentValues();
                 Calendar beginTime = Calendar.getInstance();
                 Calendar endTime = Calendar.getInstance();
+
+                SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                //Calendar calendar = Calendar.getInstance();
+                //calendar.setTimeInMillis(Long.parseLong(dstart));
+                //String eventDate = displayDateFormat.format(calendar.getTime());
+
+                try {
+                    Date dateObj = displayDateFormat.parse(myObjectList.get(i).getDate());
+                    beginTime.setTimeInMillis(dateObj.getTime());
+                    endTime = beginTime;
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 eventValues.put(CalendarContract.Events._ID, myObjectList.get(i).getId().toString());
                 eventValues.put(CalendarContract.Events.CALENDAR_ID, this.calenderID);
                 eventValues.put(CalendarContract.Events.DTSTART, beginTime.getTimeInMillis());
@@ -126,11 +146,11 @@ public class HelperCalendar {
                 //----create Remainder
                 ContentValues reminderValues = new ContentValues();
                 reminderValues.put("event_id", myObjectList.get(i).getId().toString());
-                reminderValues.put("minutes", 1440);
+                reminderValues.put("minutes", 720);
                 reminderValues.put("method", 1);
                 contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, reminderValues);
             }else{
-                cursor.moveToFirst();
+                cursor2.moveToFirst();
                 String str0 = cursor2.getString(0);
                 String str1 = cursor2.getString(1);
                 String str2 = cursor2.getString(2);
