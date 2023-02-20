@@ -9,6 +9,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.provider.CalendarContract;
 
+import com.github.sundeepk.compactcalendarview.CompactCalendarView;
+import com.github.sundeepk.compactcalendarview.domain.Event;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,11 +19,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class HelperCalendar {
     private static final String CALENDAR_NAME = "Jerry";
     private static final String CALENDAR_TYPE = "LOCAL";
+    private static String[] FIELDS = new String[] { "_id","calendar_id","dtstart","dtend","title","description","allDay","eventLocation" };
 
     public Context context;
     public String calenderID;
@@ -30,22 +35,41 @@ public class HelperCalendar {
         this.calenderID = HelperCalendar.getCalendarID(this.context);
     }
 
+    public ArrayList<ObjectEvent> getJerryCalendarEvents(){
+        ArrayList<ObjectEvent> eventArray = new ArrayList<>();
+        ContentResolver contentResolver = context.getContentResolver();
+        String selectionClause = "calendar_id = ?";
+        String[] selectionsArgs = new String[]{this.calenderID};
+        Cursor cursor = contentResolver.query(CalendarContract.Events.CONTENT_URI, FIELDS, selectionClause, selectionsArgs, null);
+        int cursorCount = cursor.getCount();
+        cursor.moveToFirst();
+        for(int i = 0; i < cursorCount; i++){
+            ObjectEvent event = new ObjectEvent(cursor);
+            eventArray.add(event);
+            cursor.moveToNext();
+        }
+        return eventArray;
+    }
+    public void setMonthEvents(CompactCalendarView calendarView, Calendar calendar){
+        int year  = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+
+        ArrayList<ObjectEvent> eventArray = getJerryCalendarEvents();
+        for(int i = 0; i<eventArray.size(); i++){
+            if((eventArray.get(i).year == year)&&(eventArray.get(i).month == month)){
+                List<Event> calenderEvents = calendarView.getEventsForMonth(calendar.getTime());
+                Event newEvent = new Event(context.getResources().getColor(R.color.jerry_blue), eventArray.get(i).getCalendar().getTimeInMillis(), eventArray.get(i).getTitle());
+                if(!calenderEvents.contains(newEvent)){
+                    calendarView.addEvent(newEvent);
+                }
+            }
+        }
+    }
     public void syncJerryCalenderEvents(ArrayList<ObjectObject> myObjectList){
         ContentResolver contentResolver = context.getContentResolver();
-        String[] FIELDS = new String[] { "_id",
-                                         "calendar_id",
-                                         "dtstart",
-                                         "dtend",
-                                         "title",
-                                         "description",
-                                         //"event_color",
-                                         //"event_timezone",
-                                         "allDay",
-                                         "eventLocation" };
-        String selectionClause ;
 
         //----deleting events
-        selectionClause = "calendar_id = ?";
+        String selectionClause = "calendar_id = ?";
         String[] selectionsArgs = new String[]{this.calenderID};
         Cursor cursor = contentResolver.query(CalendarContract.Events.CONTENT_URI, FIELDS, selectionClause, selectionsArgs, null);
         int cursorCount = cursor.getCount();
@@ -98,9 +122,7 @@ public class HelperCalendar {
                     contentResolver.delete(HelperCalendar.asSyncAdapter(CalendarContract.Events.CONTENT_URI), "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
                     continue;
                 }
-
             }
-
             cursor.moveToNext();
         }
 
