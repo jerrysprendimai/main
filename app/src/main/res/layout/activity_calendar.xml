@@ -109,9 +109,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/recycleView_Item_Text"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:includeFontPadding="false"
             android:layout_gravity="start"
+            android:textStyle="bold"
             android:hint="d-a-t-e"
             >
         </TextView>
@@ -130,7 +131,7 @@
         android:orientation="vertical">
 
         <Button
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_margin="20dp"
             android:id="@+id/test_button_delte"
             android:layout_width="wrap_content"

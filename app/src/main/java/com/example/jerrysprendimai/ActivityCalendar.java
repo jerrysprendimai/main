@@ -203,10 +203,7 @@ public class ActivityCalendar extends AppCompatActivity {
     @Override
     protected void onResume() {
         new HttpsRequestCheckSessionAlive(this).execute();
-        if((this.myAdapterCalendarEvents != null)&&(getObjectToDisplay() != null)){
-            new HttpsRequestLockObject(this, objectToDisplay, objectToDisplay.getId().toString(),"unlock").execute();
-            setObjectToDisplay(null);
-        }
+
         super.onResume();
     }
 
@@ -329,8 +326,15 @@ public class ActivityCalendar extends AppCompatActivity {
                 String msg     = object.getString("msg");
                 //String control = object.getString("control");
                 if (status.equals("1")) {
+
+                    if((myAdapterCalendarEvents != null)&&(getObjectToDisplay() != null)){
+                        new HttpsRequestLockObject(context, objectToDisplay, objectToDisplay.getId().toString(),"unlock").execute();
+                        setObjectToDisplay(null);
+                    }
+
                     //----get object list for calender events sync.
                     new HttpsRequestGetObjectList(context).execute();
+
                     //findViewById(R.id.progressBar).setVisibility(View.GONE);
                     //enableWholeView(gridLayout);
                 }else{

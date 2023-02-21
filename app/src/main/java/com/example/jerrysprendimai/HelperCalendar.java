@@ -77,13 +77,21 @@ public class HelperCalendar {
         int month = calendar.get(Calendar.MONTH);
 
         ArrayList<ObjectEvent> eventArray = getJerryCalendarEvents();
+        List<Event> calenderEvents = calendarView.getEventsForMonth(calendar.getTime());
+        List<Event> eventsToKeep = new ArrayList<>();
         for(int i = 0; i<eventArray.size(); i++){
             if((eventArray.get(i).year == year)&&(eventArray.get(i).month == month)){
-                List<Event> calenderEvents = calendarView.getEventsForMonth(calendar.getTime());
                 Event newEvent = new Event(context.getResources().getColor(R.color.jerry_blue), eventArray.get(i).getCalendar().getTimeInMillis(), eventArray.get(i).getTitle());
+                eventsToKeep.add(newEvent);
                 if(!calenderEvents.contains(newEvent)){
                     calendarView.addEvent(newEvent);
                 }
+            }
+        }
+        calenderEvents = calendarView.getEventsForMonth(calendar.getTime());
+        for(int i = calenderEvents.size(); i > calenderEvents.size(); i-- ){
+            if(!eventsToKeep.contains(calenderEvents.get(i))){
+                calenderEvents.remove(calenderEvents.get(i));
             }
         }
     }
@@ -192,11 +200,15 @@ public class HelperCalendar {
                 //long eventID = Long.parseLong(uri.getLastPathSegment());
 
                 //----create Remainder
-                ContentValues reminderValues = new ContentValues();
-                reminderValues.put("event_id", myObjectList.get(i).getId().toString());
-                reminderValues.put("minutes", 720);
-                reminderValues.put("method", 1);
-                contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, reminderValues);
+                String[] remainderFields = new String[] { "event_id","minutes","method" };
+                Cursor remainderCursor = contentResolver.query(CalendarContract.Reminders.CONTENT_URI, remainderFields, "event_id = ?", new String[]{myObjectList.get(i).getId().toString()}, null);
+                if(remainderCursor.getCount() == 0) {
+                    ContentValues reminderValues = new ContentValues();
+                    reminderValues.put("event_id", myObjectList.get(i).getId().toString());
+                    reminderValues.put("minutes", 720);
+                    reminderValues.put("method", 1);
+                    contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, reminderValues);
+                }
             }else{
                 cursor2.moveToFirst();
                 String str0 = cursor2.getString(0);

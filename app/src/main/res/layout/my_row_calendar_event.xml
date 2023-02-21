@@ -75,8 +75,7 @@
                             android:includeFontPadding="false"
                             style="@style/recycleView_Item_Text"
                             android:hint="@string/object_name"
-                            android:textStyle="bold"
-                            android:textSize="12sp"
+                            android:textSize="14sp"
                             android:layout_gravity="start"
                             android:ems="18"/>
                         <TextView
@@ -86,7 +85,7 @@
                             style="@style/recycleView_Item_Text"
                             android:includeFontPadding="false"
                             android:layout_gravity="start"
-                            android:textSize="10sp"
+                            android:textSize="12sp"
                             android:hint="b-a-u-s-t-e-l-l-e--n-a-m-e"
                             android:ems="22"
                             />
