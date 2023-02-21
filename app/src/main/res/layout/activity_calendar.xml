@@ -10,32 +10,64 @@
     android:background="@drawable/background">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/calendar_cardView2"
-        android:layout_margin="25dp"
+        android:id="@+id/calendar_cardView"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="5dp"
-        app:cardElevation="0dp">
+        app:cardElevation="1dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_margin="10dp">
+        android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
             android:orientation="horizontal">
             <TextView
-                android:id="@+id/calendar_caption"
-                android:drawableStart="@drawable/ic_arrow_up_white"
-                android:drawableEnd="@drawable/ic_arrow_down_white"
+                android:id="@+id/calendar_button_left"
+                android:drawableTint="@color/jerry_dark_grey"
+                android:drawableEnd="@drawable/ic_arrow_left_white"
                 android:layout_gravity="center"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:textSize="18sp"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:fontFamily="@font/poppinsmedium"
+                android:textColor="@color/jerry_grey"
+                android:textColorHint="@color/jerry_grey">
+            </TextView>
+            <TextView
+                android:id="@+id/calendar_caption"
+                android:layout_gravity="center"
+                android:layout_weight="5"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="date"
                 android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:fontFamily="@font/poppinsmedium"
+                android:textColor="@color/jerry_grey"
+                android:textColorHint="@color/jerry_grey">
+            </TextView>
+            <TextView
+                android:id="@+id/calendar_button_right"
+                android:drawableTint="@color/jerry_dark_grey"
+                android:drawableStart="@drawable/ic_arrow_right_white"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:layout_weight="1"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:gravity="center"
                 android:fontFamily="@font/poppinsmedium"
@@ -54,35 +86,48 @@
             app:compactCalendarBackgroundColor="@color/white"
             app:compactCalendarTextColor="@color/jerry_dark_grey"
             app:compactCalendarCurrentSelectedDayBackgroundColor="@color/jerry_light_opacity"
-            app:compactCalendarCurrentDayBackgroundColor="@color/white"
+            app:compactCalendarCurrentDayBackgroundColor="@color/jerry_light_opacity"
             app:compactCalendarMultiEventIndicatorColor="#fff"
             />
     </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
-    <!--<androidx.cardview.widget.CardView
-        android:id="@+id/calendar_cardView"
-        android:layout_margin="20dp"
+    <LinearLayout
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/jerry_grey_light_opacity"
+        android:background="@color/jerry_transperent"
         app:cardCornerRadius="5dp"
-        app:cardElevation="0dp">
-    <CalendarView
-        android:layout_margin="20dp"
-        android:id="@+id/calendar_calenderView"
-        android:firstDayOfWeek="2"
-        android:padding="2dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
-    </androidx.cardview.widget.CardView>-->
+        app:cardElevation="0dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/calendar_day_caption"
+            android:paddingTop="10dp"
+            android:paddingBottom="3dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/recycleView_Item_Text"
+            android:textSize="12sp"
+            android:includeFontPadding="false"
+            android:layout_gravity="start"
+            android:hint="d-a-t-e"
+            >
+        </TextView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendar_event_recycleView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical">
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <Button
             android:visibility="gone"

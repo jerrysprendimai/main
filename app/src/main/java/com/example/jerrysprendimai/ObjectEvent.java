@@ -4,10 +4,12 @@ import android.database.Cursor;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class ObjectEvent {
     String id, calendar_id, dstart, dtend, title, description, allDay, eventLocation, eventDate;
     int month, year, day;
+    Date date;
     Calendar calendar;
 
     public ObjectEvent(Cursor cursor){
@@ -22,7 +24,9 @@ public class ObjectEvent {
 
         SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         this.calendar = Calendar.getInstance();
-        this.calendar.setTimeInMillis(Long.parseLong(dstart ));
+        this.calendar.setTimeInMillis(Long.parseLong(dstart));
+        this.date = new Date();
+        this.date.setTime(Long.parseLong(dstart));
         this.eventDate = displayDateFormat.format(calendar.getTime());
 
         this.year  = this.calendar.get(Calendar.YEAR);
@@ -56,4 +60,6 @@ public class ObjectEvent {
     public void setDay(int day) {        this.day = day;    }
     public Calendar getCalendar() {        return calendar;    }
     public void setCalendar(Calendar calendar) {        this.calendar = calendar;    }
+    public Date getDate() {       return date;    }
+    public void setDate(Date date) {        this.date = date;    }
 }

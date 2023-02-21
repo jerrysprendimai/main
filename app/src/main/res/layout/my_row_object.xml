@@ -128,22 +128,56 @@
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_margin="6dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="3dp">
+                        <TextView
+                            android:id="@+id/object_date_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            style="@style/recycleView_Item_Text"
+                            android:textSize="11dp"
+                            android:hint="@string/object_date"
+                            android:textStyle="bold"
+                            />
+                        <TextView
+                            android:id="@+id/object_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            style="@style/recycleView_Item_Text"
+                            android:textColor="@color/jerry_blue"
+                            android:textColorHint="@color/jerry_blue"
+                            android:textSize="11dp"
+                            android:hint="d-a-t-e"
+                            />
+                    </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
+                    android:layout_marginTop="-10dp"
                     android:layout_marginBottom="-3dp"
                     android:layout_marginLeft="5dp"
                     android:orientation="horizontal">
+
                     <TextView
-                        android:id="@+id/object_date_label"
+                        android:id="@+id/object_completness_label"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:includeFontPadding="false"
                         android:layout_weight="1"
                         android:layout_margin="6dp"
-                        android:gravity="center|right"
+                        android:gravity="center_vertical|right"
                         style="@style/recycleView_Item_Text"
                         android:hint="@string/object_completness"
                         android:textStyle="bold"
@@ -189,6 +223,7 @@
                         </RelativeLayout>
                     </LinearLayout>
 
+                </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,7 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class ActivityObjectShow extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
-    final String user = "user";
+    final String USER = "user";
     RecyclerView recyclerView;
     ObjectUser myUser;
     ArrayList<ObjectObject> myObjectList;
@@ -70,7 +69,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
         });
 
         //---- user mode handling
-        if(myUser.getUser_lv().equals(user)){
+        if(myUser.getUser_lv().equals(USER)){
             setUserMode(true);
             buttonAddObject.setVisibility(View.GONE);
         }else{

@@ -20,7 +20,7 @@
     <color name="jerry_grey_light">#D7D8D8</color>
     <color name="jerry_grey_light_opacity">#33B9BABA</color>
     <color name="jerry_light_opacity">#E2E1E1</color>
-
+    <color name="jerry_transperent">#00FFFFFF</color>
     <color name="jerry_yellow">#FF9800</color>
     <color name="jerry_yellow_opacity">#80FF9800</color>
 

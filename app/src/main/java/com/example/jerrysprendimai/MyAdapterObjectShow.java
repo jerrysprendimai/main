@@ -68,6 +68,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         LinearLayout bottomSheetContainer;
         TextView objectName;
         TextView objectCustomer;
+        TextView objectDate;
         ProgressBar progressBar;
         TextView progressBarLabel;
         CardView objectCardView;
@@ -79,6 +80,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             objectLockLayout     = itemView.findViewById(R.id.object_lock_layout);
             objectName           = itemView.findViewById(R.id.object_name);
             objectCustomer       = itemView.findViewById(R.id.object_customer);
+            objectDate           = itemView.findViewById(R.id.object_date);
             progressBar          = itemView.findViewById(R.id.object_progess_bar);
             progressBarLabel     = itemView.findViewById(R.id.object_progess_bar_label);
             bottomSheetContainer = itemView.findViewById(R.id.bottomSheetContainer);
@@ -103,6 +105,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         //------object values
         holder.objectName.setText(myObjectObject.getObjectName());
         holder.objectCustomer.setText(myObjectObject.getCustomerName());
+        holder.objectDate.setText(myObjectObject.getDate());
         holder.progressBar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
         holder.progressBarLabel.setText(myObjectObject.getCompleteness()+"%");
 

@@ -50,6 +50,28 @@ public class HelperCalendar {
         }
         return eventArray;
     }
+    public void setAllEvents(CompactCalendarView calendarView){
+        ArrayList<ObjectEvent> eventArray = getJerryCalendarEvents();
+        for(int i = 0; i<eventArray.size(); i++){
+            //List<Event> calenderEvents = calendarView.getEventsForMonth(calendar.getTime());
+            Event newEvent = new Event(context.getResources().getColor(R.color.jerry_blue), eventArray.get(i).getCalendar().getTimeInMillis(), eventArray.get(i).getTitle());
+            //if(!calenderEvents.contains(newEvent)){
+            calendarView.addEvent(newEvent);
+            //}
+        }
+    }
+    public ArrayList<ObjectEvent> getDayEvents(Date dateClicked){
+        ArrayList<ObjectEvent> returnArray = new ArrayList<>();
+        ArrayList<ObjectEvent> eventArray = getJerryCalendarEvents();
+
+        for (int i = 0; i < eventArray.size(); i++ ){
+            Date date = eventArray.get(i).getDate();
+            if(eventArray.get(i).getDate().equals(dateClicked)){
+                returnArray.add(eventArray.get(i));
+            }
+        }
+        return returnArray;
+    }
     public void setMonthEvents(CompactCalendarView calendarView, Calendar calendar){
         int year  = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
@@ -147,6 +169,10 @@ public class HelperCalendar {
                 try {
                     Date dateObj = displayDateFormat.parse(myObjectList.get(i).getDate());
                     beginTime.setTimeInMillis(dateObj.getTime());
+                    beginTime.set(Calendar.HOUR_OF_DAY,   0);
+                    beginTime.set(Calendar.MINUTE, 0);
+                    beginTime.set(Calendar.SECOND, 0);
+                    dateObj.setTime(beginTime.getTimeInMillis());
                     endTime = beginTime;
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -156,9 +182,9 @@ public class HelperCalendar {
                 eventValues.put(CalendarContract.Events.DTSTART, beginTime.getTimeInMillis());
                 eventValues.put(CalendarContract.Events.ALL_DAY, true);
                 eventValues.put(CalendarContract.Events.DTEND, endTime.getTimeInMillis());
-                eventValues.put(CalendarContract.Events.TITLE, myObjectList.get(i).getObjectName() );
-                eventValues.put(CalendarContract.Events.DESCRIPTION, myObjectList.get(i).getObjectName()   +"\n"+
-                                                                     myObjectList.get(i).getCustomerName() +"\n"+
+                eventValues.put(CalendarContract.Events.TITLE, myObjectList.get(i).getObjectName() + "  #" + String.valueOf(myObjectList.get(i).getId()));
+                eventValues.put(CalendarContract.Events.DESCRIPTION, //myObjectList.get(i).getObjectName()   +"\n"+
+                                                                     //myObjectList.get(i).getCustomerName() +"\n"+
                                                                      myObjectList.get(i).getObjectAddress());
                 eventValues.put(CalendarContract.Events.EVENT_COLOR, context.getResources().getColor(R.color.jerry_blue));
                 eventValues.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());

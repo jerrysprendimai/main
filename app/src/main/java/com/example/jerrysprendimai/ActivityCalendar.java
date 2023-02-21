@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -54,16 +56,24 @@ public class ActivityCalendar extends AppCompatActivity {
 
     ArrayList<ObjectObject> myObjectList;
     ArrayList<ObjectObject> myObjectListOriginal;
+    ArrayList<ObjectEvent> myEventList;
+
+    ObjectObject objectToDisplay;
+
+    RecyclerView eventRecyclerView;
+    MyAdapterCalendarEvents myAdapterCalendarEvents;
 
     ObjectUser myUser;
     CompactCalendarView sundeepkCalendarView;
-    TextView calendarCaption;
+    TextView calendarCaption, buttonLeft, buttonRight, calendarDayCaption;
+    CardView calendarCardView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+        this.myEventList  = new ArrayList<>();
         this.myObjectList = new ArrayList<>();
         this.myObjectListOriginal = new ArrayList<>();
 
@@ -79,12 +89,17 @@ public class ActivityCalendar extends AppCompatActivity {
         //----Element binding
         sundeepkCalendarView = findViewById(R.id.calendar_sundeepk_calendarView);
         calendarCaption      = findViewById(R.id.calendar_caption);
-
+        buttonLeft           = findViewById(R.id.calendar_button_left);
+        buttonRight          = findViewById(R.id.calendar_button_right);
+        calendarCardView     = findViewById(R.id.calendar_cardView);
+        calendarDayCaption   = findViewById(R.id.calendar_day_caption);
 
         //----fill values
+        //this.calendarCardView.setBackgroundResource(R.drawable.card_view_background);
         Calendar calendar = Calendar.getInstance();
         HelperCalendar jerryCalenderHelper = new HelperCalendar(this);
         jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
+        //jerryCalenderHelper.setAllEvents(sundeepkCalendarView);
         try {
             String value = DateFormat.getDateInstance(DateFormat.YEAR_FIELD).format(calendar.getTime());
             String[] strArry = value.split(" ");
@@ -93,7 +108,11 @@ public class ActivityCalendar extends AppCompatActivity {
         sundeepkCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
             @Override
             public void onDayClick(Date dateClicked) {
-                //sundeepkCalendarView.setCurrentDate(Calendar.getInstance().getTime());
+                calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(dateClicked.getTime()));
+                getMyEventList().removeAll(getMyEventList());
+                getMyEventList().addAll(jerryCalenderHelper.getDayEvents(dateClicked));
+                myAdapterCalendarEvents.notifyDataSetChanged();
+
                 sundeepkCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.jerry_blue_opacity));
             }
             @Override
@@ -103,10 +122,11 @@ public class ActivityCalendar extends AppCompatActivity {
                     String[] strArry = value.split(" ");
                     calendarCaption.setText(strArry[1] + " " + strArry[2]);
                 }catch (Exception e){}
-                sundeepkCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.white));
+
                 Calendar calendar =  Calendar.getInstance();
-                calendar.set(Calendar.DAY_OF_MONTH, 0);
-                calendar.set(Calendar.HOUR,   12);
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                //calendar.set(Calendar.MONTH, calendar.getTime().getMonth());
+                calendar.set(Calendar.HOUR,   0);
                 calendar.set(Calendar.MINUTE, 0);
                 calendar.set(Calendar.SECOND, 0);
                 Date currentFirstDayOfMonth = calendar.getTime();
@@ -116,19 +136,42 @@ public class ActivityCalendar extends AppCompatActivity {
                 }else{
                     sundeepkCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.white));
                 }
+                calendar.setTimeInMillis(firstDayOfNewMonth.getTime());
                 jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
+                sundeepkCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.jerry_blue_opacity));
+                onDayClick(firstDayOfNewMonth);
             }
         });
         sundeepkCalendarView.setFirstDayOfWeek(Calendar.MONDAY);
         sundeepkCalendarView.setCurrentDate(Calendar.getInstance().getTime());
         sundeepkCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
-       /*
-        Event ev1 = new Event(getResources().getColor(R.color.jerry_blue), Calendar.getInstance().getTimeInMillis(), "Some extra data that I want to store.");
-        sundeepkCalendarView.addEvent(ev1);
 
-        Event ev2 = new Event(getResources().getColor(R.color.jerry_blue), 1676790000000L);
-        sundeepkCalendarView.addEvent(ev2);
-        */
+
+        //----button click
+        buttonLeft.setOnClickListener(v->{
+            //sundeepkCalendarView.showCalendarWithAnimation();
+            sundeepkCalendarView.scrollLeft();
+        });
+        buttonRight.setOnClickListener(v->{
+            //sundeepkCalendarView.showCalendarWithAnimation();
+            sundeepkCalendarView.scrollRight();
+        });
+
+        //----recyclerView handler
+        buildRwcyclerView();
+        //----to show todays events when calender is opened
+        Date date = new Date();
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        date.setTime(today.getTimeInMillis());
+        getMyEventList().removeAll(getMyEventList());
+        getMyEventList().addAll(jerryCalenderHelper.getDayEvents(date));
+        myAdapterCalendarEvents.notifyDataSetChanged();
+        calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(today.getTime()));
+
 
         Button del = findViewById(R.id.test_button_delte);
         del.setOnClickListener(v->{
@@ -137,6 +180,13 @@ public class ActivityCalendar extends AppCompatActivity {
             String[] args = new String[]{CALENDER_NAME};
             contentResolver.delete(CalendarContract.Calendars.CONTENT_URI, "NAME = ?", args);
         });
+    }
+
+    public void buildRwcyclerView() {
+        this.eventRecyclerView    = findViewById(R.id.calendar_event_recycleView);
+        this.myAdapterCalendarEvents = new MyAdapterCalendarEvents(this, this.myEventList, this.myObjectList, this.myUser);
+        this.eventRecyclerView.setAdapter(myAdapterCalendarEvents);
+        eventRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     public boolean checkPermission(int callbackId, String... permissionsId){
@@ -153,8 +203,15 @@ public class ActivityCalendar extends AppCompatActivity {
     @Override
     protected void onResume() {
         new HttpsRequestCheckSessionAlive(this).execute();
+        if((this.myAdapterCalendarEvents != null)&&(getObjectToDisplay() != null)){
+            new HttpsRequestLockObject(this, objectToDisplay, objectToDisplay.getId().toString(),"unlock").execute();
+            setObjectToDisplay(null);
+        }
         super.onResume();
     }
+
+    public ObjectObject getObjectToDisplay() {       return objectToDisplay;    }
+    public void setObjectToDisplay(ObjectObject objectToDisplay) {        this.objectToDisplay = objectToDisplay;    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -162,6 +219,8 @@ public class ActivityCalendar extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    public ArrayList<ObjectEvent> getMyEventList() {  return myEventList;  }
+    public void setMyEventList(ArrayList<ObjectEvent> myEventList) {  this.myEventList = myEventList; }
 
     class HttpsRequestGetObjectList extends AsyncTask<String, Void, InputStream> {
         private static final String get_object_list_url = "get_object_list.php";
@@ -283,6 +342,56 @@ public class ActivityCalendar extends AppCompatActivity {
                 e.printStackTrace();
             }
             super.onPostExecute(inputStream);
+        }
+    }
+
+    class HttpsRequestLockObject extends AsyncTask<String, Void, InputStream> {
+        private static final String lock_object_url = "lock_object.php";
+
+        private Context context;
+        private String request;
+        private String objectId;
+        private ObjectObject objectObject;
+        Connector connector;
+
+        public HttpsRequestLockObject(Context ctx, ObjectObject objectObject, String objId, String req){
+            this.context  = ctx;
+            this.objectId = objId;
+            this.request  = req;
+            this.objectObject = objectObject;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, lock_object_url);
+            connector.addPostParameter("user_id",   Base64.encodeToString(MCrypt.encrypt(String.valueOf(myUser.getId()).getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("object_id", Base64.encodeToString(MCrypt.encrypt(objectId.getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("request",   Base64.encodeToString(MCrypt.encrypt(request.getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            JSONObject responseObject;
+            try {
+                responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String lockStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String lockMsg    = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (lockStatus.equals("1")) {
+                    //getObjectDetailsAndDisplay(objectObject);
+                }else{
+                    //Toast.makeText(context, "Užrakinta", Toast.LENGTH_SHORT).show();
+                }
+                //((ActivityObjectShow) context).onRefresh();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
