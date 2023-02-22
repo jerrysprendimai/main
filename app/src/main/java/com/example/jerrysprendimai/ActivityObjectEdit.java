@@ -73,7 +73,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     ScrollView scrollView;
     CardView mainCardView;
     EditText editInvisibleFocusHolder;
-    ImageView oSavedStatusIndicator;
+    ImageView oSavedStatusIndicator, oObjectIcon;
     Button oAddJob;
     TextView oId, oNameLb, oDate, oDateLabel, oName, oCustomer, oAddress, oJobs, oJobsUserMode, oJobsDone, oJobsDoneUserMode, oProgressBarLabel, oProgressBarLabelUserMode;
     ProgressBar oProgressbar, oProgressbarUserMode;
@@ -112,6 +112,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         //-----------------View element binding----------------
         this.editInvisibleFocusHolder = findViewById(R.id.invisibleFocusHolder);
+        this.oObjectIcon              = findViewById(R.id.objectEdit_object_icon);
         this.oId                      = findViewById(R.id.objectEdit_id);
         this.oNameLb                  = findViewById(R.id.objectEdit_name);
         this.oSavedStatusIndicator    = findViewById(R.id.objectEdit_savedStatus_img);
@@ -144,6 +145,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oName.setOnKeyListener(this);
         this.oCustomer.setOnKeyListener(this);
         this.oAddress.setOnKeyListener(this);
+
+        //---- Object Icon handling
+        this.oObjectIcon.setImageResource(getResources().getIdentifier(objectObject.getIcon(), "drawable", getApplicationInfo().packageName));
 
         //---- Date Picker handling
         Context context = this;

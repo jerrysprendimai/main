@@ -322,7 +322,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             });
         }else{
             if(!objectObjPic.getUserId().equals(myUser.getId())){
-              //holder.myPictureUname.setHintTextColor(context.getResources().getColor(R.color.jerry_grey));
+              holder.myPictureUname.setHintTextColor(context.getResources().getColor(R.color.jerry_grey));
               holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.jerry_grey));
             }else{
               holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.teal_700));

@@ -56,13 +56,20 @@
                                 android:layout_height="40dp"
                                 app:cardElevation="1dp"
                                 app:cardBackgroundColor="@color/jerry_grey_light">
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_gravity="center"
+                                    app:cardCornerRadius="8dp">
                                 <ImageView
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
+                                    android:id="@+id/objectEdit_object_icon"
+                                    android:layout_width="23dp"
+                                    android:layout_height="23dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_object_white"
                                     app:tint="@color/jerry_blue">
                                 </ImageView>
+                                </androidx.cardview.widget.CardView>
                             </androidx.cardview.widget.CardView>
 
                             <TextView

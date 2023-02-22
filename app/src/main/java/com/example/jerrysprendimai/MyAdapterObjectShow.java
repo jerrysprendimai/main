@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -72,6 +73,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         ProgressBar progressBar;
         TextView progressBarLabel;
         CardView objectCardView;
+        ImageView objectIcon;
 
 
         public MyViewHolder(@NonNull View itemView){
@@ -84,6 +86,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             progressBar          = itemView.findViewById(R.id.object_progess_bar);
             progressBarLabel     = itemView.findViewById(R.id.object_progess_bar_label);
             bottomSheetContainer = itemView.findViewById(R.id.bottomSheetContainer);
+            objectIcon           = itemView.findViewById(R.id.object_image_view);
 
             myRow = itemView.findViewById(R.id.my_container);
         }
@@ -108,6 +111,10 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         holder.objectDate.setText(myObjectObject.getDate());
         holder.progressBar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
         holder.progressBarLabel.setText(myObjectObject.getCompleteness()+"%");
+        holder.objectIcon.setImageResource(context.getResources().getIdentifier(myObjectObject.getIcon(), "drawable", context.getApplicationInfo().packageName));
+
+         //holder.objectIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_shower));
+        //holder.objectIcon.setImageDrawable(R.mipmap.ic_air_cinditioner);
 
         ObjectAnimator objectAnimator = ObjectAnimator.ofInt(holder.progressBar, "progress", 0,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
         objectAnimator.setDuration(400);

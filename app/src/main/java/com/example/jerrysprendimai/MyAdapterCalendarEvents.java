@@ -79,6 +79,7 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
         holder.title.setText(myObjectEvent.getTitle());
         holder.description.setText(myObjectEvent.getDescription());
         holder.myRow.setOnClickListener(v->{
+            ((ActivityCalendar) context).setViewEnabled(false);
             setMyClickObjectEvent(myObjectEvent);
             ObjectObject objectToDisplay = null;
             try {
@@ -105,6 +106,7 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
     }
 
     public void getObjectDetailsAndDisplay(ObjectObject objectToDisplay) {
+
         new HttpsRequestGetObjectDetails(context, objectToDisplay).execute();
     }
 

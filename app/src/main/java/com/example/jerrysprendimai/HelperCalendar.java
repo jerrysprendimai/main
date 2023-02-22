@@ -79,21 +79,26 @@ public class HelperCalendar {
         ArrayList<ObjectEvent> eventArray = getJerryCalendarEvents();
         List<Event> calenderEvents = calendarView.getEventsForMonth(calendar.getTime());
         List<Event> eventsToKeep = new ArrayList<>();
+        calendarView.removeAllEvents();
+        calendarView.setEventIndicatorStyle(2);
         for(int i = 0; i<eventArray.size(); i++){
             if((eventArray.get(i).year == year)&&(eventArray.get(i).month == month)){
                 Event newEvent = new Event(context.getResources().getColor(R.color.jerry_blue), eventArray.get(i).getCalendar().getTimeInMillis(), eventArray.get(i).getTitle());
-                eventsToKeep.add(newEvent);
-                if(!calenderEvents.contains(newEvent)){
-                    calendarView.addEvent(newEvent);
-                }
+                calendarView.addEvent(newEvent);
+                //eventsToKeep.add(newEvent);
+                //if(!calenderEvents.contains(newEvent)){
+                //    calendarView.addEvent(newEvent);
+                //}
             }
         }
+      /*
         calenderEvents = calendarView.getEventsForMonth(calendar.getTime());
-        for(int i = calenderEvents.size(); i > calenderEvents.size(); i-- ){
+        for(int i = calenderEvents.size()-1; i >= 0; i-- ){
             if(!eventsToKeep.contains(calenderEvents.get(i))){
                 calenderEvents.remove(calenderEvents.get(i));
+                calendarView.removeEvent(calenderEvents.get(i));
             }
-        }
+        }*/
     }
     public void syncJerryCalenderEvents(ArrayList<ObjectObject> myObjectList){
         ContentResolver contentResolver = context.getContentResolver();
@@ -134,22 +139,27 @@ public class HelperCalendar {
             }else{
                 //dstart
                 //dtend
-                String expectedEventName = myObject.getObjectName()   +"\n"+
-                        myObject.getCustomerName() +"\n"+
-                        myObject.getObjectAddress();
-                if(!title.equals(myObject.getObjectName())){
+                String expectedEventName = //myObject.getObjectName()   +"\n"+
+                                           //myObject.getCustomerName() +"\n"+
+                                           myObject.getObjectAddress();
+                String name = myObject.getObjectName() + "  #" + myObject.getId();
+                if(!title.equals(myObject.getObjectName() + "  #" + myObject.getId())){
                     contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
                     contentResolver.delete(HelperCalendar.asSyncAdapter(CalendarContract.Events.CONTENT_URI), "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
+                    cursor.moveToNext();
                     continue;
                 }
                 if(!description.equals(expectedEventName)){
                     contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
                     contentResolver.delete(HelperCalendar.asSyncAdapter(CalendarContract.Events.CONTENT_URI), "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
+                    cursor.moveToNext();
                     continue;
                 }
+                String date = myObject.getDate();
                 if(!eventDate.equals(myObject.getDate())){
                     contentResolver.delete(CalendarContract.Reminders.CONTENT_URI, "EVENT_ID = ?", new String[]{eventID});
                     contentResolver.delete(HelperCalendar.asSyncAdapter(CalendarContract.Events.CONTENT_URI), "_ID = ? AND CALENDAR_ID = ?", new String[]{eventID, this.calenderID});
+                    cursor.moveToNext();
                     continue;
                 }
             }

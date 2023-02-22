@@ -26,6 +26,7 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,6 +68,8 @@ public class ActivityCalendar extends AppCompatActivity {
     CompactCalendarView sundeepkCalendarView;
     TextView calendarCaption, buttonLeft, buttonRight, calendarDayCaption;
     CardView calendarCardView;
+    ProgressBar progressBar;
+    Date displayDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,8 +96,10 @@ public class ActivityCalendar extends AppCompatActivity {
         buttonRight          = findViewById(R.id.calendar_button_right);
         calendarCardView     = findViewById(R.id.calendar_cardView);
         calendarDayCaption   = findViewById(R.id.calendar_day_caption);
+        progressBar          = findViewById(R.id.calendar_progressBar);
 
         //----fill values
+        progressBar.setVisibility(View.GONE);
         //this.calendarCardView.setBackgroundResource(R.drawable.card_view_background);
         Calendar calendar = Calendar.getInstance();
         HelperCalendar jerryCalenderHelper = new HelperCalendar(this);
@@ -108,6 +113,7 @@ public class ActivityCalendar extends AppCompatActivity {
         sundeepkCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
             @Override
             public void onDayClick(Date dateClicked) {
+                setDisplayDate(dateClicked);
                 calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(dateClicked.getTime()));
                 getMyEventList().removeAll(getMyEventList());
                 getMyEventList().addAll(jerryCalenderHelper.getDayEvents(dateClicked));
@@ -146,7 +152,6 @@ public class ActivityCalendar extends AppCompatActivity {
         sundeepkCalendarView.setCurrentDate(Calendar.getInstance().getTime());
         sundeepkCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.jerry_grey_light));
 
-
         //----button click
         buttonLeft.setOnClickListener(v->{
             //sundeepkCalendarView.showCalendarWithAnimation();
@@ -169,9 +174,11 @@ public class ActivityCalendar extends AppCompatActivity {
         date.setTime(today.getTimeInMillis());
         getMyEventList().removeAll(getMyEventList());
         getMyEventList().addAll(jerryCalenderHelper.getDayEvents(date));
+        setDisplayDate(date);
         myAdapterCalendarEvents.notifyDataSetChanged();
         calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(today.getTime()));
 
+        setViewEnabled(true);
 
         Button del = findViewById(R.id.test_button_delte);
         del.setOnClickListener(v->{
@@ -180,6 +187,23 @@ public class ActivityCalendar extends AppCompatActivity {
             String[] args = new String[]{CALENDER_NAME};
             contentResolver.delete(CalendarContract.Calendars.CONTENT_URI, "NAME = ?", args);
         });
+    }
+
+    public void setViewEnabled(boolean value){
+
+        sundeepkCalendarView.setEnabled(value);
+        calendarCaption.setEnabled(value);
+        buttonLeft.setEnabled(value);
+        buttonRight.setEnabled(value);
+        calendarCardView.setEnabled(value);
+        calendarDayCaption.setEnabled(value);
+        if(value) {
+           progressBar.setVisibility(View.GONE);
+        }else{
+           progressBar.setVisibility(View.VISIBLE);
+        }
+
+
     }
 
     public void buildRwcyclerView() {
@@ -202,6 +226,7 @@ public class ActivityCalendar extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        setViewEnabled(false);
         new HttpsRequestCheckSessionAlive(this).execute();
 
         super.onResume();
@@ -209,6 +234,8 @@ public class ActivityCalendar extends AppCompatActivity {
 
     public ObjectObject getObjectToDisplay() {       return objectToDisplay;    }
     public void setObjectToDisplay(ObjectObject objectToDisplay) {        this.objectToDisplay = objectToDisplay;    }
+    public Date getDisplayDate() {       return displayDate;    }
+    public void setDisplayDate(Date displayDate) {        this.displayDate = displayDate;    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -251,6 +278,8 @@ public class ActivityCalendar extends AppCompatActivity {
             ((ActivityCalendar) context).myObjectListOriginal = new ArrayList<ObjectObject>();
             ((ActivityCalendar) context).myObjectListOriginal.addAll(((ActivityCalendar) context).myObjectList);
 
+            ((ActivityCalendar) context).setViewEnabled(true);
+
             //----sync calender events
             //----cehck calendar permission
             boolean permissionOk = true;
@@ -261,7 +290,14 @@ public class ActivityCalendar extends AppCompatActivity {
             if(permissionOk){
                 HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
                 jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
-
+                if((myAdapterCalendarEvents != null)&&(getDisplayDate() != null)&&(sundeepkCalendarView != null)){
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(getDisplayDate().getTime());
+                    jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
+                    getMyEventList().removeAll(getMyEventList());
+                    getMyEventList().addAll(jerryCalenderHelper.getDayEvents(getDisplayDate()));
+                    myAdapterCalendarEvents.notifyDataSetChanged();
+                }
                 //Uri deleteUri = null;
                 //deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, Long.parseLong("53"));
                 //int rows = getContentResolver().delete(deleteUri, null, null);

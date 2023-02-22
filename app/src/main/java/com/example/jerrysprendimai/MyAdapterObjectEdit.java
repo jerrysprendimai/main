@@ -290,7 +290,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 //holder.oDUserModeSaveDetail.setBackground(context.getResources().getDrawable(R.drawable.round_button));
 
 
-                // BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
+               // BottomNavigationView navigationView = ((ActivityObjectEdit)context).findViewById(R.id.save_cancel_buttons);
                // Menu menu = navigationView.getMenu();
                // MenuItem menuItemSave = menu.findItem(R.id.item_save);
                // ((ActivityObjectEdit)context).setObjectObjDetailsToUpdate(myObjectObjDetails);

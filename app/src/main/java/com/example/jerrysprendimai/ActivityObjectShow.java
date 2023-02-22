@@ -7,6 +7,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
@@ -20,7 +21,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class ActivityObjectShow extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
     final String USER = "user";
@@ -55,10 +59,27 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
         buttonAddObject = findViewById(R.id.button_object_add_new);
         buttonAddObject.setOnClickListener(v->{
             ObjectObject objectObject = new ObjectObject();
+
+            Field[] drawableFields = R.drawable.class.getFields();
+            //ArrayList<Drawable> drawableIcons = new ArrayList<>();
+            List<String> svgIcons = new ArrayList<>();
+            for(Field field : drawableFields){
+                //String tmp = field.getName();
+                if(field.getName().contains("svg_")){
+                    try {
+                        svgIcons.add(field.getName());
+                        //drawableIcons.add(getResources().getDrawable(field.getInt(null)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            int random = new Random().nextInt(svgIcons.size());
+            objectObject.setIcon(svgIcons.get(random));
+
             ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> objectUserArrayList       = new ArrayList<>();
             ArrayList<ObjectObjPic> objectObjPicArrayList   = new ArrayList<>();
-
             Intent intent = new Intent(this, ActivityObjectEdit.class);
             intent.putExtra("myUser", myUser);
             intent.putExtra("objectObject", objectObject);
