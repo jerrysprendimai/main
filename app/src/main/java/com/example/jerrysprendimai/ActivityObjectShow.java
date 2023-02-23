@@ -76,6 +76,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
             }
             int random = new Random().nextInt(svgIcons.size());
             objectObject.setIcon(svgIcons.get(random));
+            //objectObject.setIcon("ic_object_white");
 
             ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> objectUserArrayList       = new ArrayList<>();

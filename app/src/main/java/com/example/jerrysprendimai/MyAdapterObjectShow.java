@@ -350,13 +350,17 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 //---- fill bottomSheet values
                 //bottomSheetView.findViewById(R.id.bottomsheet_top_cardView)).setBackgroundResource(R.drawable.card_view_background);
                 (bottomSheetView.findViewById(R.id.bottomsheet_assigne_user_cardView)).setBackgroundResource(R.drawable.card_view_background2);
-                ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectName)).setText(clickObject.getObjectName());
-                ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_customerName)).setText(clickObject.getCustomerName());
-                ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_assigned_user_label)).setText(String.valueOf(objUserArrayList.size()));
-                ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectDate)).setText(String.valueOf(clickObject.getDate()));
-                ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectJobs)).setText(String.valueOf(objDetailsArrayList.size()));
-                ((TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectJobsDone)).setText(String.valueOf(completeCount));
-                ((TextView) bottomSheetView.findViewById(R.id.object_progess_bar_label)).setText(String.valueOf(clickObject.getCompleteness()) + "%");
+                ((ImageView) bottomSheetView.findViewById(R.id.bottomsheet_objectIcon)).setImageResource(context.getResources().
+                                                                                        getIdentifier(clickObject.getIcon(),
+                                                                                                          "drawable",
+                                                                                                      context.getApplicationInfo().packageName));
+                ((TextView)    bottomSheetView.findViewById(R.id.bottomsheet_objectName)).setText(clickObject.getObjectName());
+                ((TextView)    bottomSheetView.findViewById(R.id.bottomsheet_customerName)).setText(clickObject.getCustomerName());
+                ((TextView)    bottomSheetView.findViewById(R.id.bottomsheet_assigned_user_label)).setText(String.valueOf(objUserArrayList.size()));
+                ((TextView)    bottomSheetView.findViewById(R.id.bottomsheet_objectDate)).setText(String.valueOf(clickObject.getDate()));
+                ((TextView)    bottomSheetView.findViewById(R.id.bottomsheet_objectJobs)).setText(String.valueOf(objDetailsArrayList.size()));
+                ((TextView)    bottomSheetView.findViewById(R.id.bottomsheet_objectJobsDone)).setText(String.valueOf(completeCount));
+                ((TextView)    bottomSheetView.findViewById(R.id.object_progess_bar_label)).setText(String.valueOf(clickObject.getCompleteness()) + "%");
                 ((ProgressBar) bottomSheetView.findViewById(R.id.object_progess_bar)).setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(clickObject.getCompleteness())))));
 
                 //---- retractable button/view handling
