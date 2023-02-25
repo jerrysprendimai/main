@@ -138,10 +138,10 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
     public void onVisibilityChanged(boolean b) {
         if(b){
             this.findViewById(R.id.save_cancel_buttons).setVisibility(View.GONE);
-            this.findViewById(R.id.jerry_copyright).setVisibility(View.GONE);
+            //this.findViewById(R.id.jerry_copyright).setVisibility(View.GONE);
         }else{
             this.findViewById(R.id.save_cancel_buttons).setVisibility(View.VISIBLE);
-            this.findViewById(R.id.jerry_copyright).setVisibility(View.VISIBLE);
+            //this.findViewById(R.id.jerry_copyright).setVisibility(View.VISIBLE);
         }
     }
 

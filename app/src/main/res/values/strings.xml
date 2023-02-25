@@ -60,4 +60,5 @@
     <string name="session_expired">Sesija baigėsi</string>
     <string name="exit">Išeiti?</string>
     <string name="calendar">Kalendorius</string>
+    <string name="new_object">Naujas!</string>
 </resources>

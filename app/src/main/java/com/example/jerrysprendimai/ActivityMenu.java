@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -101,6 +102,7 @@ public class ActivityMenu extends AppCompatActivity {
         });
 
         //------------Object_Show
+        ((TextView) findViewById(R.id.menu_caption_work)).setVisibility(View.GONE);
         LinearLayout objectLayout = (LinearLayout) findViewById(R.id.main_menu_work);
         objectLayout.setOnClickListener(v -> {
             this.backButtonCount = 0;
@@ -112,6 +114,7 @@ public class ActivityMenu extends AppCompatActivity {
         });
 
         //-----------Calendar_Show
+        ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.GONE);
         LinearLayout calendarLayout = (LinearLayout) findViewById(R.id.main_menu_calendar);
         calendarLayout.setOnClickListener(v -> {
             this.backButtonCount = 0;
@@ -121,6 +124,15 @@ public class ActivityMenu extends AppCompatActivity {
             intent.putExtra("myUser", myUser);
             context.startActivity(intent);
         });
+
+
+
+        //----cehck calendar permission
+        boolean permissionOk = true;
+        if (!(checkPermission(this, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
+                !(checkPermission(this, CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
+            permissionOk = false;
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -187,13 +199,13 @@ public class ActivityMenu extends AppCompatActivity {
 
     }
 
-    public boolean checkPermission(int callbackId, String... permissionsId){
+    public boolean checkPermission(Context context, int callbackId, String... permissionsId){
         boolean permissions = true;
         for (String p : permissionsId) {
-            permissions = permissions && ContextCompat.checkSelfPermission(this, p) == PackageManager.PERMISSION_GRANTED;
+            permissions = permissions && ContextCompat.checkSelfPermission(context, p) == PackageManager.PERMISSION_GRANTED;
         }
         if (!permissions){
-            ActivityCompat.requestPermissions(this, permissionsId, callbackId);
+            ActivityCompat.requestPermissions((Activity) context, permissionsId, callbackId);
         }
         return permissions;
     }
@@ -235,22 +247,46 @@ public class ActivityMenu extends AppCompatActivity {
             ((ActivityMenu) context).myObjectListOriginal = new ArrayList<ObjectObject>();
             ((ActivityMenu) context).myObjectListOriginal.addAll(((ActivityMenu) context).myObjectList);
 
+            //----Work Caption handling
+            int newCount = 0;
+            for(int i = 0; i < objectArryList.size(); i++){
+                if(objectArryList.get(i).getNotViewed().equals("X")){
+                  newCount ++;
+                }
+            }
+            if( newCount > 0){
+                ((TextView) findViewById(R.id.menu_caption_work)).setVisibility(View.VISIBLE);
+                ((TextView) findViewById(R.id.menu_caption_work)).setText(String.valueOf(newCount));
+            }
+
             //----sync calender events
             //----cehck calendar permission
             boolean permissionOk = true;
-            if (!(checkPermission(CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
-                    !(checkPermission(CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
-                permissionOk = false;
-            }
-            if(permissionOk){
-                HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
-                jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
+            //if (!(checkPermission(context, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
+            //        !(checkPermission(context, CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
+            //    permissionOk = false;
+            //}
+            //if(permissionOk){
 
+
+            //(checkPermission(this, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)
+            //permissions = permissions && ContextCompat.checkSelfPermission(this, p) == PackageManager.PERMISSION_GRANTED;
+            if( permissionOk && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED){
+              HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
+              jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
+
+              //----calendar caption handling
+                if( newCount > 0){
+                    ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.VISIBLE);
+                    ((TextView) findViewById(R.id.menu_caption_calendar)).setText(String.valueOf(newCount));
+                }
+            }
+            //}
                 //Uri deleteUri = null;
                 //deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, Long.parseLong("53"));
                 //int rows = getContentResolver().delete(deleteUri, null, null);
 
-            }
+
 
             findViewById(R.id.progressBar).setVisibility(View.GONE);
             enableWholeView(gridLayout);

@@ -6,13 +6,36 @@
     android:layout_height="wrap_content"
     android:id="@+id/my_top_level"
     android:layout_margin="5dp">
+
     <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:layout_margin="0dp"
+        app:cardElevation="0dp">
+        <TextView
+            android:id="@+id/object_new_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="!"
+            android:elevation="2dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="11sp"
+            android:background="@drawable/circle_view"
+            android:textColor="@color/white"
+            android:layout_marginTop="2dp"
+            android:layout_marginLeft="70dp"
+            android:layout_gravity="left">
+        </TextView>
+        <androidx.cardview.widget.CardView
         android:id="@+id/object_cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="6dp"
         app:cardElevation="1dp"
         android:layout_margin="4dp">
+
         <LinearLayout
             android:id="@+id/my_container"
             android:layout_width="match_parent"
@@ -21,7 +44,6 @@
             android:clickable="true"
             android:focusable="true"
             android:orientation="horizontal">
-
             <androidx.cardview.widget.CardView
                 android:id="@+id/object_cardView_indicator"
                 android:layout_width="80dp"
@@ -234,6 +256,8 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
     </androidx.cardview.widget.CardView>
 

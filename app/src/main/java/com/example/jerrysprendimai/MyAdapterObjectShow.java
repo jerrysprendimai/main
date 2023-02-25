@@ -67,9 +67,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         LinearLayout objectLockLayout;
         LinearLayout myRow;
         LinearLayout bottomSheetContainer;
-        TextView objectName;
-        TextView objectCustomer;
-        TextView objectDate;
+        TextView objectName, objectCustomer, objectDate, objectNewIndicator;
         ProgressBar progressBar;
         TextView progressBarLabel;
         CardView objectCardView;
@@ -79,6 +77,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         public MyViewHolder(@NonNull View itemView){
             super(itemView);
             objectCardView       = itemView.findViewById(R.id.object_cardView);
+            objectNewIndicator   = itemView.findViewById(R.id.object_new_indicator);
             objectLockLayout     = itemView.findViewById(R.id.object_lock_layout);
             objectName           = itemView.findViewById(R.id.object_name);
             objectCustomer       = itemView.findViewById(R.id.object_customer);
@@ -104,6 +103,14 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         }else{
             holder.objectLockLayout.setVisibility(View.VISIBLE);
         }
+
+        //-------new indicator
+        if(myObjectObject.getNotViewed().equals("X")){
+            holder.objectNewIndicator.setVisibility(View.VISIBLE);
+        }else{
+            holder.objectNewIndicator.setVisibility(View.GONE);
+        }
+
 
         //------object values
         holder.objectName.setText(myObjectObject.getObjectName());
@@ -136,9 +143,14 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             clickObject = myObjectObject;
             if(!((ActivityObjectShow) context).isUserMode()){
               //--lock Object in DB
-              new MyAdapterObjectShow.HttpsRequestLockObject(context, myObjectObject.getId().toString(),"lock").execute();
+              new HttpsRequestLockObject(context, myObjectObject.getId().toString(),"lock").execute();
+            }else{
+              if(myObjectObject.getNotViewed().equals("X")){
+                myObjectObject.setNotViewed("");
+                new HttpsRequestViewObject(context, myObjectObject.getId().toString(), myObjectObject.getNotViewed()).execute();
+              }
             }
-            new MyAdapterObjectShow.HttpsRequestGetObjectDetails(context, myObjectObject).execute();
+            new HttpsRequestGetObjectDetails(context, myObjectObject).execute();
         });
 
     }
@@ -164,6 +176,53 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
     }
     public void setBottomSheetDialog(BottomSheetDialog bottomSheetDialog) {
         this.bottomSheetDialog = bottomSheetDialog;
+    }
+
+    class HttpsRequestViewObject extends AsyncTask<String, Void, InputStream> {
+        private static final String view_object_url = "view_object.php";
+
+        private Context context;
+        private String objectId, notVievedValue;
+        Connector connector;
+
+        public HttpsRequestViewObject(Context ctx, String objId, String value){
+            context  = ctx;
+            objectId = objId;
+            notVievedValue = value;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, view_object_url);
+            connector.addPostParameter("user_id",    Base64.encodeToString(MCrypt.encrypt(String.valueOf(myUser.getId()).getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("object_id",  Base64.encodeToString(MCrypt.encrypt(objectId.getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("not_viewed", Base64.encodeToString(MCrypt.encrypt(notVievedValue.getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            JSONObject responseObject;
+            try {
+                responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String lockStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String lockMsg    = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (lockStatus.equals("1")) {
+                    //implement if needed
+                }else{
+
+                }
+                ((ActivityObjectShow) context).onRefresh();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     class HttpsRequestLockObject extends AsyncTask<String, Void, InputStream> {
@@ -555,6 +614,17 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
         @Override
         protected void onPostExecute(InputStream inputStream) {
+            try {
+                connector.decodeResponse();
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String saveStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (saveStatus.equals("1")) {
+
+                }
+            }catch (Exception e){
+
+            }
             new HttpsRequestGetObjectDetails(context, clickObject).execute();
         }
     }

@@ -80,8 +80,8 @@ public class ActivityLogin extends AppCompatActivity {
         shiftContainer   = findViewById(R.id.shift_container);
 
         //----------to remove
-        loginUser.setText("admin");
-        loginPassword.setText("admin");
+        //loginUser.setText("admin");
+        //loginPassword.setText("admin");
 
         context = this;
         buttonLogin.setOnClickListener(new View.OnClickListener() {

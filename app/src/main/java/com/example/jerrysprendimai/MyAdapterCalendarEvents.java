@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -59,10 +60,13 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         LinearLayout myRow;
         TextView title, description;
+        ImageView eventIcon;
+        ObjectObject objectToDisplay;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            eventIcon   = itemView.findViewById(R.id.calendar_event_icon);
             title       = itemView.findViewById(R.id.calendar_event_title);
             description = itemView.findViewById(R.id.calendar_event_description);
             myRow       = itemView.findViewById(R.id.my_container);
@@ -76,11 +80,28 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ObjectEvent myObjectEvent = myEventList.get(holder.getAdapterPosition());
 
+        holder.objectToDisplay = null;
+        try {
+            String[] strArry = myObjectEvent.getTitle().split("#");
+            for (int i = 0; i < myObjectList.size(); i++) {
+                if (myObjectList.get(i).getId().toString().equals(strArry[1])) {
+                    holder.objectToDisplay = myObjectList.get(i);
+                    break;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        if(holder.objectToDisplay != null){
+            holder.eventIcon.setImageResource(context.getResources().getIdentifier(holder.objectToDisplay.getIcon(),"drawable", context.getApplicationInfo().packageName));
+        }
+
         holder.title.setText(myObjectEvent.getTitle());
         holder.description.setText(myObjectEvent.getDescription());
         holder.myRow.setOnClickListener(v->{
             ((ActivityCalendar) context).setViewEnabled(false);
             setMyClickObjectEvent(myObjectEvent);
+            /*
             ObjectObject objectToDisplay = null;
             try {
                 String[] strArry = myObjectEvent.getTitle().split("#");
@@ -95,11 +116,12 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
             }catch (Exception e){
                 e.printStackTrace();
             }
-            if(objectToDisplay != null){
+            */
+            if(holder.objectToDisplay != null){
                 if(!myUser.getUser_lv().equals(USER)){
-                    new HttpsRequestLockObject(context, objectToDisplay, objectToDisplay.getId().toString(),"lock").execute();
+                    new HttpsRequestLockObject(context, holder.objectToDisplay, holder.objectToDisplay.getId().toString(),"lock").execute();
                 }else{
-                    getObjectDetailsAndDisplay(objectToDisplay);
+                    getObjectDetailsAndDisplay(holder.objectToDisplay);
                 }
             }
         });

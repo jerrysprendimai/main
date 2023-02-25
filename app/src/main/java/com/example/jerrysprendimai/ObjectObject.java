@@ -12,34 +12,8 @@ import java.util.ArrayList;
 
 public class ObjectObject implements Parcelable {
     private Integer id;
-    private String date, objectName, objectAddress,customerName,completeness,lockedByUserId, lockedUname, icon;
+    private String date, objectName, objectAddress,customerName,completeness,lockedByUserId, lockedUname, icon, notViewed;
 
-    protected ObjectObject(Parcel in) {
-        if (in.readByte() == 0) {
-            id = null;
-        } else {
-            id = in.readInt();
-        }
-        date = in.readString();
-        objectName = in.readString();
-        objectAddress = in.readString();
-        customerName = in.readString();
-        completeness = in.readString();
-        lockedByUserId = in.readString();
-        lockedUname = in.readString();
-        icon = in.readString();
-    }
-    public static final Creator<ObjectObject> CREATOR = new Creator<ObjectObject>() {
-        @Override
-        public ObjectObject createFromParcel(Parcel in) {
-            return new ObjectObject(in);
-        }
-
-        @Override
-        public ObjectObject[] newArray(int size) {
-            return new ObjectObject[size];
-        }
-    };
     @Override
     public int describeContents() {
         return 0;
@@ -60,7 +34,35 @@ public class ObjectObject implements Parcelable {
         dest.writeString(lockedByUserId);
         dest.writeString(lockedUname);
         dest.writeString(icon);
+        dest.writeString(notViewed);
     }
+    protected ObjectObject(Parcel in) {
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readInt();
+        }
+        date = in.readString();
+        objectName = in.readString();
+        objectAddress = in.readString();
+        customerName = in.readString();
+        completeness = in.readString();
+        lockedByUserId = in.readString();
+        lockedUname = in.readString();
+        icon = in.readString();
+        notViewed = in.readString();
+    }
+    public static final Creator<ObjectObject> CREATOR = new Creator<ObjectObject>() {
+        @Override
+        public ObjectObject createFromParcel(Parcel in) {
+            return new ObjectObject(in);
+        }
+
+        @Override
+        public ObjectObject[] newArray(int size) {
+            return new ObjectObject[size];
+        }
+    };
 
     public ObjectObject(){
 
@@ -73,6 +75,7 @@ public class ObjectObject implements Parcelable {
         this.lockedByUserId = "";
         this.lockedUname    = "";
         this.icon           = "";
+        this.notViewed      = "";
     }
     public ObjectObject(JSONObject obj, String wa){
         try {
@@ -85,6 +88,7 @@ public class ObjectObject implements Parcelable {
             this.lockedByUserId = obj.getString("LockedByUserId");
             this.lockedUname    = obj.getString("User");
             this.icon           = obj.getString("Icon");
+            this.notViewed      = obj.getString("Not_viewed");
         }catch (Exception ee){
             ee.printStackTrace();
         }
@@ -100,13 +104,12 @@ public class ObjectObject implements Parcelable {
             this.lockedByUserId = MCrypt.decryptSingle(obj.getString("LockedByUserId"));
             this.lockedUname    = MCrypt.decryptDouble(obj.getString("User"));
             this.icon           = MCrypt.decryptSingle(obj.getString("Icon"));
+            this.notViewed      = MCrypt.decryptSingle(obj.getString("Not_viewed"));
         }catch (JSONException e) {
             e.printStackTrace();
         }
         //String decUname = Base64.encodeToString(MCrypt.decrypt(uname),  Base64.DEFAULT);
     }
-
-
 
     public String toJson(){
         JSONObject jsonObject = new JSONObject();
@@ -120,6 +123,8 @@ public class ObjectObject implements Parcelable {
             jsonObject.put("lockedByUserId",this.getLockedByUserId());
             jsonObject.put("lockedUname",   this.getLockedUname());
             jsonObject.put("icon",          this.getIcon());
+            jsonObject.put("not_viewed",    this.getNotViewed());
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -174,6 +179,7 @@ public class ObjectObject implements Parcelable {
     }
     public String getIcon() {        return icon;    }
     public void setIcon(String icon) {        this.icon = icon;    }
-
+    public String getNotViewed() {        return notViewed;    }
+    public void setNotViewed(String notViewed) {        this.notViewed = notViewed;    }
 
 }

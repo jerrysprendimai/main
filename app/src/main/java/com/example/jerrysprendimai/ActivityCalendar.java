@@ -26,6 +26,7 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +72,7 @@ public class ActivityCalendar extends AppCompatActivity {
     ProgressBar progressBar;
     Date displayDate;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,12 +85,6 @@ public class ActivityCalendar extends AppCompatActivity {
         //---------------Read myUser object----------------------
         this.myUser = getIntent().getParcelableExtra("myUser");
 
-        //----cehck calendar permission
-        if (!(checkPermission(CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
-                !(checkPermission(CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
-            return;
-        }
-
         //----Element binding
         sundeepkCalendarView = findViewById(R.id.calendar_sundeepk_calendarView);
         calendarCaption      = findViewById(R.id.calendar_caption);
@@ -97,10 +93,18 @@ public class ActivityCalendar extends AppCompatActivity {
         calendarCardView     = findViewById(R.id.calendar_cardView);
         calendarDayCaption   = findViewById(R.id.calendar_day_caption);
         progressBar          = findViewById(R.id.calendar_progressBar);
+        //eventIcon            = findViewById(R.id.calendar_event_icon);
 
         //----fill values
         progressBar.setVisibility(View.GONE);
-        //this.calendarCardView.setBackgroundResource(R.drawable.card_view_background);
+        //eventIcon
+
+        //----cehck calendar permission
+        if (!(checkPermission(CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
+                !(checkPermission(CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
+            return;
+        }
+
         Calendar calendar = Calendar.getInstance();
         HelperCalendar jerryCalenderHelper = new HelperCalendar(this);
         jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
@@ -283,11 +287,12 @@ public class ActivityCalendar extends AppCompatActivity {
             //----sync calender events
             //----cehck calendar permission
             boolean permissionOk = true;
-            if (!(checkPermission(CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
-                    !(checkPermission(CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
-                permissionOk = false;
-            }
-            if(permissionOk){
+            //if (!(checkPermission(CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
+            //        !(checkPermission(CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
+            //    permissionOk = false;
+            //}
+            if( permissionOk && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED){
+            //if(permissionOk){
                 HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
                 jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
                 if((myAdapterCalendarEvents != null)&&(getDisplayDate() != null)&&(sundeepkCalendarView != null)){
@@ -297,7 +302,7 @@ public class ActivityCalendar extends AppCompatActivity {
                     getMyEventList().removeAll(getMyEventList());
                     getMyEventList().addAll(jerryCalenderHelper.getDayEvents(getDisplayDate()));
                     myAdapterCalendarEvents.notifyDataSetChanged();
-                }
+            }
                 //Uri deleteUri = null;
                 //deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, Long.parseLong("53"));
                 //int rows = getContentResolver().delete(deleteUri, null, null);
