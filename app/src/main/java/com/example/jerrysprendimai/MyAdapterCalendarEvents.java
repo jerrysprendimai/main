@@ -41,6 +41,7 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
     ArrayList<ObjectEvent> myEventList;
     ArrayList<ObjectObject> myObjectList;
 
+
     public MyAdapterCalendarEvents(Context cntx, ArrayList events, ArrayList<ObjectObject> objectList, ObjectUser user) {
         this.context = cntx;
         this.myEventList = events;
@@ -59,13 +60,14 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         LinearLayout myRow;
-        TextView title, description;
+        TextView title, description, viewedIndicator;
         ImageView eventIcon;
         ObjectObject objectToDisplay;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            viewedIndicator = itemView.findViewById(R.id.calendar_event_indicator);
             eventIcon   = itemView.findViewById(R.id.calendar_event_icon);
             title       = itemView.findViewById(R.id.calendar_event_title);
             description = itemView.findViewById(R.id.calendar_event_description);
@@ -94,7 +96,16 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
         }
         if(holder.objectToDisplay != null){
             holder.eventIcon.setImageResource(context.getResources().getIdentifier(holder.objectToDisplay.getIcon(),"drawable", context.getApplicationInfo().packageName));
+
+            if(holder.objectToDisplay.getNotViewed().equals("X")){
+                holder.viewedIndicator.setVisibility(View.VISIBLE);
+            }else{
+                holder.viewedIndicator.setVisibility(View.GONE);
+            }
+        }else{
+            holder.viewedIndicator.setVisibility(View.GONE);
         }
+
 
         holder.title.setText(myObjectEvent.getTitle());
         holder.description.setText(myObjectEvent.getDescription());
@@ -121,7 +132,9 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
                 if(!myUser.getUser_lv().equals(USER)){
                     new HttpsRequestLockObject(context, holder.objectToDisplay, holder.objectToDisplay.getId().toString(),"lock").execute();
                 }else{
-                    getObjectDetailsAndDisplay(holder.objectToDisplay);
+                    holder.objectToDisplay.setNotViewed("");
+                    new HttpsRequestViewObject(context, holder.objectToDisplay, holder.objectToDisplay.getId().toString(), holder.objectToDisplay.getNotViewed()).execute();
+                    //getObjectDetailsAndDisplay(holder.objectToDisplay);
                 }
             }
         });
@@ -141,6 +154,56 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
 
     public ObjectEvent getMyClickObjectEvent() {       return myClickObjectEvent;    }
     public void setMyClickObjectEvent(ObjectEvent myClickObjectEvent) {        this.myClickObjectEvent = myClickObjectEvent;    }
+
+    class HttpsRequestViewObject extends AsyncTask<String, Void, InputStream> {
+        private static final String view_object_url = "view_object.php";
+
+        private Context context;
+        private String objectId, notVievedValue;
+        ObjectObject objectToDisplay;
+        Connector connector;
+
+        public HttpsRequestViewObject(Context ctx, ObjectObject obj, String objId, String value){
+            context  = ctx;
+            objectId = objId;
+            notVievedValue = value;
+            objectToDisplay = obj;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, view_object_url);
+            connector.addPostParameter("user_id",    Base64.encodeToString(MCrypt.encrypt(String.valueOf(myUser.getId()).getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("object_id",  Base64.encodeToString(MCrypt.encrypt(objectId.getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("not_viewed", Base64.encodeToString(MCrypt.encrypt(notVievedValue.getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            JSONObject responseObject;
+            try {
+                responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String lockStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String lockMsg    = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (lockStatus.equals("1")) {
+                    //getObjectDetailsAndDisplay(this.objectToDisplay);
+                }else{
+
+                }
+                //((ActivityObjectShow) context).onRefresh();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            getObjectDetailsAndDisplay(this.objectToDisplay);
+        }
+    }
 
     class HttpsRequestLockObject extends AsyncTask<String, Void, InputStream> {
         private static final String lock_object_url = "lock_object.php";

@@ -256,8 +256,10 @@ public class ActivityMenu extends AppCompatActivity {
             }
             if( newCount > 0){
                 ((TextView) findViewById(R.id.menu_caption_work)).setVisibility(View.VISIBLE);
-                ((TextView) findViewById(R.id.menu_caption_work)).setText(String.valueOf(newCount));
+            }else{
+                ((TextView) findViewById(R.id.menu_caption_work)).setVisibility(View.GONE);
             }
+            ((TextView) findViewById(R.id.menu_caption_work)).setText(String.valueOf(newCount));
 
             //----sync calender events
             //----cehck calendar permission
@@ -278,8 +280,10 @@ public class ActivityMenu extends AppCompatActivity {
               //----calendar caption handling
                 if( newCount > 0){
                     ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.VISIBLE);
-                    ((TextView) findViewById(R.id.menu_caption_calendar)).setText(String.valueOf(newCount));
+                }else{
+                    ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.GONE);
                 }
+                ((TextView) findViewById(R.id.menu_caption_calendar)).setText(String.valueOf(newCount));
             }
             //}
                 //Uri deleteUri = null;

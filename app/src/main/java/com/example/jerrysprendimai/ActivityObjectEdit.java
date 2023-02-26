@@ -303,6 +303,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.objectObjDetailsToUpdateArrayList = new ArrayList<>();
 
         //---- user mode handling
+        handleUserMode();
+        /*
         if(this.myUser.getUser_lv().equals(user)){
             this.userMode = true;
             //setSaveCancelVisibility(false);
@@ -326,8 +328,40 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             oCustomer.setEnabled(true);
             oAddress.setEnabled(true);
         }
+        */
 
     }
+
+    public void handleUserMode(){
+        Button retractableButton         = findViewById(R.id.objectEdit_retractable_button);
+        LinearLayout userModeprogressBar = findViewById(R.id.objectEdit_progrss_bar_layout_userMode);
+        if(this.myUser.getUser_lv().equals(user)){
+            this.userMode = true;
+            //setSaveCancelVisibility(false);
+            //oSavedStatusIndicator.setVisibility(View.GONE);
+            oAddJob.setVisibility(View.GONE);
+            oDate.setEnabled(false);
+            oDate.setTextColor(getResources().getColor(R.color.jerry_grey));
+            oName.setEnabled(false);
+            oCustomer.setEnabled(false);
+            oAddress.setEnabled(false);
+            if(userModeprogressBar.getVisibility() != View.VISIBLE){
+               retractableButton.setSoundEffectsEnabled(false);
+               retractableButton.performClick();
+               retractableButton.setSoundEffectsEnabled(true);
+            }
+        }else{
+            this.userMode = false;
+            setSaveCancelVisibility(true);
+            oSavedStatusIndicator.setVisibility(View.VISIBLE);
+            oAddJob.setVisibility(View.VISIBLE);
+            oDate.setEnabled(true);
+            oName.setEnabled(true);
+            oCustomer.setEnabled(true);
+            oAddress.setEnabled(true);
+        }
+    }
+
     public void setSaveCancelVisibility(Boolean value){
         TransitionManager.beginDelayedTransition(bottomNavigationView, new AutoTransition());
         if(value.equals(true)){
@@ -379,6 +413,10 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             this.oProgressBarLabelUserMode.setText(String.valueOf(this.objectObject.getCompleteness()) + "%");
             this.oProgressbar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(this.objectObject.getCompleteness())))));
             this.oProgressbarUserMode.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(this.objectObject.getCompleteness())))));
+
+            //-----invisible focus holder dandling
+            this.editInvisibleFocusHolder.setInputType(InputType.TYPE_NULL);
+            this.editInvisibleFocusHolder.requestFocus();
 
     }
     private void buildRecyclerView() {
@@ -815,6 +853,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     e.printStackTrace();
                 }
             }
+            handleUserMode();
 
             //myAdapterObjectEdit.notifyDataSetChanged();
             retutnThreadCount = 0;

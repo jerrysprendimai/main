@@ -622,6 +622,9 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 if (saveStatus.equals("1")) {
 
                 }
+                if(msg.equals("")){
+
+                }
             }catch (Exception e){
 
             }
