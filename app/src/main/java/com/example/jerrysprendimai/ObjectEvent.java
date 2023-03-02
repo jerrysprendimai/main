@@ -12,6 +12,27 @@ public class ObjectEvent {
     Date date;
     Calendar calendar;
 
+    public ObjectEvent(Cursor cursor, int indicator){
+        this.id            = cursor.getString(0);   //ID
+        this.calendar_id   = "0";
+        this.dstart        = cursor.getString(5);   //DSTART
+        this.dtend         = cursor.getString(5);   //DSTART
+        this.title         = cursor.getString(2);   //TITLE
+        this.description   = cursor.getString(4);   //ADDRESS
+        this.allDay        = "";
+        this.eventLocation = "";
+
+        SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        this.calendar = Calendar.getInstance();
+        this.calendar.setTimeInMillis(Long.parseLong(dstart));
+        this.date = new Date();
+        this.date.setTime(this.calendar.getTimeInMillis());
+        this.eventDate = displayDateFormat.format(calendar.getTime());
+
+        this.year  = this.calendar.get(Calendar.YEAR);
+        this.month = this.calendar.get(Calendar.MONTH);
+        this.day   = this.calendar.get(Calendar.DAY_OF_MONTH);
+    }
     public ObjectEvent(Cursor cursor){
         this.id            = cursor.getString(0);
         this.calendar_id   = cursor.getString(1);

@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class SQLiteDB extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "juliFliesen.db";
+    private static final String DATABASE_NAME = "jerry.db";
     private static final String TABLE_NAME = "settings";
     private static final String COLUMN0 = "ID";
     private static final String COLUMN1 = "URL";
@@ -35,7 +35,7 @@ public class SQLiteDB extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP IF TABLE EXISTS " + TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
 

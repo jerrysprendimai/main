@@ -9,14 +9,11 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +30,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class ActivityMenu extends AppCompatActivity {
+
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    static final int MY_WRITE_EXTERNAL_STORAGE = 101;
+    private static final int PERMISSION_CODE = 1001;
     private static final int CALENDAR_READ_CODE  = 2000;
     private static final int CALENDAR_WRITE_CODE = 2001;
 
@@ -126,13 +127,42 @@ public class ActivityMenu extends AppCompatActivity {
         });
 
 
-
         //----cehck calendar permission
         boolean permissionOk = true;
-        if (!(checkPermission(this, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
+        /*if (!(checkPermission(this, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
                 !(checkPermission(this, CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
             permissionOk = false;
+        }*/
+        /*
+        //----check pictures permission
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                //permission not granted, request it
+                String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                //show popup for runtime permission
+                requestPermissions(permissions, PERMISSION_CODE);
+            }else{
+                //permission already granted
+            }
+        }else{
+               //system os is less that marshmallow
         }
+        //----check camera permission
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+            } else {
+                //check permission external storage
+                if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_WRITE_EXTERNAL_STORAGE);
+                } else {
+                    //permission already granted
+                }
+            }
+        }else{
+            //system os is less that marshmallow
+        }
+        */
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -264,18 +294,16 @@ public class ActivityMenu extends AppCompatActivity {
             //----sync calender events
             //----cehck calendar permission
             boolean permissionOk = true;
-            //if (!(checkPermission(context, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
-            //        !(checkPermission(context, CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
-            //    permissionOk = false;
-            //}
-            //if(permissionOk){
 
+            //if( permissionOk && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED){
 
-            //(checkPermission(this, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)
-            //permissions = permissions && ContextCompat.checkSelfPermission(this, p) == PackageManager.PERMISSION_GRANTED;
-            if( permissionOk && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED){
-              HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
-              jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
+                SQLiteCalendarDB sqLiteCalendarHelper = new SQLiteCalendarDB(context);
+                sqLiteCalendarHelper.syncCalendarEvents(myObjectList);
+
+                //sqLiteCalendarHelper.getWritableDatabase().execSQL("DROP TABLE calendarEvents");
+
+                //HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
+                //jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
 
               //----calendar caption handling
                 if( newCount > 0){
@@ -284,13 +312,7 @@ public class ActivityMenu extends AppCompatActivity {
                     ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.GONE);
                 }
                 ((TextView) findViewById(R.id.menu_caption_calendar)).setText(String.valueOf(newCount));
-            }
             //}
-                //Uri deleteUri = null;
-                //deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, Long.parseLong("53"));
-                //int rows = getContentResolver().delete(deleteUri, null, null);
-
-
 
             findViewById(R.id.progressBar).setVisibility(View.GONE);
             enableWholeView(gridLayout);

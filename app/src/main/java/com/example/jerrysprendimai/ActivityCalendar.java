@@ -1,6 +1,5 @@
 package com.example.jerrysprendimai;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -11,28 +10,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CalendarView;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
-import com.github.sundeepk.compactcalendarview.domain.Event;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,15 +32,9 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TimeZone;
 
 public class ActivityCalendar extends AppCompatActivity {
     private static final int CALENDAR_READ_CODE  = 2000;
@@ -100,15 +85,17 @@ public class ActivityCalendar extends AppCompatActivity {
         //eventIcon
 
         //----cehck calendar permission
-        if (!(checkPermission(CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
+        /*if (!(checkPermission(CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
                 !(checkPermission(CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
             return;
-        }
+        }*/
 
         Calendar calendar = Calendar.getInstance();
-        HelperCalendar jerryCalenderHelper = new HelperCalendar(this);
-        jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
-        //jerryCalenderHelper.setAllEvents(sundeepkCalendarView);
+        SQLiteCalendarDB sqLiteCalendarHelper = new SQLiteCalendarDB(this);
+        sqLiteCalendarHelper.setMonthEvents(sundeepkCalendarView, calendar);
+        //HelperCalendar jerryCalenderHelper = new HelperCalendar(this);
+        //jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
+
         try {
             String value = DateFormat.getDateInstance(DateFormat.YEAR_FIELD).format(calendar.getTime());
             String[] strArry = value.split(" ");
@@ -120,7 +107,8 @@ public class ActivityCalendar extends AppCompatActivity {
                 setDisplayDate(dateClicked);
                 calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(dateClicked.getTime()));
                 getMyEventList().removeAll(getMyEventList());
-                getMyEventList().addAll(jerryCalenderHelper.getDayEvents(dateClicked));
+                getMyEventList().addAll(sqLiteCalendarHelper.getDayEvents(dateClicked));
+                //getMyEventList().addAll(jerryCalenderHelper.getDayEvents(dateClicked));
                 myAdapterCalendarEvents.notifyDataSetChanged();
 
                 sundeepkCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.jerry_blue_opacity));
@@ -147,7 +135,8 @@ public class ActivityCalendar extends AppCompatActivity {
                     sundeepkCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.white));
                 }
                 calendar.setTimeInMillis(firstDayOfNewMonth.getTime());
-                jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
+                sqLiteCalendarHelper.setMonthEvents(sundeepkCalendarView, calendar);
+                //jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
                 sundeepkCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.jerry_blue_opacity));
                 onDayClick(firstDayOfNewMonth);
             }
@@ -177,7 +166,8 @@ public class ActivityCalendar extends AppCompatActivity {
         today.set(Calendar.MILLISECOND, 0);
         date.setTime(today.getTimeInMillis());
         getMyEventList().removeAll(getMyEventList());
-        getMyEventList().addAll(jerryCalenderHelper.getDayEvents(date));
+        getMyEventList().addAll(sqLiteCalendarHelper.getDayEvents(date));
+        //getMyEventList().addAll(jerryCalenderHelper.getDayEvents(date));
         setDisplayDate(date);
         myAdapterCalendarEvents.notifyDataSetChanged();
         calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(today.getTime()));
@@ -291,18 +281,25 @@ public class ActivityCalendar extends AppCompatActivity {
             //        !(checkPermission(CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
             //    permissionOk = false;
             //}
-            if( permissionOk && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED){
+            //if( permissionOk && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED){
             //if(permissionOk){
-                HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
-                jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
+
+                SQLiteCalendarDB sqLiteCalendarHelper = new SQLiteCalendarDB(context);
+                sqLiteCalendarHelper.syncCalendarEvents(myObjectList);
+
+                //HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
+                //jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
+
                 if((myAdapterCalendarEvents != null)&&(getDisplayDate() != null)&&(sundeepkCalendarView != null)){
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(getDisplayDate().getTime());
-                    jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
+                    sqLiteCalendarHelper.setMonthEvents(sundeepkCalendarView, calendar);
+                    //jerryCalenderHelper.setMonthEvents(sundeepkCalendarView, calendar);
                     getMyEventList().removeAll(getMyEventList());
-                    getMyEventList().addAll(jerryCalenderHelper.getDayEvents(getDisplayDate()));
+                    getMyEventList().addAll(sqLiteCalendarHelper.getDayEvents(getDisplayDate()));
+                    //getMyEventList().addAll(jerryCalenderHelper.getDayEvents(getDisplayDate()));
                     myAdapterCalendarEvents.notifyDataSetChanged();
-            }
+            //}
                 //Uri deleteUri = null;
                 //deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, Long.parseLong("53"));
                 //int rows = getContentResolver().delete(deleteUri, null, null);
