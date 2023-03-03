@@ -126,6 +126,19 @@ public class ActivityMenu extends AppCompatActivity {
             context.startActivity(intent);
         });
 
+        //-----------Chat
+        CardView chatCard = (CardView) findViewById(R.id.CardView_chat);
+        chatCard.setVisibility(View.GONE);
+        LinearLayout chatLayout = (LinearLayout) findViewById(R.id.main_menu_chat);
+        chatLayout.setVisibility(View.GONE);
+
+        //-----------Supplier
+        CardView supplierCard = (CardView) findViewById(R.id.CardView_dealers);
+        supplierCard.setVisibility(View.GONE);
+        LinearLayout supplierLayout = (LinearLayout) findViewById(R.id.main_menu_dealers);
+        supplierLayout.setVisibility(View.GONE);
+
+
 
         //----cehck calendar permission
         boolean permissionOk = true;

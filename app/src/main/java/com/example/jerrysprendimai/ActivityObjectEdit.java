@@ -1040,7 +1040,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
     class HttpsRequestSaveObject extends AsyncTask<String, Void, InputStream> {
         private static final String save_object_url = "save_object.php";
-        private static final String save_user_object_detail = "save_user_object_detail.php";
+        private static final String save_user_object_detail = "save_user_object_details.php";
         private Context context;
         Connector connector;
 

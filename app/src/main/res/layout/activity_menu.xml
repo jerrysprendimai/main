@@ -169,26 +169,64 @@
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
-                            android:id="@+id/CardView_chat"
+                            android:id="@+id/CardView_calendar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="@android:color/transparent"
+                            android:layout_margin="0dp"
+                            app:cardElevation="0dp">
+                            <TextView
+                                android:id="@+id/menu_caption_calendar"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3"
+                                android:elevation="2dp"
+                                android:gravity="center"
+                                android:textStyle="italic|bold"
+                                android:textSize="11sp"
+                                android:background="@drawable/circle_view"
+                                android:textColor="@color/white"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="5dp"
+                                android:layout_gravity="right">
+                            </TextView>
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/CardView_main_menu_calendar"
+                                style="@style/Menu_Item_CardView">
+                                <LinearLayout
+                                    style="@style/Menu_Item_LinearLayout"
+                                    android:id="@+id/main_menu_calendar">
+                                    <ImageView
+                                        style="@style/Menu_Item_ImageView"
+                                        android:src="@drawable/ic_calendar_white" />
+                                    <TextView
+                                        style="@style/Menu_Item_EditText"
+                                        android:text="@string/calendar" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/CardView_settings"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:backgroundTint="@android:color/transparent"
                             android:layout_margin="0dp"
                             app:cardElevation="0dp">
                             <androidx.cardview.widget.CardView
-                            style="@style/Menu_Item_CardView"
-                            android:id="@+id/CardView_main_menu_chat">
-                            <LinearLayout
-                                style="@style/Menu_Item_LinearLayout"
-                                android:id="@+id/main_menu_chat">
-                                <ImageView
-                                    style="@style/Menu_Item_ImageView"
-                                    android:src="@drawable/ic_chat_white" />
-                                <TextView
-                                    style="@style/Menu_Item_EditText"
-                                    android:text="@string/chat" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                                android:id="@+id/CardView_main_menu_settings"
+                                style="@style/Menu_Item_CardView">
+                                <LinearLayout
+                                    style="@style/Menu_Item_LinearLayout"
+                                    android:id="@+id/main_menu_settings">
+                                    <ImageView
+                                        style="@style/Menu_Item_ImageView"
+                                        android:src="@drawable/ic_settings_white" />
+                                    <TextView
+                                        style="@style/Menu_Item_EditText"
+                                        android:text="@string/settings" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
@@ -222,80 +260,42 @@
                             android:layout_margin="0dp"
                             app:cardElevation="0dp">
                             <androidx.cardview.widget.CardView
-                            android:id="@+id/CardView_main_menu_dealers"
-                            style="@style/Menu_Item_CardView">
-                            <LinearLayout
-                                style="@style/Menu_Item_LinearLayout"
-                                android:id="@+id/main_menu_dealers">
-                                <ImageView
-                                    style="@style/Menu_Item_ImageView"
-                                    android:src="@drawable/ic_dealer_white" />
-                                <TextView
-                                    style="@style/Menu_Item_EditText"
-                                    android:text="@string/dealers" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
-                        </androidx.cardview.widget.CardView>
-
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/CardView_calendar"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:backgroundTint="@android:color/transparent"
-                            android:layout_margin="0dp"
-                            app:cardElevation="0dp">
-                            <TextView
-                                android:id="@+id/menu_caption_calendar"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="3"
-                                android:elevation="2dp"
-                                android:gravity="center"
-                                android:textStyle="italic|bold"
-                                android:textSize="11sp"
-                                android:background="@drawable/circle_view"
-                                android:textColor="@color/white"
-                                android:layout_marginTop="2dp"
-                                android:layout_marginRight="5dp"
-                                android:layout_gravity="right">
-                            </TextView>
-                            <androidx.cardview.widget.CardView
-                            android:id="@+id/CardView_main_menu_calendar"
-                            style="@style/Menu_Item_CardView">
-                            <LinearLayout
-                                style="@style/Menu_Item_LinearLayout"
-                                android:id="@+id/main_menu_calendar">
-                                <ImageView
-                                    style="@style/Menu_Item_ImageView"
-                                    android:src="@drawable/ic_calendar_white" />
-                                <TextView
-                                    style="@style/Menu_Item_EditText"
-                                    android:text="@string/calendar" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                                android:id="@+id/CardView_main_menu_dealers"
+                                style="@style/Menu_Item_CardView">
+                                <LinearLayout
+                                    style="@style/Menu_Item_LinearLayout"
+                                    android:id="@+id/main_menu_dealers">
+                                    <ImageView
+                                        style="@style/Menu_Item_ImageView"
+                                        android:src="@drawable/ic_dealer_white" />
+                                    <TextView
+                                        style="@style/Menu_Item_EditText"
+                                        android:text="@string/dealers" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
-                            android:id="@+id/CardView_settings"
+                            android:id="@+id/CardView_chat"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:backgroundTint="@android:color/transparent"
                             android:layout_margin="0dp"
                             app:cardElevation="0dp">
                             <androidx.cardview.widget.CardView
-                            android:id="@+id/CardView_main_menu_settings"
-                            style="@style/Menu_Item_CardView">
-                            <LinearLayout
-                                style="@style/Menu_Item_LinearLayout"
-                                android:id="@+id/main_menu_settings">
-                                <ImageView
-                                    style="@style/Menu_Item_ImageView"
-                                    android:src="@drawable/ic_settings_white" />
-                                <TextView
-                                    style="@style/Menu_Item_EditText"
-                                    android:text="@string/settings" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                                style="@style/Menu_Item_CardView"
+                                android:id="@+id/CardView_main_menu_chat">
+                                <LinearLayout
+                                    style="@style/Menu_Item_LinearLayout"
+                                    android:id="@+id/main_menu_chat">
+                                    <ImageView
+                                        style="@style/Menu_Item_ImageView"
+                                        android:src="@drawable/ic_chat_white" />
+                                    <TextView
+                                        style="@style/Menu_Item_EditText"
+                                        android:text="@string/chat" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
                         </androidx.cardview.widget.CardView>
 
                     </GridLayout>

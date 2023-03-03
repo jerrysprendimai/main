@@ -72,7 +72,7 @@ public class ObjectObject implements Parcelable {
         this.objectAddress  = "";
         this.customerName   = "";
         this.completeness   = "0.0";
-        this.lockedByUserId = "";
+        this.lockedByUserId = "0";
         this.lockedUname    = "";
         this.icon           = "";
         this.notViewed      = "";
