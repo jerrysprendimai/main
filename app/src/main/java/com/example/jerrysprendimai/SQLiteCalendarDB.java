@@ -137,6 +137,26 @@ public class SQLiteCalendarDB extends SQLiteOpenHelper {
             }
 
         }
+
+        Cursor cursor2 = db.rawQuery("SELECT * FROM " + TABLE_NAME, null );
+        int count = cursor2.getCount();
+        cursor2.moveToLast();
+        for(int i = 0; i < count; i++){
+            String objectId = cursor2.getString(3);
+            boolean exists = false;
+            for(int j=0; j < myObjectList.size(); j++){
+                if(myObjectList.get(j).getId().toString().equals(objectId)){
+                    exists = true;
+                    break;
+                }
+            }
+            if(exists == false){
+                String[] whereArgs3 = new String[]{objectId};
+                db.delete(TABLE_NAME, "OBJECT_ID = ?", whereArgs3);
+            }
+            cursor2.moveToPrevious();
+        }
+
         db.close();
     }
 
