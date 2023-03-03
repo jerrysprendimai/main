@@ -8,6 +8,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class SQLiteDB extends SQLiteOpenHelper {
 
+    private static final String VALUE_URL         = "https://www.jerry-sprendimai.eu";
+    private static final String VALUE_DB_SERVER   = "localhost";
+    private static final String VALUE_DB_NAME     = "u136904429_Jerry";
+    private static final String VALUE_DB_USER     = "u136904429_Tech";
+    private static final String VALUE_DB_PASSWORD = "H*akFuaE4";
+
     private static final String DATABASE_NAME = "jerry.db";
     private static final String TABLE_NAME = "settings";
     private static final String COLUMN0 = "ID";
@@ -38,7 +44,13 @@ public class SQLiteDB extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
-
+    public void addDataInitial(){
+        this.addData(VALUE_URL,
+                VALUE_DB_SERVER,
+                VALUE_DB_NAME,
+                VALUE_DB_USER,
+                VALUE_DB_PASSWORD);
+    }
     public boolean addData(String url, String dbServer, String dbName, String dbUser, String dbPassword) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -61,16 +73,19 @@ public class SQLiteDB extends SQLiteOpenHelper {
         }
     }
 
-    /*
-    private void deleteData(SQLiteDatabase db, String tableName) {
-        db.execSQL("DELETE * FROM " + tableName);
-    }
-     */
-
     public Cursor getData() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor data = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
-        //db.close();
+
+        if(data.getCount() == 0){
+            this.addData(VALUE_URL,
+                         VALUE_DB_SERVER,
+                         VALUE_DB_NAME,
+                         VALUE_DB_USER,
+                         VALUE_DB_PASSWORD);
+            data = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+        }
+
         return data;
     }
 }
