@@ -483,7 +483,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     lockIndicator.setVisibility(View.GONE);
                     lockedUname.setVisibility(View.GONE);
                     bottomSheetView.findViewById(R.id.bottomsheet_edit_btn).setEnabled(true);
-                    bottomSheetView.findViewById(R.id.bottomsheet_pdf_btn).setEnabled(true);
+                    bottomSheetView.findViewById(R.id.bottomsheet_chat_btn).setEnabled(true);
                     bottomSheetView.findViewById(R.id.bottomsheet_delete_btn).setEnabled(true);
                     bottomSheetView.findViewById(R.id.bottomsheet_add_user_button).setEnabled(true);
                     ((CardView) bottomSheetView.findViewById(R.id.bottomsheet_add_user_button_cardView)).setEnabled(true);
@@ -491,7 +491,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     lockIndicator.setVisibility(View.VISIBLE);
                     lockedUname.setText(clickObject.getLockedUname());
                     bottomSheetView.findViewById(R.id.bottomsheet_edit_btn).setEnabled(false);
-                    bottomSheetView.findViewById(R.id.bottomsheet_pdf_btn).setEnabled(false);
+                    bottomSheetView.findViewById(R.id.bottomsheet_chat_btn).setEnabled(false);
                     bottomSheetView.findViewById(R.id.bottomsheet_delete_btn).setEnabled(false);
                     bottomSheetView.findViewById(R.id.bottomsheet_add_user_button).setEnabled(false);
                     ((CardView) bottomSheetView.findViewById(R.id.bottomsheet_add_user_button_cardView)).setEnabled(false);
@@ -506,8 +506,17 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     intent.putExtra("myUser", myUser);
                     intent.putExtra("objectObject", getClickObject());
                     intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
-                    intent.putParcelableArrayListExtra("listtUser", getObjectUserArrayList());
+                    intent.putParcelableArrayListExtra("listUser", getObjectUserArrayList());
                     intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
+                    context.startActivity(intent);
+                });
+                //---- Chat Button click
+                FloatingActionButton chatButton = bottomSheetView.findViewById(R.id.bottomsheet_chat_btn);
+                chatButton.setOnClickListener(v->{
+                    Intent intent = new Intent(context, ActivityChat.class);
+                    intent.putExtra("myUser", myUser);
+                    intent.putExtra("objectObject", getClickObject());
+                    intent.putParcelableArrayListExtra("listUser", getObjectUserArrayList());
                     context.startActivity(intent);
                 });
                 //---- Delete Button click

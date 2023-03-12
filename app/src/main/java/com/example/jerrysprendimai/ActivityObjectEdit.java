@@ -98,7 +98,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.myUser       = getIntent().getParcelableExtra("myUser");
         this.objectObject = getIntent().getParcelableExtra("objectObject");
         this.objectDetailsArrayList  = getIntent().getParcelableArrayListExtra("listDetails");
-        this.objectUserArrayList     = getIntent().getParcelableArrayListExtra("listtUser");
+        this.objectUserArrayList     = getIntent().getParcelableArrayListExtra("listUser");
         this.objectPicturesArrayList = getIntent().getParcelableArrayListExtra("listPictures");
 
         //-----------------BackButton press counter

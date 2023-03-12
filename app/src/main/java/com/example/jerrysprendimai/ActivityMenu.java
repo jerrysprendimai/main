@@ -127,10 +127,20 @@ public class ActivityMenu extends AppCompatActivity {
         });
 
         //-----------Chat
-        CardView chatCard = (CardView) findViewById(R.id.CardView_chat);
-        chatCard.setVisibility(View.GONE);
         LinearLayout chatLayout = (LinearLayout) findViewById(R.id.main_menu_chat);
-        chatLayout.setVisibility(View.GONE);
+        chatLayout.setOnClickListener(v->{
+            this.backButtonCount = 0;
+            disableWholeView(gridLayout);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, ActivityChat.class);
+            intent.putExtra("myUser", myUser);
+            intent.putParcelableArrayListExtra("myObjectList", myObjectList);
+            context.startActivity(intent);
+        });
+        /*CardView chatCard = (CardView) findViewById(R.id.CardView_chat);
+        chatCard.setVisibility(View.GONE);
+
+        chatLayout.setVisibility(View.GONE);*/
 
         //-----------Supplier
         CardView supplierCard = (CardView) findViewById(R.id.CardView_dealers);

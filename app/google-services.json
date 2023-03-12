@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "452914423607",
+    "firebase_url": "https://jerrysprendimai-79ae1-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "jerrysprendimai-79ae1",
+    "storage_bucket": "jerrysprendimai-79ae1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:452914423607:android:9bf0d45bad20aa7bacdcb2",
+        "android_client_info": {
+          "package_name": "com.example.jerrysprendimai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "452914423607-49fhvr7fld58au7e0varq11tjff2tc4i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsMKjiOIuvemKzA1FKzCchyEnY4dEancQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "452914423607-49fhvr7fld58au7e0varq11tjff2tc4i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
