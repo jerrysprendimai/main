@@ -517,6 +517,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     intent.putExtra("myUser", myUser);
                     intent.putExtra("objectObject", getClickObject());
                     intent.putParcelableArrayListExtra("listUser", getObjectUserArrayList());
+                    intent.putParcelableArrayListExtra("employeeList", employeeArrayList);
                     context.startActivity(intent);
                 });
                 //---- Delete Button click
@@ -539,6 +540,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         }
 
     }
+
     class HttpsRequestDeleteObject extends AsyncTask<String, Void, InputStream> {
         private static final String delete_object_url = "delete_object.php";
 

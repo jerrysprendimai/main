@@ -38,6 +38,7 @@ public class ActivityMenu extends AppCompatActivity {
     private static final int CALENDAR_WRITE_CODE = 2001;
 
     final String user = "user";
+    final String owner = "owner";
     final String admin = "admin";
 
     ArrayList<ObjectObject> myObjectList;
@@ -411,5 +412,5 @@ public class ActivityMenu extends AppCompatActivity {
             }
             super.onPostExecute(inputStream);
         }
-            }
+    }
 }

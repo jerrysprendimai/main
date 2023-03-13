@@ -2,9 +2,9 @@ package com.example.jerrysprendimai;
 
 public class ObjectMessage {
 
-    private String firstName, uname, userId, content, date, time, mills;
+    private String firstName, uname, userId, content, date, time, mills, userLv;
 
-    public ObjectMessage(String firstName, String uname, String userId, String content, String date, String time, String mills) {
+    public ObjectMessage(String firstName, String uname, String userId, String content, String date, String time, String mills, String userLv) {
         this.firstName = firstName;
         this.uname = uname;
         this.userId = userId;
@@ -12,11 +12,14 @@ public class ObjectMessage {
         this.date = date;
         this.time = time;
         this.mills = mills;
+        this.userLv = userLv;
     }
 
     public ObjectMessage() {
     }
 
+    public String getUserLv() {        return userLv;    }
+    public void setUserLv(String userLv) {        this.userLv = userLv;    }
     public String getFirstName() { return firstName;   }
     public void setFirstName(String firstName) {    this.firstName = firstName;   }
     public String getUname() {      return uname;   }

@@ -18,6 +18,10 @@ import java.util.Calendar;
 
 public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.MessageHolder> {
 
+    final String user = "user";
+    final String owner = "owner";
+    final String admin = "admin";
+
     private ArrayList <ObjectMessage> messages;
     private String senderImg, recyverImg;
     private Context context;
@@ -46,10 +50,29 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
         holder.txtSenderName.setText(objectMessage.getFirstName());
         holder.txtTime.setText(calendar.get(Calendar.HOUR_OF_DAY) + ":" + String.format("%02d",calendar.get(Calendar.MINUTE)));
 
-        if(((ActivityChat) context).isDateDisplayed(objectMessage.getDate())){
-            holder.txtDateSeparator.setVisibility(View.GONE);
-        }else{
+        //holder.txtDate.setText(objectMessage.getDate());
+        if(((ActivityChat) context).isDateToBeDiplayed(objectMessage.getDate())){
             holder.txtDateSeparator.setVisibility(View.VISIBLE);
+            holder.txtDate.setVisibility(View.VISIBLE);
+            holder.txtDate.setText(((ActivityChat) context).getDateToDisplay());
+            ((ActivityChat) context).setDateToDisplay(objectMessage.getDate());
+        }else{
+            holder.txtDateSeparator.setVisibility(View.GONE);
+            holder.txtDate.setVisibility(View.GONE);
+        }
+        if((position == 0)&&(holder.txtDateSeparator.getVisibility() == View.GONE)){
+            holder.txtDateSeparator.setVisibility(View.VISIBLE);
+            holder.txtDate.setVisibility(View.VISIBLE);
+            holder.txtDate.setText(((ActivityChat) context).getDateToDisplay());
+            ((ActivityChat) context).setDateToDisplay(objectMessage.getDate());
+        }
+
+        if(objectMessage.getUserLv().equals(owner)){
+            holder.profImage.setColorFilter(context.getResources().getColor(R.color.jerry_blue));
+        }else if(objectMessage.getUserLv().equals(admin)){
+            holder.profImage.setColorFilter(context.getResources().getColor(R.color.jerry_green));
+        }else{
+            holder.profImage.setColorFilter(context.getResources().getColor(R.color.teal_700));
         }
 
         ConstraintLayout constraintLayout = holder.constraintLayout;
@@ -59,19 +82,19 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             constraintSet.clone(constraintLayout);
             constraintSet.clear(R.id.profile_cardView, ConstraintSet.LEFT);
             constraintSet.clear(R.id.txt_message_content, ConstraintSet.LEFT);
-            constraintSet.connect(R.id.profile_cardView, ConstraintSet.RIGHT, R.id.ccLayout,ConstraintSet.RIGHT, 5);
-            constraintSet.connect(R.id.txt_message_content, ConstraintSet.RIGHT,  R.id.profile_cardView,    ConstraintSet.LEFT, 5);
+            constraintSet.connect(R.id.profile_cardView, ConstraintSet.RIGHT, R.id.ccLayout,ConstraintSet.RIGHT, 3);
+            constraintSet.connect(R.id.txt_message_content, ConstraintSet.RIGHT,  R.id.profile_cardView,    ConstraintSet.LEFT, 3);
 
             constraintSet.clear(R.id.txt_time, ConstraintSet.LEFT);
             constraintSet.clear(R.id.txt_time, ConstraintSet.BOTTOM);
-            constraintSet.connect(R.id.txt_time, ConstraintSet.RIGHT, R.id.txt_message_content, ConstraintSet.RIGHT, 5);
-            constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 5);
+            constraintSet.connect(R.id.txt_time, ConstraintSet.LEFT, R.id.txt_message_content, ConstraintSet.LEFT, 3);
+            constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 3);
 
-            constraintSet.clear(R.id.chat_date_line, ConstraintSet.LEFT);
-            constraintSet.connect(R.id.chat_date_line, ConstraintSet.TOP, R.id.chat_mainContainer, ConstraintSet.TOP, 5);
+            //constraintSet.clear(R.id.chat_date_line, ConstraintSet.LEFT);
+            //constraintSet.connect(R.id.chat_date_line, ConstraintSet.TOP, R.id.chat_mainContainer, ConstraintSet.TOP, 5);
 
             constraintSet.clear(R.id.ccLayout,   ConstraintSet.TOP);
-            constraintSet.connect(R.id.ccLayout, ConstraintSet.TOP, R.id.chat_date_line, ConstraintSet.BOTTOM, 5);
+            constraintSet.connect(R.id.ccLayout, ConstraintSet.TOP, R.id.chat_date_line, ConstraintSet.BOTTOM, 3);
 
 
             constraintSet.applyTo(constraintLayout);
@@ -88,14 +111,14 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
 
             constraintSet.clear(R.id.txt_time, ConstraintSet.RIGHT);
             constraintSet.clear(R.id.txt_time, ConstraintSet.BOTTOM);
-            constraintSet.connect(R.id.txt_time, ConstraintSet.LEFT, R.id.txt_message_content, ConstraintSet.LEFT, 15);
-            constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 5);
+            constraintSet.connect(R.id.txt_time, ConstraintSet.RIGHT, R.id.txt_message_content, ConstraintSet.RIGHT, 3);
+            constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 3);
 
             constraintSet.clear(R.id.chat_date_line, ConstraintSet.LEFT);
-            constraintSet.connect(R.id.chat_date_line, ConstraintSet.TOP, R.id.chat_mainContainer, ConstraintSet.TOP, 5);
+            constraintSet.connect(R.id.chat_date_line, ConstraintSet.TOP, R.id.chat_mainContainer, ConstraintSet.TOP, 3);
 
             constraintSet.clear(R.id.ccLayout,   ConstraintSet.TOP);
-            constraintSet.connect(R.id.ccLayout, ConstraintSet.TOP, R.id.chat_date_line, ConstraintSet.BOTTOM, 5);
+            constraintSet.connect(R.id.ccLayout, ConstraintSet.TOP, R.id.chat_date_line, ConstraintSet.BOTTOM, 3);
 
             constraintSet.applyTo(constraintLayout);
             holder.cardView.setVisibility(View.VISIBLE);
@@ -121,6 +144,7 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             constraintLayout = itemView.findViewById(R.id.ccLayout);
             txtMessage       = itemView.findViewById(R.id.txt_message_content);
             txtSenderName    = itemView.findViewById(R.id.message_senderName);
+            txtDate          =  itemView.findViewById(R.id.chat_date);
             txtTime          = itemView.findViewById(R.id.txt_time);
             txtDateSeparator = itemView.findViewById(R.id.chat_date_line);
             profImage        = itemView.findViewById(R.id.senderImage);

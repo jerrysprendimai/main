@@ -24,14 +24,14 @@
                 android:layout_gravity="center"
                 app:cardBackgroundColor="@color/jerry_grey_light">
             <androidx.cardview.widget.CardView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center"
                 app:cardCornerRadius="8dp">
                     <ImageView
                         android:id="@+id/bottomsheet_objectIcon"
-                        android:layout_width="23dp"
-                        android:layout_height="23dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_object_white"
                         app:tint="@color/jerry_blue">

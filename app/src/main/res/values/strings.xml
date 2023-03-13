@@ -61,4 +61,5 @@
     <string name="exit">Išeiti?</string>
     <string name="calendar">Kalendorius</string>
     <string name="new_object">Naujas!</string>
+    <string name="participant_count">Darbuotojų skaičius</string>
 </resources>
