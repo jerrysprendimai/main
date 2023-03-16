@@ -123,9 +123,16 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
          //holder.objectIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_shower));
         //holder.objectIcon.setImageDrawable(R.mipmap.ic_air_cinditioner);
 
-        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(holder.progressBar, "progress", 0,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
-        objectAnimator.setDuration(400);
-        objectAnimator.start();
+        if(!((ActivityObjectShow)context).isAnimationShowed()){
+            ObjectAnimator objectAnimator = ObjectAnimator.ofInt(holder.progressBar, "progress", 0,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
+            objectAnimator.setDuration(400);
+            objectAnimator.start();
+
+            if(position == this.myObjectList.size() - 1){
+              ((ActivityObjectShow)context).setAnimationShowed(true);
+            }
+        }
+
 
         if(myObjectObject.getCompleteness().equals("100.0")){
             holder.progressBarLabel.setTextColor(((ActivityObjectShow)context).getResources().getColor(R.color.jerry_green));
@@ -139,6 +146,8 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
         //-----card click listener
         holder.myRow.setOnClickListener(v -> {
+            ((ActivityObjectShow) context).setNotUserRefresh(true);
+            ((ActivityObjectShow) context).setAnimationShowed(true);
             //--todo lock parent view
             clickObject = myObjectObject;
             if(!((ActivityObjectShow) context).isUserMode()){
@@ -502,6 +511,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 //---- Edit Button click
                 FloatingActionButton editButton = bottomSheetView.findViewById(R.id.bottomsheet_edit_btn);
                 editButton.setOnClickListener( v ->  {
+                    ((ActivityObjectShow)context).setAnimationShowed(false);
                     Intent intent = new Intent(context, ActivityObjectEdit.class);
                     intent.putExtra("myUser", myUser);
                     intent.putExtra("objectObject", getClickObject());
@@ -513,6 +523,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 //---- Chat Button click
                 FloatingActionButton chatButton = bottomSheetView.findViewById(R.id.bottomsheet_chat_btn);
                 chatButton.setOnClickListener(v->{
+                    ((ActivityObjectShow)context).setAnimationShowed(false);
                     Intent intent = new Intent(context, ActivityChat.class);
                     intent.putExtra("myUser", myUser);
                     intent.putExtra("objectObject", getClickObject());
@@ -523,12 +534,15 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 //---- Delete Button click
                 FloatingActionButton deleteButton = bottomSheetView.findViewById(R.id.bottomsheet_delete_btn);
                 deleteButton.setOnClickListener( v -> {
+                    ((ActivityObjectShow)context).setAnimationShowed(false);
                     new HttpsRequestDeleteObject(context, getClickObject()).execute();
                 });
 
                 bottomSheetDialog.setOnDismissListener(dialog -> {
                     //clear bottomSheetView
                     //--unlock Object in DB
+                    ((ActivityObjectShow) context).setNotUserRefresh(true);
+                    ((ActivityObjectShow) context).setAnimationShowed(true);
                     new HttpsRequestLockObject(context, clickObject.getId().toString(),"unlock").execute();
                     //((ActivityObjectShow) context).executeLockUnlock(myObjectObject.getId().toString(),"unlock");
                 });

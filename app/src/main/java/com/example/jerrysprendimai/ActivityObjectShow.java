@@ -35,7 +35,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
     SwipeRefreshLayout swipeRefreshLayout;
     FloatingActionButton buttonAddObject;
     MyAdapterObjectShow myAdapterObjectShow;
-    boolean userMode;
+    boolean userMode, animationShowed, notUserRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +98,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
             setUserMode(false);
             buttonAddObject.setVisibility(View.VISIBLE);
         }
-        new ActivityObjectShow.HttpsRequestGetObjectList(this).execute();
+        //new HttpsRequestGetObjectList(this).execute();
     }
 
     private void buildRecyclerView() {
@@ -111,13 +111,18 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
 
     @Override
     public void onRefresh() {
+        setAnimationShowed(false);
+        if(isNotUserRefresh()) {
+            setAnimationShowed(true);
+            setNotUserRefresh(false);
+        }
         if(myAdapterObjectShow.bottomSheetDialog != null){
             if(myAdapterObjectShow.bottomSheetDialog.isShowing()){
                 myAdapterObjectShow.requestObjectDetails(this);
             }
         }
         swipeRefreshLayout.setRefreshing(true);
-        new ActivityObjectShow.HttpsRequestGetObjectList(this).execute();
+        new HttpsRequestGetObjectList(this).execute();
     }
 
     @Override
@@ -126,6 +131,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
         //onRefresh();
         super.onResume();
     }
+
 
     class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {
         private static final String check_session_alive_url = "check_session_alive.php";
@@ -163,6 +169,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
                 //String control = object.getString("control");
                 if (status.equals("1")) {
                     //---here actions than should continue if session still valid
+                    //setAnimationShowed(true);
                     onRefresh();
                 }else{
                     //session and last activity deleted in DB, app will log-out
@@ -209,6 +216,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
             ((ActivityObjectShow) context).myObjectListOriginal.addAll(((ActivityObjectShow) context).myObjectList);
             ((ActivityObjectShow) context).myAdapterObjectShow.notifyDataSetChanged();
             ((ActivityObjectShow) context).swipeRefreshLayout.setRefreshing(false);
+            //setAnimationShowed(true);
             super.onPostExecute(inputStream);
         }
 
@@ -229,11 +237,21 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        setAnimationShowed(false);
+        super.onBackPressed();
+    }
+
     public boolean isUserMode() {
         return userMode;
     }
-
     public void setUserMode(boolean userMode) {
         this.userMode = userMode;
     }
+    public boolean isAnimationShowed() {        return animationShowed;    }
+    public void setAnimationShowed(boolean animationShowed) {        this.animationShowed = animationShowed;    }
+    public boolean isNotUserRefresh() {        return notUserRefresh;    }
+    public void setNotUserRefresh(boolean notUserRefresh) {        this.notUserRefresh = notUserRefresh;    }
+
 }

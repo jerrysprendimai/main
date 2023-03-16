@@ -62,4 +62,5 @@
     <string name="calendar">Kalendorius</string>
     <string name="new_object">Naujas!</string>
     <string name="participant_count">Darbuotojų skaičius</string>
+    <string name="my_profile">Mano Profilis</string>
 </resources>

@@ -113,13 +113,17 @@ public class ActivityChat extends AppCompatActivity {
             editMessageInput.setText("");
         });
 
+        Context context = this;
         View.OnClickListener toProjectListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if((myUser.getUser_lv().equals(owner))||(myUser.getUser_lv().equals(admin))){
-
+                    //lock object
+                    new HttpsRequestLockObject(context, myObject, myObject.getId().toString(),"lock").execute();
                 }else{
-
+                    //display object
+                    myObject.setNotViewed("");
+                    new HttpsRequestViewObject(context, myObject, myObject.getId().toString(), myObject.getNotViewed()).execute();
                 }
             }
         };
@@ -214,8 +218,8 @@ public class ActivityChat extends AppCompatActivity {
     public void setDateToDisplay(String dateToDisplay) {        this.dateToDisplay = dateToDisplay;    }
     public ArrayList<ObjectObjUser> getObjectUserArrayList() {        return objectUserArrayList;    }
     public void setObjectUserArrayList(ArrayList<ObjectObjUser> objectUserArrayList) {        this.objectUserArrayList = objectUserArrayList;    }
-
-
+    public ObjectObject getMyObject() {        return myObject;    }
+    public void setMyObject(ObjectObject myObject) {        this.myObject = myObject;    }
 
     private void setUpChatRoom(){
         attachMessageListener(chatRoomId);
@@ -244,6 +248,8 @@ public class ActivityChat extends AppCompatActivity {
         });
     }
 
+
+
     public void refresh(){
        txtChatParticipantCount.setText("+" + String.valueOf(objectUserArrayList.size()));
     }
@@ -255,7 +261,62 @@ public class ActivityChat extends AppCompatActivity {
         refresh();
     }
 
-    /*class HttpsRequestLockObject extends AsyncTask<String, Void, InputStream> {
+    public void getObjectDetailsAndDisplay(ObjectObject objectToDisplay) {
+
+        new HttpsRequestGetObjectDetails(this, myObject).execute();
+    }
+
+    class HttpsRequestViewObject extends AsyncTask<String, Void, InputStream> {
+        private static final String view_object_url = "view_object.php";
+
+        private Context context;
+        private String objectId, notVievedValue;
+        ObjectObject objectToDisplay;
+        Connector connector;
+
+        public HttpsRequestViewObject(Context ctx, ObjectObject obj, String objId, String value){
+            context  = ctx;
+            objectId = objId;
+            notVievedValue = value;
+            objectToDisplay = obj;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, view_object_url);
+            connector.addPostParameter("user_id",    Base64.encodeToString(MCrypt.encrypt(String.valueOf(myUser.getId()).getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("object_id",  Base64.encodeToString(MCrypt.encrypt(objectId.getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("not_viewed", Base64.encodeToString(MCrypt.encrypt(notVievedValue.getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            JSONObject responseObject;
+            try {
+                responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String lockStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String lockMsg    = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (lockStatus.equals("1")) {
+                    //getObjectDetailsAndDisplay(this.objectToDisplay);
+                }else{
+
+                }
+                //((ActivityObjectShow) context).onRefresh();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            getObjectDetailsAndDisplay(this.objectToDisplay);
+        }
+    }
+
+    class HttpsRequestLockObject extends AsyncTask<String, Void, InputStream> {
         private static final String lock_object_url = "lock_object.php";
 
         private Context context;
@@ -303,7 +364,7 @@ public class ActivityChat extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-    }*/
+    }
 
     class HttpsRequestSetObjectUser extends AsyncTask<String, Void, InputStream> {
         private static final String set_object_user_url = "set_object_user.php";
@@ -355,6 +416,59 @@ public class ActivityChat extends AppCompatActivity {
         }
     }
 
+    class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {
+        private static final String check_session_alive_url = "check_session_alive.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestCheckSessionAlive(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, check_session_alive_url);
+            connector.addPostParameter("user_id", MCrypt2.encodeToString(myUser.getId().toString()));
+            connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            connector.decodeResponse();
+
+            JSONObject object = null;
+            try {
+                object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                String status  = object.getString("status");
+                String msg     = object.getString("msg");
+                //String control = object.getString("control");
+                if (status.equals("1")) {
+
+                    //----get object list for calender events sync.
+                    //new HttpsRequestGetObjectDetails(context).execute();
+                    //findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    //enableWholeView(gridLayout);
+                }else{
+                    //session and last activity deleted in DB, app will log-out
+                    Toast.makeText(context, context.getResources().getString(R.string.session_expired), Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            super.onPostExecute(inputStream);
+        }
+    }
+
     class HttpsRequestGetObjectDetails extends AsyncTask<String, Void, InputStream> {
         private static final String get_object_details_url = "get_object_details.php";
 
@@ -375,7 +489,6 @@ public class ActivityChat extends AppCompatActivity {
         }
         public void setObjectUserArrayList(ArrayList<ObjectObjUser> objectUserArrayList) {
             this.objectUserArrayList = objectUserArrayList;
-            ((ActivityChat) context).setObjectUserArrayList(this.objectUserArrayList);
         }
         public ArrayList<ObjectObjDetails> getObjectDetailsArrayList() {
             return objectDetailsArrayList;
@@ -468,64 +581,22 @@ public class ActivityChat extends AppCompatActivity {
                         break;
                     }
                 }
+
+                //((ActivityChat)context).setObjectToDisplay(getClickObject());
+                Intent intent = new Intent(context, ActivityObjectEdit.class);
+                intent.putExtra("myUser", myUser);
+                intent.putExtra("objectObject", getClickObject());
+                intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
+                intent.putParcelableArrayListExtra("listtUser", getObjectUserArrayList());
+                intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
+                context.startActivity(intent);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            refresh();
-        }
-    }
 
-    class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {
-        private static final String check_session_alive_url = "check_session_alive.php";
-
-        private Context context;
-        Connector connector;
-
-        public HttpsRequestCheckSessionAlive(Context ctx){
-            context = ctx;
         }
 
-        @Override
-        protected InputStream doInBackground(String... strings) {
-
-            connector = new Connector(context, check_session_alive_url);
-            connector.addPostParameter("user_id", MCrypt2.encodeToString(myUser.getId().toString()));
-            connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
-            connector.send();
-            connector.receive();
-            connector.disconnect();
-            String result = connector.getResult();
-            result = result;
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(InputStream inputStream) {
-            connector.decodeResponse();
-
-            JSONObject object = null;
-            try {
-                object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
-                String status  = object.getString("status");
-                String msg     = object.getString("msg");
-                //String control = object.getString("control");
-                if (status.equals("1")) {
-
-                    //----get object list for calender events sync.
-                    //new HttpsRequestGetObjectDetails(context).execute();
-                    //findViewById(R.id.progressBar).setVisibility(View.GONE);
-                    //enableWholeView(gridLayout);
-                }else{
-                    //session and last activity deleted in DB, app will log-out
-                    Toast.makeText(context, context.getResources().getString(R.string.session_expired), Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            super.onPostExecute(inputStream);
-        }
     }
 
 }

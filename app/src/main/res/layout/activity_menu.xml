@@ -243,9 +243,11 @@
                                 style="@style/Menu_Item_LinearLayout"
                                 android:id="@+id/main_menu_user">
                                 <ImageView
+                                    android:id="@+id/maim_menu_user_img"
                                     style="@style/Menu_Item_ImageView"
                                     android:src="@drawable/ic_persons_white" />
                                 <TextView
+                                    android:id="@+id/main_menu_user_caption"
                                     style="@style/Menu_Item_EditText"
                                     android:text="@string/users" />
                             </LinearLayout>

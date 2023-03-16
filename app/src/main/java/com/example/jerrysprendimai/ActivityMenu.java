@@ -18,6 +18,7 @@ import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,12 +96,24 @@ public class ActivityMenu extends AppCompatActivity {
         //------------User_Show
         LinearLayout userLayout = (LinearLayout) findViewById(R.id.main_menu_user);
         userLayout.setOnClickListener(v -> {
-            this.backButtonCount = 0;
-            disableWholeView(gridLayout);
-            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-            Intent intent = new Intent(context, ActivityUserShow.class);
-            intent.putExtra("myUser", myUser);
-            context.startActivity(intent);
+            if ((myUser.getUser_lv().equals(admin)) || (myUser.getUser_lv().equals(owner))){
+                this.backButtonCount = 0;
+                disableWholeView(gridLayout);
+                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                Intent intent = new Intent(context, ActivityUserShow.class);
+                intent.putExtra("myUser", myUser);
+                context.startActivity(intent);
+            }else if (myUser.getUser_lv().equals(user)){
+                this.backButtonCount = 0;
+                disableWholeView(gridLayout);
+                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                Intent intent = new Intent(context, ActivityUserEdit.class);
+                ObjectUser objectUser = myUser;
+
+                intent.putExtra("myUserEdit", objectUser);
+                intent.putExtra("myUser", myUser);
+                context.startActivity(intent);
+            }
         });
 
         //------------Object_Show
@@ -133,7 +146,7 @@ public class ActivityMenu extends AppCompatActivity {
             this.backButtonCount = 0;
             disableWholeView(gridLayout);
             findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-            Intent intent = new Intent(context, ActivityChat.class);
+            Intent intent = new Intent(context, ActivityChatShow.class);
             intent.putExtra("myUser", myUser);
             intent.putParcelableArrayListExtra("myObjectList", myObjectList);
             context.startActivity(intent);
@@ -240,7 +253,11 @@ public class ActivityMenu extends AppCompatActivity {
         if (this.myUser.getUser_lv().equals(user)){
             ((CardView) findViewById(R.id.main_menu_user_indicator)).setCardBackgroundColor(getResources().getColor(R.color.teal_700));
             findViewById(R.id.CardView_main_menu_dealers).setVisibility(View.GONE);
-            findViewById(R.id.CardView_main_menu_user).setVisibility(View.GONE);
+            ImageView image = findViewById(R.id.maim_menu_user_img);
+            image.setImageResource(this.getResources().getIdentifier( "ic_person_white", "drawable", this.getApplicationInfo().packageName));
+            TextView caption = findViewById(R.id.main_menu_user_caption);
+            caption.setText(this.getResources().getString(R.string.my_profile));
+            //findViewById(R.id.CardView_main_menu_user).setVisibility(View.GONE);
         }else if(this.myUser.getUser_lv().equals(admin)){
             ((CardView) findViewById(R.id.main_menu_user_indicator)).setCardBackgroundColor(getResources().getColor(R.color.jerry_grey));
             findViewById(R.id.CardView_main_menu_dealers).setVisibility(View.VISIBLE);

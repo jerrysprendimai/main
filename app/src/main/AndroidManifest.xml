@@ -32,6 +32,9 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".ActivityChatShow"
+            android:exported="false" />
+        <activity
             android:name=".ActivityChat"
             android:exported="false" />
         <activity

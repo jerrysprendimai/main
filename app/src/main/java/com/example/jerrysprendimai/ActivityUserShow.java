@@ -286,6 +286,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
             super.onPostExecute(inputStream);
         }
     }
+
     class HttpsRequestGetUserList extends AsyncTask<String, Void, InputStream> {
         private static final String get_user_list_url = "get_user_list.php";
 
