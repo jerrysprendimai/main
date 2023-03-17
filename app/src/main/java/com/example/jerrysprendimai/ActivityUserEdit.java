@@ -7,9 +7,11 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
@@ -36,7 +38,7 @@ import java.util.ArrayList;
 
 public class ActivityUserEdit extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, TextWatcher, View.OnKeyListener, BottomNavigationView.OnNavigationItemSelectedListener, KeyboardVisibilityEventListener {
     CardView uytpeIndicator;
-    TextView uTypeLevelIndicatorText, uTypeLevelSwitchButtonText;
+    TextView uTypeLevelIndicatorText, uTypeLevelSwitchButtonText, uTopCaption;
     SwitchCompat uTypeButton;
     ImageView uSavedStatusIndicator;
     TextInputEditText uFirstName, uLastName, uUser, uPasswd, uRegDate, uLastLogin;
@@ -44,6 +46,10 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
     boolean needSave;
     BottomNavigationView bottomNavigationView;
     ProgressBar progressBar;
+
+    final String user = "user";
+    final String owner = "owner";
+    final String admin = "admin";
 
     ObjectUser objectUser;
     ObjectUser myUser;
@@ -63,6 +69,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
         this.uytpeIndicator             = findViewById(R.id.user_edit_utypeIndicator);
         this.uTypeLevelIndicatorText    = findViewById(R.id.user_edit_ulevel);
         this.uSavedStatusIndicator      = findViewById(R.id.user_edit_savedStatus_img);
+        this.uTopCaption                = findViewById(R.id.user_edit_top_caption);
         this.uUser                      = findViewById(R.id.user_edit_uname_value);
         this.uPasswd                    = findViewById(R.id.user_edit_upasswd_value);
         this.uTypeButton                = findViewById(R.id.user_edit_utype_switchButton);
@@ -157,17 +164,18 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
     }
     private void setUserLevelView() {
         if (this.myUser.getUser_lv().equals("user")){
-            this.uUser.setFocusable(false);
-            this.uUser.setFocusableInTouchMode(false);
-            this.uUser.setClickable(false);
-            this.uUser.setTextColor(ContextCompat.getColor(this, R.color.jerry_grey));
+            this.uUser.setFocusable(true);
+            this.uUser.setFocusableInTouchMode(true);
+            this.uUser.setClickable(true);
+            //this.uUser.setTextColor(ContextCompat.getColor(this, R.color.jerry_grey));
+
+            this.uTopCaption.setText(getResources().getString(R.string.my_profile));
 
             this.uTypeButton.setVisibility(View.GONE);
             this.uTypeLevelSwitchButtonText.setVisibility(View.GONE);
             this.uLastLogin.setVisibility(View.GONE);
         }else{
             this.uTypeLevelSwitchButtonText.setVisibility(View.VISIBLE);
-
             this.uTypeButton.setVisibility(View.VISIBLE);
         }
     }
@@ -393,6 +401,15 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                     ((ActivityUserEdit) context).objectUser.setReg_date(regDate);
                     ((ActivityUserEdit) context).uRegDate.setText(((ActivityUserEdit) context).objectUser.getReg_date());
                     ((ActivityUserEdit) context).objectUser.setId(Integer.parseInt(userId));
+
+                    if((myUser.getUser_lv().equals(user))){
+                        myUser.setFirst_name(objectUser.getFirst_name());
+                        myUser.setLast_name(objectUser.getLast_name());
+                        myUser.setUname(objectUser.getUname());
+                        myUser.setPasswd(objectUser.getPasswd());
+                        myUser.setPasswd(Base64.encodeToString(objectUser.getPasswd().getBytes(),  Base64.DEFAULT));
+                        ActivityMenu.setMyUser(myUser);
+                    }
 
                     Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
                 }else if(saveStatus.equals("2")){

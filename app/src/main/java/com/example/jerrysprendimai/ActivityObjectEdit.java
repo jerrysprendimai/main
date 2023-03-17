@@ -61,6 +61,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     private ArrayList<ObjectObjUser> objectUserArrayList;
     private ArrayList<ObjectObjDetails> objectDetailsArrayList;
     private ArrayList<ObjectObjPic> objectPicturesArrayList;
+
+    ArrayList<ObjectUser> employeeArrayList;
     BottomNavigationView bottomNavigationView;
     ObjectObject objectObject;
     ObjectUser myUser;
@@ -74,7 +76,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     CardView mainCardView;
     EditText editInvisibleFocusHolder;
     ImageView oSavedStatusIndicator, oObjectIcon;
-    Button oAddJob;
+    Button oAddJob, toChat;
     TextView oId, oNameLb, oDate, oDateLabel, oName, oCustomer, oAddress, oJobs, oJobsUserMode, oJobsDone, oJobsDoneUserMode, oProgressBarLabel, oProgressBarLabelUserMode;
     ProgressBar oProgressbar, oProgressbarUserMode;
 
@@ -130,6 +132,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oProgressBarLabel        = findViewById(R.id.objectEdit_progess_bar_label);
         this.oProgressBarLabelUserMode = findViewById(R.id.objectEdit_progess_bar_label_userMode);
         this.oAddJob                  = findViewById(R.id.objectEdit_add_job_button);
+        this.toChat                   = findViewById(R.id.objectEdit_to_chat_button);
         this.scrollView               = findViewById(R.id.objectEdit_job_scroll_view);
         this.oDeleteJobButton         = findViewById(R.id.objectEdit_delete_job);
         this.oDeleteJobButtonLayout   = findViewById(R.id.objectEdit_delete_job_layout);
@@ -148,6 +151,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         //---- Object Icon handling
         this.oObjectIcon.setImageResource(getResources().getIdentifier(objectObject.getIcon(), "drawable", getApplicationInfo().packageName));
+
+        this.employeeArrayList = new ArrayList<>();
 
         //---- Date Picker handling
         Context context = this;
@@ -262,6 +267,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     oDate.setVisibility(View.GONE);
                 }
             }
+            toChat.setVisibility(View.VISIBLE);
         });
         retractableLayoutLine.setSoundEffectsEnabled(false);
         retractableLayoutLine.setOnClickListener(v -> retractableButton.performClick());
@@ -293,6 +299,16 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             myAdapterObjectEdit.notifyDataSetChanged();
             oSavedStatusIndicator.setColorFilter(ContextCompat.getColor(this, R.color.jerry_yellow));
             setNeedSave(true);
+        });
+
+        //---- to Chat handling
+        toChat.setOnClickListener(v->{
+            Intent intent = new Intent(this, ActivityChat.class);
+            intent.putExtra("myUser", myUser);
+            intent.putExtra("objectObject", objectObject);
+            intent.putParcelableArrayListExtra("listUser", objectUserArrayList);
+            intent.putParcelableArrayListExtra("employeeList", getEmployeeArrayList());
+            context.startActivity(intent);
         });
 
         //-----------------Save-Cancel Menu Hide/Show depending on the Keyboard----------------
@@ -332,6 +348,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
     }
 
+    public ArrayList<ObjectUser> getEmployeeArrayList() {        return employeeArrayList;    }
+    public void setEmployeeArrayList(ArrayList<ObjectUser> employeeArrayList) {        this.employeeArrayList = employeeArrayList;    }
+
     public void handleUserMode(){
         Button retractableButton         = findViewById(R.id.objectEdit_retractable_button);
         LinearLayout userModeprogressBar = findViewById(R.id.objectEdit_progrss_bar_layout_userMode);
@@ -360,6 +379,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             oCustomer.setEnabled(true);
             oAddress.setEnabled(true);
         }
+        toChat.setVisibility(View.VISIBLE);
     }
 
     public void setSaveCancelVisibility(Boolean value){
@@ -1251,6 +1271,9 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            ((ActivityObjectEdit)context).setEmployeeArrayList(employeeArrayList);
+
             oDate.setText(getClickObject().getDate());
             oName.setText(getClickObject().getObjectName());
             oCustomer.setText(getClickObject().getCustomerName());

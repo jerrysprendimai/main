@@ -42,6 +42,8 @@ public class ActivityMenu extends AppCompatActivity {
     final String owner = "owner";
     final String admin = "admin";
 
+    public static ObjectUser objectUser;
+
     ArrayList<ObjectObject> myObjectList;
     ArrayList<ObjectObject> myObjectListOriginal;
 
@@ -108,13 +110,42 @@ public class ActivityMenu extends AppCompatActivity {
                 disableWholeView(gridLayout);
                 findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
                 Intent intent = new Intent(context, ActivityUserEdit.class);
-                ObjectUser objectUser = myUser;
 
+                ObjectUser objectUser = myUser;
+                try {
+                    String value = new String(Base64.decode(objectUser.getPasswd(), 0));
+                    objectUser.setPasswd(value);
+                }catch (Exception e){
+
+                }
                 intent.putExtra("myUserEdit", objectUser);
                 intent.putExtra("myUser", myUser);
                 context.startActivity(intent);
             }
         });
+        //------------User icon
+        View.OnClickListener userProfileListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                backButtonCount = 0;
+                disableWholeView(gridLayout);
+                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                Intent intent = new Intent(context, ActivityUserEdit.class);
+
+                ObjectUser objectUser = myUser;
+                try {
+                    String value = new String(Base64.decode(objectUser.getPasswd(), 0));
+                    objectUser.setPasswd(value);
+                }catch (Exception e){
+
+                }
+                intent.putExtra("myUserEdit", objectUser);
+                intent.putExtra("myUser", myUser);
+                context.startActivity(intent);
+            }
+        };
+        ((CardView) findViewById(R.id.main_menu_user_indicator)).setOnClickListener(userProfileListener);
+        ((LinearLayout) findViewById(R.id.main_menu_user_indicator_caption)).setOnClickListener(userProfileListener);
 
         //------------Object_Show
         ((TextView) findViewById(R.id.menu_caption_work)).setVisibility(View.GONE);
@@ -202,6 +233,10 @@ public class ActivityMenu extends AppCompatActivity {
         */
     }
 
+    public static void setMyUser(ObjectUser user){
+        ActivityMenu.objectUser = user;
+    }
+
     @SuppressLint("UseCompatLoadingForDrawables")
     public void disableWholeView(ViewGroup gridView){
         for (int i = 0; i < gridView.getChildCount(); i++) {
@@ -227,6 +262,13 @@ public class ActivityMenu extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        if(ActivityMenu.objectUser != null){
+            this.myUser.setFirst_name(ActivityMenu.objectUser.getFirst_name());
+            this.myUser.setLast_name(ActivityMenu.objectUser.getLast_name());
+            this.myUser.setUname(ActivityMenu.objectUser.getUname());
+            this.myUser.setPasswd(ActivityMenu.objectUser.getPasswd());
+            ActivityMenu.setMyUser(null);
+        }
         this.backButtonCount = 0;
         new HttpsRequestCheckSessionAlive(this).execute();
 

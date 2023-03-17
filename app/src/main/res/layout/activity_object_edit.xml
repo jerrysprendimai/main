@@ -139,56 +139,91 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-
-
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginBottom="8dp"
-                            android:orientation="vertical">
-                            <TextView
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="5dp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="8dp"
+                                android:layout_weight="3"
+                                android:orientation="vertical">
+
+                               <TextView
                                 android:id="@+id/objectEdit_date_label"
                                 style="@style/recycleView_Item_Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="left"
-                                android:includeFontPadding="false"
                                 android:fontFamily="@font/poppinsmedium"
                                 android:hint="@string/job_begin"
-                                android:textStyle="normal"
-                                android:textSize="12sp"/>
-                            <TextView
+                                android:includeFontPadding="false"
+                                android:textSize="12sp"
+                                android:textStyle="normal" />
+
+                               <TextView
                                 android:id="@+id/objectEdit_date"
                                 style="?android:attr/listSeparatorTextViewStyle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="left"
+                                android:layout_marginLeft="5dp"
                                 android:drawableEnd="@drawable/ic_calendar_white"
                                 android:drawableTint="@color/jerry_blue"
-                                android:includeFontPadding="false"
                                 android:ems="6"
                                 android:fontFamily="@font/poppinsmedium"
                                 android:hint="2021-04-22"
-                                android:textSize="12sp"
-                                android:layout_marginLeft="5dp"/>
+                                android:includeFontPadding="false"
+                                android:textSize="12sp" />
+
                         </LinearLayout>
-                        <Button
-                            android:id="@+id/objectEdit_add_job_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp"
-                            android:layout_gravity="right|top"
-                            android:background="@drawable/round_button"
-                            android:drawableRight="@drawable/ic_add_white"
-                            android:layout_marginTop="-40dp"
-                            android:layout_marginRight="10dp"
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp"
-                            android:text="@string/add_job"
-                            android:textAllCaps="false"
-                            android:textColor="@color/white"
-                            android:textSize="12sp" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal"
+                                android:layout_gravity="center"
+                                android:layout_marginLeft="5dp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="8dp"
+                                android:layout_weight="2">
+                                <Button
+                                    android:id="@+id/objectEdit_to_chat_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="30dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/round_button"
+                                    android:drawableRight="@drawable/ic_chat_white"
+                                    android:layout_marginTop="0dp"
+                                    android:layout_marginRight="10dp"
+                                    android:paddingLeft="10dp"
+                                    android:paddingRight="10dp"
+                                    android:text="@string/chat"
+                                    android:textAllCaps="false"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp" />
+                                <Button
+                                    android:id="@+id/objectEdit_add_job_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="30dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/round_button"
+                                    android:drawableRight="@drawable/ic_add_white"
+                                    android:layout_marginTop="0dp"
+                                    android:layout_marginRight="10dp"
+                                    android:paddingLeft="10dp"
+                                    android:paddingRight="10dp"
+                                    android:text="@string/add_job"
+                                    android:textAllCaps="false"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
                         <LinearLayout
                             android:id="@+id/objectEdit_progrss_bar_layout_userMode"
                             android:layout_width="wrap_content"
