@@ -409,7 +409,13 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                         myUser.setPasswd(objectUser.getPasswd());
                         myUser.setPasswd(Base64.encodeToString(objectUser.getPasswd().getBytes(),  Base64.DEFAULT));
                         ActivityMenu.setMyUser(myUser);
+
+                        //----check if single-sign-on needs to be updated
+                        SQLiteSSO.compare(context, myUser);
                     }
+
+
+
 
                     Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
                 }else if(saveStatus.equals("2")){

@@ -17,9 +17,12 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+
 
     <application
         android:allowBackup="true"
@@ -68,17 +71,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.ActivityLogin" />
                 <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ActivityMain"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
+                <action android:name=".ActivityMain" />
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -91,6 +94,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_path" />
         </provider>
+        <service android:name=".PushNotificationService"
+                 android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

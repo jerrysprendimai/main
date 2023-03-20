@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 public class ObjectObjUser implements Parcelable {
     private Integer id, objectId, userId;
-    private String assignmentDate, assigmentUserId, uname, fName, lName;
+    private String assignmentDate, assigmentUserId, uname, fName, lName, token;
 
     protected ObjectObjUser(Parcel in) {
         if (in.readByte() == 0) {
@@ -31,21 +31,7 @@ public class ObjectObjUser implements Parcelable {
         uname = in.readString();
         fName = in.readString();
         lName = in.readString();
-    }
-    public static final Creator<ObjectObjUser> CREATOR = new Creator<ObjectObjUser>() {
-        @Override
-        public ObjectObjUser createFromParcel(Parcel in) {
-            return new ObjectObjUser(in);
-        }
-
-        @Override
-        public ObjectObjUser[] newArray(int size) {
-            return new ObjectObjUser[size];
-        }
-    };
-    @Override
-    public int describeContents() {
-        return 0;
+        token = in.readString();
     }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -72,7 +58,23 @@ public class ObjectObjUser implements Parcelable {
         dest.writeString(uname);
         dest.writeString(fName);
         dest.writeString(lName);
+        dest.writeString(token);
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    public static final Creator<ObjectObjUser> CREATOR = new Creator<ObjectObjUser>() {
+        @Override
+        public ObjectObjUser createFromParcel(Parcel in) {
+            return new ObjectObjUser(in);
+        }
+
+        @Override
+        public ObjectObjUser[] newArray(int size) {
+            return new ObjectObjUser[size];
+        }
+    };
 
     public ObjectObjUser(){
         this.id              = -1;
@@ -83,6 +85,7 @@ public class ObjectObjUser implements Parcelable {
         this.uname           = "";
         this.fName           = "";
         this.lName           = "";
+        this.token           = "";
     }
 
     public ObjectObjUser(JSONObject obj){
@@ -95,6 +98,7 @@ public class ObjectObjUser implements Parcelable {
             this.uname           = obj.getString("User");
             this.fName           = obj.getString("FirstName");
             this.lName           = obj.getString("LastName");
+            this.token           = obj.getString("Token");
         }catch (JSONException e) {
             e.printStackTrace();
         }
@@ -136,9 +140,7 @@ public class ObjectObjUser implements Parcelable {
         return assigmentUserId;
     }
 
-    public void setAssigmentUserId(String assigmentUserId) {
-        this.assigmentUserId = assigmentUserId;
-    }
+    public void setAssigmentUserId(String assigmentUserId) {        this.assigmentUserId = assigmentUserId;    }
 
     public String getUname() {
         return uname;
@@ -163,4 +165,8 @@ public class ObjectObjUser implements Parcelable {
     public void setlName(String lName) {
         this.lName = lName;
     }
+
+    public String getToken() {        return token;    }
+
+    public void setToken(String token) {        this.token = token;    }
 }

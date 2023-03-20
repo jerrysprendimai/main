@@ -63,6 +63,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
     private ArrayList<ObjectObjPic> objectPicturesArrayList;
 
     ArrayList<ObjectUser> employeeArrayList;
+    ArrayList<ObjectUser> ownerArrayList;
     BottomNavigationView bottomNavigationView;
     ObjectObject objectObject;
     ObjectUser myUser;
@@ -308,6 +309,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             intent.putExtra("objectObject", objectObject);
             intent.putParcelableArrayListExtra("listUser", objectUserArrayList);
             intent.putParcelableArrayListExtra("employeeList", getEmployeeArrayList());
+            intent.putParcelableArrayListExtra("ownerList", getOwnerArrayList());
             context.startActivity(intent);
         });
 
@@ -350,6 +352,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
     public ArrayList<ObjectUser> getEmployeeArrayList() {        return employeeArrayList;    }
     public void setEmployeeArrayList(ArrayList<ObjectUser> employeeArrayList) {        this.employeeArrayList = employeeArrayList;    }
+    public ArrayList<ObjectUser> getOwnerArrayList() {        return ownerArrayList;    }
+    public void setOwnerArrayList(ArrayList<ObjectUser> ownerArrayList) {        this.ownerArrayList = ownerArrayList;    }
 
     public void handleUserMode(){
         Button retractableButton         = findViewById(R.id.objectEdit_retractable_button);
@@ -1212,6 +1216,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> ownerArrayList = new ArrayList<>();
             ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
 
             JSONArray responseObjDetails = new JSONArray();
@@ -1219,6 +1224,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             JSONArray responseObjPic     = new JSONArray();
             JSONArray responseEmployee   = new JSONArray();
             JSONArray responseObject     = new JSONArray();
+            JSONArray responseOwners     = new JSONArray();
             Integer completeCount = 0;
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
@@ -1226,6 +1232,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                 responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
                 responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
                 responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
+                responseOwners     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(5));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -1268,11 +1275,17 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                         break;
                     }
                 }
+
+                for(int i = 0; i<responseOwners.length(); i++){
+                    ObjectUser objectUser = new ObjectUser((JSONObject) responseOwners.get(i));
+                    ownerArrayList.add(objectUser);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             ((ActivityObjectEdit)context).setEmployeeArrayList(employeeArrayList);
+            ((ActivityObjectEdit)context).setOwnerArrayList(ownerArrayList);
 
             oDate.setText(getClickObject().getDate());
             oName.setText(getClickObject().getObjectName());

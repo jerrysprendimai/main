@@ -24,12 +24,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.inappmessaging.internal.ApiClient;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +49,7 @@ public class ActivityChat extends AppCompatActivity {
     private ObjectObject myObject;
     private ArrayList<ObjectObjUser> objectUserArrayList;
     private ArrayList<ObjectUser> employeeList;
+    private ArrayList<ObjectUser> ownerList;
     private ArrayList<ObjectObject> myObjectList;
     private ArrayList<ObjectObject> myObjectListOriginal;
     private ArrayList<String> myDisplayDates;
@@ -91,6 +96,7 @@ public class ActivityChat extends AppCompatActivity {
         this.myObject = getIntent().getParcelableExtra("objectObject");
         this.objectUserArrayList  = getIntent().getParcelableArrayListExtra("listUser");
         this.employeeList         = getIntent().getParcelableArrayListExtra("employeeList");
+        this.ownerList            = getIntent().getParcelableArrayListExtra("ownerList");
 
         //----Initialize screen values
         myDisplayDates = new ArrayList<>();
@@ -100,6 +106,16 @@ public class ActivityChat extends AppCompatActivity {
         txtChattingAbout2.setText(myObject.getObjectAddress());
         txtChatParticipantCount.setText("+" + String.valueOf(this.objectUserArrayList.size()));
 
+        ArrayList<ObjectMessage.User> userSeenArrayList = new ArrayList<>();
+        String[] temp = {"1","2","3"};
+        //ArrayList<String> data = new ArrayList<>();
+        for (int i=0; i< getObjectUserArrayList().size(); i++){
+            //data.add(getObjectUserArrayList().get(i).getUserId().toString(), false);
+            userSeenArrayList.add(new ObjectMessage.User(getObjectUserArrayList().get(i).getUserId().toString(), false));
+        }
+        for(int i=0; i<getOwnerList().size(); i++){
+            userSeenArrayList.add(new ObjectMessage.User(getOwnerList().get(i).getId().toString(), false));
+        }
         //----Listeners
         sendButton.setOnClickListener(v->{
             FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).push().setValue(new ObjectMessage(myUser.getFirst_name(),
@@ -109,7 +125,43 @@ public class ActivityChat extends AppCompatActivity {
                                                                                                                         HelperDate.get_current_date_disply(),
                                                                                                                         Calendar.getInstance().getTime().toString(),
                                                                                                                         String.valueOf(Calendar.getInstance().getTimeInMillis()),
-                                                                                                                        myUser.getUser_lv()));
+                                                                                                                        myUser.getUser_lv()
+                                                                                                                        ));
+            //----send notification
+            String title   = myObject.getObjectName()+"   #"+myObject.getId().toString();
+            String message = myUser.getFirst_name() +": "+editMessageInput.getText().toString();//messages.get(messages.size()-1).getFirstName() +": "+ messages.get(messages.size()).getContent();
+            for (int i=0; i< getObjectUserArrayList().size(); i++){
+                ObjectObjUser objectObjUser = getObjectUserArrayList().get(i);
+                Integer userListId = getObjectUserArrayList().get(i).getUserId();
+                Integer myUserId = myUser.getId();
+                if((!getObjectUserArrayList().get(i).getToken().isEmpty()) &&
+                   (!getObjectUserArrayList().get(i).getUserId().equals(myUser.getId()))){
+
+                    FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
+                            getObjectUserArrayList().get(i).getToken(),
+                            title,
+                            message,
+                            getApplicationContext(),
+                            ActivityMain.getActivityMain());
+                    notificationsSender.SendNotifications();
+                }
+            }
+            for(int i=0; i<getOwnerList().size(); i++){
+                ObjectUser objectOwner = getOwnerList().get(i);
+                Integer ownerListId = getOwnerList().get(i).getId();
+                Integer myUserId = myUser.getId();
+                if((!getOwnerList().get(i).getToken().isEmpty()) &&
+                        (!getOwnerList().get(i).getId().equals(myUser.getId()))){
+
+                    FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
+                            getOwnerList().get(i).getToken(),
+                            title,
+                            message,
+                            getApplicationContext(),
+                            ActivityMain.getActivityMain());
+                    notificationsSender.SendNotifications();
+                }
+            }
             editMessageInput.setText("");
         });
 
@@ -161,7 +213,26 @@ public class ActivityChat extends AppCompatActivity {
         recyclerView.setAdapter(myAdapterMessage);
         setUpChatRoom();
 
-        /*
+
+       /* FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            System.out.println("Fetching FCM registration token failed");
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        //System.out.println(token);
+                        //Toast.makeText(context, "token " + token, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
         FirebaseDatabase.getInstance().getReference("objects/").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -210,8 +281,6 @@ public class ActivityChat extends AppCompatActivity {
         return value;
     }
 
-
-
     public String getCurrentDate() {        return currentDate;    }
     public void setCurrentDate(String currentDate) {        this.currentDate = currentDate;    }
     public String getDateToDisplay() {        return dateToDisplay;    }
@@ -220,6 +289,8 @@ public class ActivityChat extends AppCompatActivity {
     public void setObjectUserArrayList(ArrayList<ObjectObjUser> objectUserArrayList) {        this.objectUserArrayList = objectUserArrayList;    }
     public ObjectObject getMyObject() {        return myObject;    }
     public void setMyObject(ObjectObject myObject) {        this.myObject = myObject;    }
+    public ArrayList<ObjectUser> getOwnerList() {        return ownerList;    }
+    public void setOwnerList(ArrayList<ObjectUser> ownerList) {        this.ownerList = ownerList;    }
 
     private void setUpChatRoom(){
         attachMessageListener(chatRoomId);
@@ -239,6 +310,7 @@ public class ActivityChat extends AppCompatActivity {
                 recyclerView.scrollToPosition(messages.size() - 1);
                 recyclerView.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
+
             }
 
             @Override
@@ -249,7 +321,9 @@ public class ActivityChat extends AppCompatActivity {
     }
 
 
+    public void sendNotification(String messageBody){
 
+    }
     public void refresh(){
        txtChatParticipantCount.setText("+" + String.valueOf(objectUserArrayList.size()));
     }
@@ -530,6 +604,7 @@ public class ActivityChat extends AppCompatActivity {
             ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> ownerArrayList = new ArrayList<>();
             ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
 
             JSONArray responseObjDetails = new JSONArray();
@@ -537,6 +612,7 @@ public class ActivityChat extends AppCompatActivity {
             JSONArray responseObjPic     = new JSONArray();
             JSONArray responseEmployee   = new JSONArray();
             JSONArray responseObject     = new JSONArray();
+            JSONArray responseOwners      = new JSONArray();
             Integer completeCount = 0;
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
@@ -544,6 +620,7 @@ public class ActivityChat extends AppCompatActivity {
                 responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
                 responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
                 responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
+                responseOwners     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(5));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -580,6 +657,11 @@ public class ActivityChat extends AppCompatActivity {
                         setClickObject(updatedObject);
                         break;
                     }
+                }
+
+                for(int i = 0; i<responseOwners.length(); i++){
+                    ObjectUser objectUser = new ObjectUser((JSONObject) responseOwners.get(i));
+                    ownerArrayList.add(objectUser);
                 }
 
                 //((ActivityChat)context).setObjectToDisplay(getClickObject());

@@ -1,5 +1,6 @@
 package com.example.jerrysprendimai;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -35,7 +36,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dcastalia.localappupdate.DownloadApk;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,7 +48,7 @@ import java.io.File;
 import java.io.InputStream;
 
 public class ActivityLogin extends AppCompatActivity {
-
+    public static String mytoken = "";
     private final String appUrl = "https://jerry-sprendimai.eu/misc/jerry.apk";
 
     Integer backButtonCount = 0;
@@ -79,29 +83,38 @@ public class ActivityLogin extends AppCompatActivity {
         buttonLogin      = findViewById(R.id.loginButton);
         shiftContainer   = findViewById(R.id.shift_container);
 
-        //----------to remove
-        //loginUser.setText("admin");
-        //loginPassword.setText("admin");
-
         context = this;
-        buttonLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        buttonLogin.setOnClickListener(v -> {
 
-                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                findViewById(R.id.loginUser).setEnabled(false);
-                findViewById(R.id.loginPassword).setEnabled(false);
-                findViewById(R.id.loginButton).setEnabled(false);
-                background = ((Button) findViewById(R.id.loginButton)).getBackground();
-                ((Button) findViewById(R.id.loginButton)).setBackground(getDrawable(R.drawable.button_disabled));
-                new HttpsLoginRequest(context).execute();
-            }
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            findViewById(R.id.loginUser).setEnabled(false);
+            findViewById(R.id.loginPassword).setEnabled(false);
+            findViewById(R.id.loginButton).setEnabled(false);
+            background = ((Button) findViewById(R.id.loginButton)).getBackground();
+            ((Button) findViewById(R.id.loginButton)).setBackground(getDrawable(R.drawable.button_disabled));
+            new HttpsLoginRequest(context).execute();
         });
 
         //------------------Settings handling
         settingsTxt = (TextView)findViewById(R.id.login_settings);
         settingsTxt.setOnClickListener(this::onSettings);
+
+        //----------initialize singel sign on
+        SQLiteSSO dbSSO = new SQLiteSSO(context);
+        String[] ssoValues = dbSSO.getData();
+        dbSSO.close();
+        if ((!ssoValues[0].equals(""))&&(!ssoValues[1].equals(""))&&(!ssoValues[2].equals(""))){
+            loginUser.setText(ssoValues[1]);
+            loginPassword.setText(ssoValues[2]);
+            buttonLogin.setSoundEffectsEnabled(false);
+            buttonLogin.performClick();
+            buttonLogin.setSoundEffectsEnabled(true);
+        }
+
     }
+
+    public static String getMytoken() {       return mytoken;    }
+    public static void setMytoken(String mytoken) {        ActivityLogin.mytoken = mytoken;    }
 
     private void onSettings(View view) {
         this.startActivity(new Intent((Context) this, ActivitySettings.class));
@@ -162,6 +175,7 @@ public class ActivityLogin extends AppCompatActivity {
                 connector = new Connector(context, login_url);
                 connector.addPostParameter("user_name", user);
                 connector.addPostParameter("password", passwd);
+                connector.addPostParameter("token", ActivityLogin.getMytoken());
                 connector.send();
                 connector.receive();
                 connector.disconnect();

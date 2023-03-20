@@ -1,8 +1,12 @@
 package com.example.jerrysprendimai;
 
+import java.util.ArrayList;
+
 public class ObjectMessage {
 
     private String firstName, uname, userId, content, date, time, mills, userLv;
+    private String[] tmp;
+    private ArrayList<ObjectMessage.User> userSeen;
 
     public ObjectMessage(String firstName, String uname, String userId, String content, String date, String time, String mills, String userLv) {
         this.firstName = firstName;
@@ -13,9 +17,24 @@ public class ObjectMessage {
         this.time = time;
         this.mills = mills;
         this.userLv = userLv;
+        //this.tmp = tmp;
     }
 
     public ObjectMessage() {
+    }
+
+    public static class User{
+        String userId;
+        boolean seen;
+
+        public User(String userId, boolean seen) {
+            this.userId = userId;
+            this.seen = seen;
+        }
+        public String getUserId() {            return userId;        }
+        public void setUserId(String userId) { this.userId = userId;        }
+        public boolean isSeen() {              return seen;        }
+        public void setSeen(boolean seen) {    this.seen = seen;        }
     }
 
     public String getUserLv() {        return userLv;    }

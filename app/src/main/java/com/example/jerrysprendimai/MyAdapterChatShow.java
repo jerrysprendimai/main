@@ -140,13 +140,15 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
             ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> ownerArrayList = new ArrayList<>();
             ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
 
-            JSONArray responseObjDetails = new JSONArray();
-            JSONArray responseObjUser    = new JSONArray();
-            JSONArray responseObjPic     = new JSONArray();
-            JSONArray responseEmployee   = new JSONArray();
-            JSONArray responseObject     = new JSONArray();
+            JSONArray responseObjDetails  = new JSONArray();
+            JSONArray responseObjUser     = new JSONArray();
+            JSONArray responseObjPic      = new JSONArray();
+            JSONArray responseEmployee    = new JSONArray();
+            JSONArray responseObject      = new JSONArray();
+            JSONArray responseOwners      = new JSONArray();
             Integer completeCount = 0;
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
@@ -154,6 +156,7 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
                 responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
                 responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
                 responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
+                responseOwners     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(5));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -191,13 +194,17 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
                         break;
                     }
                 }
-
+                for(int i = 0; i<responseOwners.length(); i++){
+                    ObjectUser objectUser = new ObjectUser((JSONObject) responseOwners.get(i));
+                    ownerArrayList.add(objectUser);
+                }
 
                 Intent intent = new Intent(context, ActivityChat.class);
                 intent.putExtra("myUser", myUser);
                 intent.putExtra("objectObject", getClickObject());
                 intent.putParcelableArrayListExtra("listUser", getObjectUserArrayList());
                 intent.putParcelableArrayListExtra("employeeList", employeeArrayList);
+                intent.putParcelableArrayListExtra("ownerList", ownerArrayList);
                 context.startActivity(intent);
 
             } catch (JSONException e) {

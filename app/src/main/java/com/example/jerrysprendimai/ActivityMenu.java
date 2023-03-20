@@ -81,6 +81,9 @@ public class ActivityMenu extends AppCompatActivity {
         userTypeTextView.setText(this.myUser.getUser_lv());
         userTypeTextView.setHint("");
 
+        //--------------check single-sign-on
+        SQLiteSSO.compare(this, myUser);
+
         //--------------set user view visibility
         setUserLevelView();
 
@@ -192,8 +195,6 @@ public class ActivityMenu extends AppCompatActivity {
         supplierCard.setVisibility(View.GONE);
         LinearLayout supplierLayout = (LinearLayout) findViewById(R.id.main_menu_dealers);
         supplierLayout.setVisibility(View.GONE);
-
-
 
         //----cehck calendar permission
         boolean permissionOk = true;
@@ -400,6 +401,22 @@ public class ActivityMenu extends AppCompatActivity {
             findViewById(R.id.progressBar).setVisibility(View.GONE);
             enableWholeView(gridLayout);
 
+            //-------Notification click handling
+            String objectId = ((ActivityMenu)context).getIntent().getParcelableExtra("chatObjID");
+            ObjectObject obj = null;
+            if(objectId != null){
+                for(int i=0; i<myObjectList.size();i++){
+                    if(objectId.equals(myObjectList.get(i).getId().toString())){
+                        obj = myObjectList.get(i);
+                        break;
+                    }
+                }
+               if(obj != null){
+                   new HttpsRequestGetObjectDetails(context, obj).execute();
+               }
+
+            }
+
             super.onPostExecute(inputStream);
         }
 
@@ -469,6 +486,122 @@ public class ActivityMenu extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            super.onPostExecute(inputStream);
+        }
+    }
+
+    class HttpsRequestGetObjectDetails extends AsyncTask<String, Void, InputStream> {
+        private static final String get_object_details_url = "get_object_details.php";
+
+        private Context context;
+        private ObjectObject clickObject;
+        Connector connector;
+
+        public HttpsRequestGetObjectDetails(Context ctx, ObjectObject obj){
+            context     = ctx;
+            clickObject = obj;
+        }
+
+        public ObjectObject getClickObject() { return clickObject; }
+        public void setClickObject(ObjectObject clickObject) { this.clickObject = clickObject; }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+            connector = new Connector(context, get_object_details_url);
+            connector.addPostParameter("object_id", Base64.encodeToString(MCrypt.encrypt(String.valueOf(clickObject.getId()).getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+
+            //connector.decodeResponse();
+            ArrayList<ObjectObjUser> objUserArrayList = new ArrayList<>();
+            ArrayList<ObjectObjDetails> objDetailsArrayList = new ArrayList<>();
+            ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> ownerArrayList = new ArrayList<>();
+            ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
+
+            JSONArray responseObjDetails = new JSONArray();
+            JSONArray responseObjUser    = new JSONArray();
+            JSONArray responseObjPic     = new JSONArray();
+            JSONArray responseEmployee   = new JSONArray();
+            JSONArray responseObject     = new JSONArray();
+            JSONArray responseOwners     = new JSONArray();
+            Integer completeCount = 0;
+            try {
+                responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
+                responseObjUser    = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(1));
+                responseObjPic     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(2));
+                responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
+                responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
+                responseOwners     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(5));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            try{
+                for(int i = 0; i < responseObjDetails.length(); i++){
+                    ObjectObjDetails objectObjDetails = new ObjectObjDetails((JSONObject) responseObjDetails.get(i));
+                    objDetailsArrayList.add(objectObjDetails);
+                    if(objectObjDetails.getCompleted().equals("X")){
+                        completeCount += 1;
+                    }
+                }
+                //getObjectDetailsArrayList().removeAll(getObjectDetailsArrayList());
+                //getObjectDetailsArrayList().addAll(objDetailsArrayList);
+                //setObjectDetailsArrayList(objDetailsArrayList);
+
+                for(int i = 0; i < responseObjUser.length(); i++){
+                    ObjectObjUser objectObjUser = new ObjectObjUser((JSONObject) responseObjUser.get(i));
+                    objUserArrayList.add(objectObjUser);
+                }
+                //setObjectUserArrayList(objUserArrayList);
+
+                for(int i = 0; i < responseObjPic.length(); i++){
+                    ObjectObjPic objectObjPic = new ObjectObjPic((JSONObject) responseObjPic.get(i));
+                    objPicsArrayList.add(objectObjPic);
+                }
+
+                //getObjectPicturesArrayList().removeAll(getObjectPicturesArrayList());
+                //getObjectPicturesArrayList().addAll(objPicsArrayList);
+                //setObjectPicturesArrayList(objPicsArrayList);
+
+                for(int i =0; i < responseEmployee.length(); i++){
+                    ObjectUser objectUser = new ObjectUser((JSONObject) responseEmployee.get(i));
+                    employeeArrayList.add(objectUser);
+                }
+
+                for(int i = 0; i < responseObject.length(); i++ ){
+                    ObjectObject updatedObject = new ObjectObject((JSONObject) responseObject.get(i), "wa");
+                    if(updatedObject != null){
+                        setClickObject(updatedObject);
+                        break;
+                    }
+                }
+
+                for(int i = 0; i<responseOwners.length(); i++){
+                    ObjectUser objectUser = new ObjectUser((JSONObject) responseOwners.get(i));
+                    ownerArrayList.add(objectUser);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            Intent intent = new Intent(context, ActivityChat.class);
+            intent.putExtra("myUser", myUser);
+            intent.putExtra("objectObject", clickObject);
+            intent.putParcelableArrayListExtra("listUser", objUserArrayList);
+            intent.putParcelableArrayListExtra("employeeList", employeeArrayList);
+            intent.putParcelableArrayListExtra("ownerList", ownerArrayList);
+            context.startActivity(intent);
+
             super.onPostExecute(inputStream);
         }
     }

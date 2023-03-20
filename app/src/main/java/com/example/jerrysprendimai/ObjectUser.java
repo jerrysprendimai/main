@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 public class ObjectUser implements Parcelable {
     private Integer id;
-    private String email, uname, type, locked, first_name, last_name, passwd, reg_date, last_login, user_lv, sessionId, last_action;
+    private String email, uname, type, locked, first_name, last_name, passwd, reg_date, last_login, user_lv, sessionId, last_action, token;
 
     private Boolean checked;
 
@@ -33,6 +33,7 @@ public class ObjectUser implements Parcelable {
         user_lv = in.readString();
         sessionId = in.readString();
         last_action = in.readString();
+        token = in.readString();
         byte tmpChecked = in.readByte();
         checked = tmpChecked == 0 ? null : tmpChecked == 1;
     }
@@ -71,6 +72,7 @@ public class ObjectUser implements Parcelable {
         dest.writeString(user_lv);
         dest.writeString(sessionId);
         dest.writeString(last_action);
+        dest.writeString(token);
         dest.writeByte((byte) (checked == null ? 0 : checked ? 1 : 2));
     }
 
@@ -88,6 +90,7 @@ public class ObjectUser implements Parcelable {
         this.user_lv     = "";
         this.checked     = false;
         this.last_action = "";
+        this.token       = "";
     }
 
     public ObjectUser(JSONObject obj){
@@ -100,34 +103,57 @@ public class ObjectUser implements Parcelable {
             this.first_name  = MCrypt.decryptSingle(obj.getString("first_name"));
             this.last_name   = MCrypt.decryptSingle(obj.getString("last_name"));
             this.passwd      = MCrypt.decryptDouble(obj.getString("passwd"));
-            this.reg_date    = HelperDate.get_date_display(MCrypt.decryptSingle(obj.getString("reg_date")));
-            this.last_login  = HelperDate.get_timestamp_display(MCrypt.decryptSingle(obj.getString("last_login")));
-            this.user_lv     = MCrypt.decryptSingle(obj.getString("user_lv"));
-            this.sessionId   = MCrypt.decryptSingle(obj.getString("session"));
-            this.last_action = MCrypt.decryptSingle(obj.getString("last_activity"));
-            this.checked    = false;
-
+            try {this.reg_date    = HelperDate.get_date_display(MCrypt.decryptSingle(obj.getString("reg_date")));
+            }catch (Exception e){}
+            try {this.last_login  = HelperDate.get_timestamp_display(MCrypt.decryptSingle(obj.getString("last_login")));
+            }catch (Exception e){}
+            try { this.user_lv     = MCrypt.decryptSingle(obj.getString("user_lv"));
+            }catch (Exception e){}
+            try { this.sessionId   = MCrypt.decryptSingle(obj.getString("session"));
+            }catch (Exception e){}
+            try { this.last_action = MCrypt.decryptSingle(obj.getString("last_activity"));
+            }catch (Exception e){}
+            try { this.token       = MCrypt.decryptSingle(obj.getString("token"));
+            }catch (Exception e){}
+            try { this.checked     = false;
+            }catch (Exception e){}
         }catch (Exception e){
             try{
-                this.id          = Integer.parseInt(obj.getString("id"));
-                this.uname       = obj.getString("User");
-                this.email       = obj.getString("Email");
-                this.type        = obj.getString("Type");
-                this.locked      = obj.getString("Locked");
-                this.first_name  = obj.getString("FirstName");
-                this.last_name   = obj.getString("LastName");
-                this.passwd      = obj.getString("Passwd");
-                this.reg_date    = HelperDate.get_date_display(obj.getString("RegDate"));
-                this.last_login  = HelperDate.get_timestamp_display(obj.getString("LastLogin"));
-                this.user_lv     = obj.getString("user_lv");
-                this.sessionId   = obj.getString("Session");
-                this.last_action = obj.getString("LastActivity");
+                try {this.id          = Integer.parseInt(obj.getString("id"));
+                }catch (Exception ee){}
+                try { this.uname       = obj.getString("User");
+                }catch (Exception ee){}
+                try {this.email       = obj.getString("Email");
+                }catch (Exception ee){}
+                try { this.type        = obj.getString("Type");
+                }catch (Exception ee){}
+                try {this.first_name  = obj.getString("FirstName");
+                }catch (Exception ee){}
+                try {this.last_name   = obj.getString("LastName");
+                }catch (Exception ee){}
+                try { this.passwd      = obj.getString("Passwd");
+                }catch (Exception ee){}
+                try {this.locked      = obj.getString("Locked");
+                }catch (Exception ee){}
+                try {this.reg_date    = HelperDate.get_date_display(obj.getString("RegDate"));
+                }catch (Exception ee){}
+                try {this.last_login  = HelperDate.get_timestamp_display(obj.getString("LastLogin"));
+                }catch (Exception ee){}
+                try {this.user_lv     = obj.getString("user_lv");
+                }catch (Exception ee){}
+                try {this.sessionId   = obj.getString("Session");
+                }catch (Exception ee){}
+                try {this.last_action = obj.getString("LastActivity");
+                }catch (Exception ee){}
+                try { this.token       = obj.getString("Token");
+                }catch (Exception ee){}
                 this.checked    = false;
             }catch (Exception ee) {
                 ee.printStackTrace();
             }
         }
     }
+
     public int getUserLevelIndicatorColor(Context context) {
         Integer color = null;
         if (this.getType().equals("1")){
@@ -285,5 +311,8 @@ public class ObjectUser implements Parcelable {
 
     public void setLast_action(String last_action) {        this.last_action = last_action;    }
 
+    public String getToken() {        return token;    }
+
+    public void setToken(String token) {        this.token = token;    }
 
 }
