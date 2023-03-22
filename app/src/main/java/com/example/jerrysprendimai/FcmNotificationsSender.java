@@ -22,6 +22,8 @@ public class FcmNotificationsSender  {
     String userFcmToken;
     String title;
     String body;
+    String objectId;
+    String icon;
     Context mContext;
     Activity mActivity;
 
@@ -30,13 +32,14 @@ public class FcmNotificationsSender  {
     private final String postUrl = "https://fcm.googleapis.com/fcm/send";
     private final String fcmServerKey ="AAAAaXPNpzc:APA91bEvwAClQaJKlRYcp-6HE7BM7FToi7pOf7u8DgRTtapye9KxcscnZ7WunZJE9fES1GPHaAVfvkacNyP6NY4p5CvlIWUlMvjSeMyt0SDRKU7DRzLorQzEqk--gGZh48XdeqOPH6Kr";
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body, Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body, String objectId, String icon, Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
+        this.objectId = objectId;
+        this.icon = icon;
         this.mContext = mContext;
         this.mActivity = mActivity;
-
 
     }
 
@@ -49,10 +52,12 @@ public class FcmNotificationsSender  {
             JSONObject notiObject = new JSONObject();
             notiObject.put("title", title);
             notiObject.put("body", body);
-            notiObject.put("icon",  R.mipmap.ic_jerry);
+            notiObject.put("objectId", objectId);
+            notiObject.put("icon",  icon);
             notiObject.put("sound", "default");
 
-            mainObj.put("notification", notiObject);
+            //mainObj.put("notification", notiObject);
+            mainObj.put("data", notiObject);
 
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, postUrl, mainObj, new Response.Listener<JSONObject>() {

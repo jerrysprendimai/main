@@ -29,6 +29,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class PushNotificationService extends FirebaseMessagingService {
@@ -44,12 +45,14 @@ public class PushNotificationService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
 
-        super.onMessageReceived(message);
+        //super.onMessageReceived(message);
 
         ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
         ActivityManager.getMyMemoryState(myProcess);
         //Intent resultIntent2 = new Intent(this, ActivityMain.class);
-        if (myProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+
+
+        //if (myProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
 
             // playing audio and vibration when user se reques
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -59,61 +62,72 @@ public class PushNotificationService extends FirebaseMessagingService {
                 r.setLooping(false);
             }
 
-            int resourceImage = getResources().getIdentifier(message.getNotification().getIcon(), "drawable", getPackageName());
+            //int resourceImage = getResources().getDrawable(R.mipmap.ic_jerry_foreground);
+            //int resourceImage = getResources().getIdentifier(message.getNotification().getIcon(), "drawable", getPackageName());
+            Map<String,String> data = message.getData();
+            String title = data.get("title");
+            String body = data.get("body");
+            String objId = data.get("objectId");
+            String icon = data.get("icon");
+            String sound = data.get("sound");
+            int img = getResources().getIdentifier(icon, "drawable", getPackageName());
 
-            String[] str = message.getNotification().getTitle().split("#");
+            //String[] str = message.getNotification().getTitle().split("#");
 
 
             Intent resultIntent = new Intent().setClass(this, ActivityMain.class);
-            resultIntent.putExtra("title", message.getNotification().getTitle());
-            resultIntent.putExtra("objectId", str[1]);
-            resultIntent.setAction(str[1] + "_action");
+            resultIntent.putExtra("title", title);
+            resultIntent.putExtra("body", body);
+            resultIntent.putExtra("chatObjID", objId);
+            resultIntent.setAction(objId + "_action");
             resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK   |
                                   Intent.FLAG_ACTIVITY_CLEAR_TASK |
                                   Intent.FLAG_ACTIVITY_SINGLE_TOP |
                                   Intent.FLAG_ACTIVITY_CLEAR_TOP );
 
-            //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_IMMUTABLE);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                                                                     Integer.parseInt(str[1]),
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT |
+                                                                                                                  PendingIntent.FLAG_IMMUTABLE);
+            /*PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                                                                     Integer.parseInt(objId),
                                                                      resultIntent,
                                                                      PendingIntent.FLAG_UPDATE_CURRENT |
-                                                                          PendingIntent.FLAG_IMMUTABLE);
+                                                                     PendingIntent.FLAG_IMMUTABLE);*/
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, str[1]);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, objId);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder.setSmallIcon(resourceImage);
-            } /*else {
-                builder.setSmallIcon(resourceImage);
-            }*/
-            builder.setContentTitle(message.getNotification().getTitle());
-            builder.setContentText(message.getNotification().getBody());
-            builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message.getNotification().getBody()));
+               builder.setSmallIcon(img);
+            }
+            builder.setContentTitle(title);
+            builder.setContentText(body);
+            builder.setStyle(new NotificationCompat.BigTextStyle().bigText(body));
             builder.setPriority(Notification.PRIORITY_MAX);
             builder.setContentIntent(pendingIntent);
-            builder.setGroup(str[1]);
+            builder.setGroup(objId);
+            builder.setGroup(objId);
             //builder.addAction(resourceImage, message.getNotification().getBody(), pendingIntent);
             builder.setAutoCancel(true);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                mNotificationManager = getSystemService(NotificationManager.class);
-            }
-            //mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //    mNotificationManager = getSystemService(NotificationManager.class);
+            //}
+            mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                String channelId = str[1];
-                NotificationChannel channel = new NotificationChannel(
-                        channelId,
-                        "Readable title",
-                        NotificationManager.IMPORTANCE_HIGH);
+
+            String channelId = objId;
+            NotificationChannel channel = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                channel = new NotificationChannel( channelId,"Readable title", NotificationManager.IMPORTANCE_HIGH);
                 channel.setDescription("description");
-                mNotificationManager.createNotificationChannel(channel);
-                builder.setChannelId(channelId);
+                    mNotificationManager.createNotificationChannel(channel);
+                    builder.setChannelId(channelId);
             }
 
             // notificationId is a unique int for each notification that you must define
-            mNotificationManager.notify(Integer.parseInt(str[1]), builder.build());
+            mNotificationManager.notify(Integer.parseInt(objId), builder.build());
+
+
 
     }
-    }
+
+    //}
 }

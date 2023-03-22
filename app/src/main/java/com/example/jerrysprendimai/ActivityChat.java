@@ -45,8 +45,8 @@ import java.util.Calendar;
 
 public class ActivityChat extends AppCompatActivity {
 
-    private ObjectUser myUser;
-    private ObjectObject myObject;
+    public  ObjectUser myUser;
+    public  ObjectObject myObject;
     private ArrayList<ObjectObjUser> objectUserArrayList;
     private ArrayList<ObjectUser> employeeList;
     private ArrayList<ObjectUser> ownerList;
@@ -61,6 +61,7 @@ public class ActivityChat extends AppCompatActivity {
     private TextView txtChattingAbout, txtChattingAbout2, txtChatParticipantCount;
     private ProgressBar progressBar;
     private ImageView imgToolBar, sendButton;
+    public boolean doNavigationToActivityObjectEdit;
 
     private String chatRoomId;
 
@@ -92,8 +93,8 @@ public class ActivityChat extends AppCompatActivity {
         messages = new ArrayList<>();
 
         //---------------Read Intent values----------------------
-        this.myUser   = getIntent().getParcelableExtra("myUser");
-        this.myObject = getIntent().getParcelableExtra("objectObject");
+        this.myUser               = getIntent().getParcelableExtra("myUser");
+        this.myObject             = getIntent().getParcelableExtra("objectObject");
         this.objectUserArrayList  = getIntent().getParcelableArrayListExtra("listUser");
         this.employeeList         = getIntent().getParcelableArrayListExtra("employeeList");
         this.ownerList            = getIntent().getParcelableArrayListExtra("ownerList");
@@ -141,6 +142,8 @@ public class ActivityChat extends AppCompatActivity {
                             getObjectUserArrayList().get(i).getToken(),
                             title,
                             message,
+                            myObject.getId().toString(),
+                            myObject.getIcon(),
                             getApplicationContext(),
                             ActivityMain.getActivityMain());
                     notificationsSender.SendNotifications();
@@ -157,6 +160,8 @@ public class ActivityChat extends AppCompatActivity {
                             getOwnerList().get(i).getToken(),
                             title,
                             message,
+                            myObject.getId().toString(),
+                            myObject.getIcon(),
                             getApplicationContext(),
                             ActivityMain.getActivityMain());
                     notificationsSender.SendNotifications();
@@ -169,6 +174,7 @@ public class ActivityChat extends AppCompatActivity {
         View.OnClickListener toProjectListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setDoNavigationToActivityObjectEdit(true);
                 if((myUser.getUser_lv().equals(owner))||(myUser.getUser_lv().equals(admin))){
                     //lock object
                     new HttpsRequestLockObject(context, myObject, myObject.getId().toString(),"lock").execute();
@@ -249,21 +255,6 @@ public class ActivityChat extends AppCompatActivity {
         */
     }
 
-    public void getUserColor(String userId){
-
-    }
-
-    public boolean isDateDisplayed(String date){
-        boolean value = true;
-
-        if((!myDisplayDates.contains(date))&&(myDisplayDates.size() != 0)){
-            myDisplayDates.add(date);
-            value = false;
-        }
-
-        return value;
-    }
-
     public boolean isDateToBeDiplayed(String newDate){
         boolean value = false;
 
@@ -291,6 +282,9 @@ public class ActivityChat extends AppCompatActivity {
     public void setMyObject(ObjectObject myObject) {        this.myObject = myObject;    }
     public ArrayList<ObjectUser> getOwnerList() {        return ownerList;    }
     public void setOwnerList(ArrayList<ObjectUser> ownerList) {        this.ownerList = ownerList;    }
+    public boolean isNavigationToActivityObjectEdit() {  return doNavigationToActivityObjectEdit;    }
+    public void setDoNavigationToActivityObjectEdit(boolean doNavigationToActivityObjectEdit) {        this.doNavigationToActivityObjectEdit = doNavigationToActivityObjectEdit;    }
+
 
     private void setUpChatRoom(){
         attachMessageListener(chatRoomId);
@@ -325,14 +319,17 @@ public class ActivityChat extends AppCompatActivity {
 
     }
     public void refresh(){
+        //--to do header labes darbas + addres
        txtChatParticipantCount.setText("+" + String.valueOf(objectUserArrayList.size()));
+       txtChattingAbout.setText(myObject.getObjectName());
+       txtChattingAbout2.setText(myObject.getObjectAddress());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         new HttpsRequestCheckSessionAlive(this).execute();
-        refresh();
+        //refresh();
     }
 
     public void getObjectDetailsAndDisplay(ObjectObject objectToDisplay) {
@@ -526,7 +523,7 @@ public class ActivityChat extends AppCompatActivity {
                 String msg     = object.getString("msg");
                 //String control = object.getString("control");
                 if (status.equals("1")) {
-
+                    getObjectDetailsAndDisplay(myObject);
                     //----get object list for calender events sync.
                     //new HttpsRequestGetObjectDetails(context).execute();
                     //findViewById(R.id.progressBar).setVisibility(View.GONE);
@@ -605,6 +602,7 @@ public class ActivityChat extends AppCompatActivity {
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
             ArrayList<ObjectUser> ownerArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> headerArrayList = new ArrayList<>();
             ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
 
             JSONArray responseObjDetails = new JSONArray();
@@ -612,7 +610,8 @@ public class ActivityChat extends AppCompatActivity {
             JSONArray responseObjPic     = new JSONArray();
             JSONArray responseEmployee   = new JSONArray();
             JSONArray responseObject     = new JSONArray();
-            JSONArray responseOwners      = new JSONArray();
+            JSONArray responseOwners     = new JSONArray();
+            JSONArray responseHeader     = new JSONArray();
             Integer completeCount = 0;
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
@@ -621,6 +620,7 @@ public class ActivityChat extends AppCompatActivity {
                 responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
                 responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
                 responseOwners     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(5));
+                responseHeader     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(6));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -639,6 +639,7 @@ public class ActivityChat extends AppCompatActivity {
                     objUserArrayList.add(objectObjUser);
                 }
                 setObjectUserArrayList(objUserArrayList);
+                ((ActivityChat)context).setObjectUserArrayList(objUserArrayList);
 
                 for(int i = 0; i < responseObjPic.length(); i++){
                     ObjectObjPic objectObjPic = new ObjectObjPic((JSONObject) responseObjPic.get(i));
@@ -663,15 +664,28 @@ public class ActivityChat extends AppCompatActivity {
                     ObjectUser objectUser = new ObjectUser((JSONObject) responseOwners.get(i));
                     ownerArrayList.add(objectUser);
                 }
+                ObjectObject objectObject = null;
+                for (int i=0; i<responseHeader.length(); i++){
+                    objectObject = new ObjectObject((JSONObject) responseHeader.get(i), "wa");
+                    break;
+                }
+                if (objectObject !=null){
+                    ((ActivityChat)context).setMyObject(objectObject);
+                }
 
-                //((ActivityChat)context).setObjectToDisplay(getClickObject());
-                Intent intent = new Intent(context, ActivityObjectEdit.class);
-                intent.putExtra("myUser", myUser);
-                intent.putExtra("objectObject", getClickObject());
-                intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
-                intent.putParcelableArrayListExtra("listtUser", getObjectUserArrayList());
-                intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
-                context.startActivity(intent);
+                if (isNavigationToActivityObjectEdit()) {
+                    setDoNavigationToActivityObjectEdit(false);
+                    //((ActivityChat)context).setObjectToDisplay(getClickObject());
+                    Intent intent = new Intent(context, ActivityObjectEdit.class);
+                    intent.putExtra("myUser", myUser);
+                    intent.putExtra("objectObject", getClickObject());
+                    intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
+                    intent.putParcelableArrayListExtra("listtUser", getObjectUserArrayList());
+                    intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
+                    context.startActivity(intent);
+                }else{
+                    refresh();
+                }
 
             } catch (JSONException e) {
                 e.printStackTrace();

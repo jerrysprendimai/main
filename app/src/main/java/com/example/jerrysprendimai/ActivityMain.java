@@ -70,19 +70,10 @@ public class ActivityMain extends AppCompatActivity {
         dbHelper.close();
 
         if(getIntent().getExtras() != null){
-            String title = getIntent().getExtras().getString("title");
-            String message = getIntent().getExtras().getString("body");
-            String ttmmpp = ActivityMain.getObjectId();
-            String tmp2 = getIntent().getStringExtra("objectId");
-            String chatId = getIntent().getExtras().getString("objectId");
-            String str = getIntent().getParcelableExtra("objectId");
-            String tmp = "";
-            tmp = tmp;
-            chatId = chatId;
-            for(String key: getIntent().getExtras().keySet()){
-                String value = getIntent().getExtras().getString(key);
-                value = value;
-            }
+            String chatId = getIntent().getExtras().getString("chatObjID");
+            getIntent().putExtra("chatObjID", chatId);
+            //String title = getIntent().getExtras().getString("title");
+            //String message = getIntent().getExtras().getString("body");
         }
 
         //----------initialize singel sign on
@@ -113,7 +104,7 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        String action = intent.getAction();
+        /*String action = intent.getAction();
         String str = intent.toString();
         String tmp = intent.getStringExtra("objectId");
         String tmp2 = intent.getParcelableExtra("objectId");
@@ -124,7 +115,7 @@ public class ActivityMain extends AppCompatActivity {
             setObjId(extras.getString( "objectId" ) );
             setTxt(extras.getString( "title" ) );
             //startActivity(intent);
-        }
+        }*/
     }
 
     @Override
@@ -254,8 +245,9 @@ public class ActivityMain extends AppCompatActivity {
 
                         //----Notification click handling
                         if(extras != null){
-                            String chatObjId = extras.getString( "objectId" );
-                            intent.putExtra("chatObjID", extras.getString( "objectId" ));
+                            String chatObjId = extras.getString( "chatObjID" );
+                            intent.putExtra("chatObjID", chatObjId);
+                            extras.remove("chatObjID");
                             //extras.getString( "title" );
                         }
 

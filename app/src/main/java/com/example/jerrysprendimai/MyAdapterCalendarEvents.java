@@ -317,6 +317,7 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
             ArrayList<ObjectUser> ownerArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> headerArrayList = new ArrayList<>();
             ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
 
             JSONArray responseObjDetails = new JSONArray();
@@ -325,6 +326,7 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
             JSONArray responseEmployee   = new JSONArray();
             JSONArray responseObject     = new JSONArray();
             JSONArray responseOwners     = new JSONArray();
+            JSONArray responseHeader     = new JSONArray();
             Integer completeCount = 0;
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
@@ -333,6 +335,7 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
                 responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
                 responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
                 responseOwners     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(5));
+                responseHeader     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(6));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -374,6 +377,11 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
                 for(int i = 0; i<responseOwners.length(); i++){
                     ObjectUser objectUser = new ObjectUser((JSONObject) responseOwners.get(i));
                     ownerArrayList.add(objectUser);
+                }
+                ObjectObject objectObject = null;
+                for (int i=0; i<responseHeader.length(); i++){
+                    objectObject = new ObjectObject((JSONObject) responseHeader.get(i), "wa");
+                    break;
                 }
 
                 ((ActivityCalendar)context).setObjectToDisplay(getClickObject());

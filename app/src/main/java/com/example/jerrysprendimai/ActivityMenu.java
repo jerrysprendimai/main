@@ -402,9 +402,12 @@ public class ActivityMenu extends AppCompatActivity {
             enableWholeView(gridLayout);
 
             //-------Notification click handling
-            String objectId = ((ActivityMenu)context).getIntent().getParcelableExtra("chatObjID");
+            String objectId = ((ActivityMenu)context).getIntent().getExtras().getString("chatObjID");
+            //String objectId = ((ActivityMenu)context).getIntent().getParcelableExtra("chatObjID");
             ObjectObject obj = null;
             if(objectId != null){
+                ((ActivityMenu)context).getIntent().removeExtra("chatObjID");
+                //((ActivityMenu)context).getIntent().getExtras().remove("chatObjID");
                 for(int i=0; i<myObjectList.size();i++){
                     if(objectId.equals(myObjectList.get(i).getId().toString())){
                         obj = myObjectList.get(i);
@@ -414,7 +417,6 @@ public class ActivityMenu extends AppCompatActivity {
                if(obj != null){
                    new HttpsRequestGetObjectDetails(context, obj).execute();
                }
-
             }
 
             super.onPostExecute(inputStream);
@@ -527,6 +529,7 @@ public class ActivityMenu extends AppCompatActivity {
             ArrayList<ObjectObjPic> objPicsArrayList = new ArrayList<>();
             ArrayList<ObjectUser> employeeArrayList = new ArrayList<>();
             ArrayList<ObjectUser> ownerArrayList = new ArrayList<>();
+            ArrayList<ObjectUser> headerArrayList = new ArrayList<>();
             ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
 
             JSONArray responseObjDetails = new JSONArray();
@@ -535,6 +538,7 @@ public class ActivityMenu extends AppCompatActivity {
             JSONArray responseEmployee   = new JSONArray();
             JSONArray responseObject     = new JSONArray();
             JSONArray responseOwners     = new JSONArray();
+            JSONArray responseHeader     = new JSONArray();
             Integer completeCount = 0;
             try {
                 responseObjDetails = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(0));
@@ -543,6 +547,7 @@ public class ActivityMenu extends AppCompatActivity {
                 responseEmployee   = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(3));
                 responseObject     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(4));
                 responseOwners     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(5));
+                responseHeader     = MCrypt.decryptJSONArray((JSONArray) connector.getResultJsonArray().get(6));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -590,6 +595,13 @@ public class ActivityMenu extends AppCompatActivity {
                     ObjectUser objectUser = new ObjectUser((JSONObject) responseOwners.get(i));
                     ownerArrayList.add(objectUser);
                 }
+
+                ObjectObject objectObject = null;
+                for (int i=0; i<responseHeader.length(); i++){
+                    objectObject = new ObjectObject((JSONObject) responseHeader.get(i), "wa");
+                    break;
+                }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
