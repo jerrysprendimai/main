@@ -9,23 +9,21 @@
     android:backgroundTint="#ECEAEA"
     android:id="@+id/chat_main_containerView"
     tools:context=".ActivityChat">
-
     <LinearLayout
         android:id="@+id/chat_lineatLayout"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/bottomsheet_top_cardView"
+            android:id="@+id/chat_top_cardView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="0dp"
             app:cardElevation="1dp">
-
          <LinearLayout
              android:layout_width="match_parent"
              android:layout_height="match_parent"
@@ -78,7 +76,7 @@
                  android:layout_height="match_parent"
                  android:background="@drawable/background">
 
-                 <LinearLayout
+               <LinearLayout
                 android:id="@+id/chat_bojectNameButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -107,48 +105,94 @@
                         android:layout_gravity="left"
                         android:ems="10"/>
             </LinearLayout>
-
             <LinearLayout
-                android:id="@+id/chat_participantsButton"
+                android:id="@+id/chat_tools"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_weight="6"
                 android:clickable="true"
+                android:visibility="gone"
                 android:background="?android:attr/selectableItemBackground"
                 android:layout_marginLeft="0dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="8dp"
-                android:layout_marginBottom="5dp">
-                <TextView
-                    android:fontFamily="@font/poppinsmedium"
-                    android:text="@string/participant_count"
-                    android:gravity="center|center_horizontal"
-                    android:textStyle="italic"
-                    android:textColor="@color/teal_700"
-                    android:layout_width="match_parent"
+                android:layout_marginBottom="5dp"
+                android:layout_gravity="center_vertical">
+                <ImageView
+                    android:id="@+id/chat_tools_back"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="11sp"
-                    android:layout_gravity="left"/>
-                <TextView
-                    android:id="@+id/chat_participantsCount"
-                    android:fontFamily="@font/poppinsmedium"
-                    android:text="+6"
-                    android:textColor="@color/teal_700"
-                    android:layout_marginTop="-8dp"
-                    android:textAlignment="center"
-                    android:layout_width="match_parent"
+                    android:clickable="true"
+                    android:src="@drawable/ic_back_arrow_white"
+                    android:layout_marginLeft="15dp"
+                    app:tint="@color/jerry_blue" />
+                <!--<ImageView
+                    android:id="@+id/chat_tools_edit"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="32sp"
-                    android:ems="2"/>
+                    android:clickable="true"
+                    android:src="@drawable/ic_edit_white"
+                    android:layout_marginLeft="23dp"
+                    app:tint="@color/jerry_blue" />-->
+                <ImageView
+                    android:id="@+id/chat_tools_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:src="@drawable/ic_delete_white"
+                    android:layout_marginLeft="30dp"
+                    app:tint="@color/jerry_blue" />
             </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/chat_participantsButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_weight="6"
+                    android:clickable="true"
+                    android:visibility="visible"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="5dp">
+                    <TextView
+                        android:fontFamily="@font/poppinsmedium"
+                        android:text="@string/participant_count"
+                        android:gravity="center|center_horizontal"
+                        android:textStyle="italic"
+                        android:textColor="@color/teal_700"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:layout_gravity="left"/>
+                    <TextView
+                        android:id="@+id/chat_participantsCount"
+                        android:fontFamily="@font/poppinsmedium"
+                        android:text="+6"
+                        android:textColor="@color/teal_700"
+                        android:layout_marginTop="-8dp"
+                        android:textAlignment="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="30sp"
+                        android:ems="2"/>
+                </LinearLayout>
 
            </LinearLayout>
          </LinearLayout>
         </androidx.cardview.widget.CardView>
-
     </LinearLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="5dp"
+        android:background="@drawable/background_chat"
+        app:layout_constraintBottom_toTopOf="@+id/chat_editText"
+        app:layout_constraintTop_toBottomOf="@id/chat_lineatLayout"/>
     <ProgressBar
         android:id="@+id/chat_progressBar"
         android:layout_width="50dp"
@@ -159,15 +203,6 @@
         android:indeterminateTint="@color/jerry_blue"
         app:layout_constraintTop_toTopOf="@id/chat_lineatLayout">
     </ProgressBar>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chat_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="5dp"
-        android:background="@drawable/background_chat"
-        app:layout_constraintBottom_toTopOf="@+id/chat_editText"
-        app:layout_constraintTop_toBottomOf="@id/chat_lineatLayout"/>
-
     <EditText
         android:id="@+id/chat_editText"
         android:layout_width="0dp"
@@ -178,12 +213,48 @@
         android:paddingHorizontal="20dp"
         android:layout_marginBottom="10dp"
         android:layout_marginHorizontal="15dp"
+        android:paddingRight="60dp"
         android:background="@drawable/message_input_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/chat_sendButton"
         app:layout_constraintStart_toStartOf="parent"
+        android:ems="4"
         >
     </EditText>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="55dp"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_editText"
+        app:layout_constraintEnd_toEndOf="parent">
+    mm
+        <ImageView
+            android:id="@+id/chat_attachment"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:src="@drawable/ic_attachment_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginRight="12dp"
+            android:layout_weight="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/jerry_blue"></ImageView>
+
+        <ImageView
+            android:id="@+id/chat_camera"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_marginRight="12dp"
+            android:src="@drawable/ic_camera_white"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/jerry_blue"></ImageView>
+    </LinearLayout>
+
+
     <ImageView
         android:id="@+id/chat_sendButton"
         android:layout_width="40dp"
@@ -194,5 +265,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/jerry_blue">
+    </ImageView>
+    <ImageView
+        android:id="@+id/chat_hidden_container"
+        android:src="@drawable/ic_picture_placeholder_white"
+        android:visibility="gone"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
     </ImageView>
 </androidx.constraintlayout.widget.ConstraintLayout>

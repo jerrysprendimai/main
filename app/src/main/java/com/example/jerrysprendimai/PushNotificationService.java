@@ -52,7 +52,7 @@ public class PushNotificationService extends FirebaseMessagingService {
         //Intent resultIntent2 = new Intent(this, ActivityMain.class);
 
 
-        //if (myProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+        if (myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
 
             // playing audio and vibration when user se reques
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -129,5 +129,5 @@ public class PushNotificationService extends FirebaseMessagingService {
 
     }
 
-    //}
+    }
 }

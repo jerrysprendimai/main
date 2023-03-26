@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.util.Base64;
 
 import org.json.JSONException;
@@ -166,6 +167,17 @@ public class ObjectObjPic implements Parcelable{
                 str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
             }
         } catch (Exception e) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Uri imageUri = Uri.parse(this.getPicUri());
+                Bitmap bitmap = null;
+                bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArray= baos.toByteArray();
+                str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
+            }catch (Exception ee){
+                ee.printStackTrace();
+            }
             e.printStackTrace();
         }
         return str_img;

@@ -1,22 +1,31 @@
 package com.example.jerrysprendimai;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.Manifest;
+import android.animation.ObjectAnimator;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,46 +33,73 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.inappmessaging.internal.ApiClient;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
-public class ActivityChat extends AppCompatActivity {
+public class ActivityChat extends AppCompatActivity{
+    private static final int IMAGE_PICK_CODE = 1000;
+    private static final int PERMISSION_CODE = 1001;
+    private static final int PICK_IMAGE_MULTIPLE = 1;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    static final int REQUEST_IMAGE_CAPTURE = 10;
+    static final int MY_WRITE_EXTERNAL_STORAGE = 101;
 
     public  ObjectUser myUser;
     public  ObjectObject myObject;
     private ArrayList<ObjectObjUser> objectUserArrayList;
     private ArrayList<ObjectUser> employeeList;
     private ArrayList<ObjectUser> ownerList;
-    private ArrayList<ObjectObject> myObjectList;
-    private ArrayList<ObjectObject> myObjectListOriginal;
+
+    //private ArrayList<ObjectObject> myObjectListOriginal;
+    public ArrayList<MyAdapterMessage.MessageHolder> toBeDeleted;
     private ArrayList<String> myDisplayDates;
-    private String currentDate;
-    private String dateToDisplay;
-    private LinearLayout participantsButton, objectNameButton, objectIconButton;
+    public String currentDate, mCurrentPhotoPath, dateToDisplay;
+    private LinearLayout participantsButton, objectNameButton, objectIconButton, toolsLayout;
     private RecyclerView recyclerView;
     private EditText editMessageInput;
     private TextView txtChattingAbout, txtChattingAbout2, txtChatParticipantCount;
     private ProgressBar progressBar;
-    private ImageView imgToolBar, sendButton;
-    public boolean doNavigationToActivityObjectEdit;
+    private ImageView imgToolBar, sendButton, toolsBackButton, toolsEditButton, toolsDeleteButton, attachmentButton, cameraButton;
+    public boolean doNavigationToActivityObjectEdit, deletionMode;
+    public Uri mCurrentPhotoUri;
+    public File mPhotoFile;
+    private int backgroundJobs = 1;
+    public ImageView hiddenPicture;
+    public int threadStartedCount;
+
 
     private String chatRoomId;
+    int uploadRunning;
+    ArrayList<ObjectMessage> beingUpdated;
 
     private MyAdapterMessage myAdapterMessage;
     private ArrayList<ObjectMessage> messages;
@@ -90,6 +126,14 @@ public class ActivityChat extends AppCompatActivity {
         participantsButton      = findViewById(R.id.chat_participantsButton);
         objectNameButton        = findViewById(R.id.chat_bojectNameButton);
         objectIconButton        = findViewById(R.id.chat_iconButton);
+        toolsLayout             = findViewById(R.id.chat_tools);
+        toolsBackButton         = findViewById(R.id.chat_tools_back);
+        //toolsEditButton         = findViewById(R.id.chat_tools_edit);
+        toolsDeleteButton       = findViewById(R.id.chat_tools_delete);
+        attachmentButton        = findViewById(R.id.chat_attachment);
+        cameraButton            = findViewById(R.id.chat_camera);
+        hiddenPicture           = findViewById(R.id.chat_hidden_container);
+
         messages = new ArrayList<>();
 
         //---------------Read Intent values----------------------
@@ -100,6 +144,10 @@ public class ActivityChat extends AppCompatActivity {
         this.ownerList            = getIntent().getParcelableArrayListExtra("ownerList");
 
         //----Initialize screen values
+        this.threadStartedCount = 0;
+        this.uploadRunning = 0;
+        this.beingUpdated = new ArrayList<>();
+        toBeDeleted = new ArrayList<>();
         myDisplayDates = new ArrayList<>();
         chatRoomId = myObject.getId().toString();
         imgToolBar.setImageResource(getResources().getIdentifier(myObject.getIcon(), "drawable", getApplicationInfo().packageName));
@@ -118,7 +166,100 @@ public class ActivityChat extends AppCompatActivity {
             userSeenArrayList.add(new ObjectMessage.User(getOwnerList().get(i).getId().toString(), false));
         }
         //----Listeners
+        Context context = this;
+        //-----------add picture handler
+        attachmentButton.setOnClickListener(v->{
+            //check permission
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                    //permission not granted, request it
+                    String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                    //show popup for runtime permission
+                    ((ActivityChat)context).requestPermissions(permissions, PERMISSION_CODE);
+                }else{
+                    //permission already granted
+                    pickImageFromGallery();
+                }
+            }else{
+                //system os is less that marshmallow
+                pickImageFromGallery();
+            }
+        });
+        //-----------take new photo handler
+        cameraButton.setOnClickListener(v->{
+            //check permission camera
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+                    ((ActivityChat) context).requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+                }else{
+                    //check permission external storage
+                    if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        ((ActivityChat)context).requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_WRITE_EXTERNAL_STORAGE);
+                    } else {
+                        takeNewPhoto();
+                    }
+                }
+            }else{
+                takeNewPhoto();
+            }
+        });
+        editMessageInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() == 0){
+                    Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                    cameraButton.setAnimation(slideIn);
+                    cameraButton.setVisibility(View.VISIBLE);
+                }else{
+                    Animation slideOut = AnimationUtils.loadAnimation(context, R.anim.fadeout);
+                    cameraButton.setAnimation(slideOut);
+                    cameraButton.setVisibility(View.GONE);
+
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+        toolsBackButton.setOnClickListener(v->{
+            setDeletionModeButtons(false);
+            setDeletionMode(false);
+            clearToBeDeleted();
+            setToBeDeleted(new ArrayList<>());
+        });
+        /*toolsEditButton.setOnClickListener(v->{
+        });*/
+        toolsDeleteButton.setOnClickListener(v->{
+            setDeletionModeButtons(false);
+            setDeletionMode(false);
+            clearToBeDeleted();
+            for(int i = 0; i < getToBeDeleted().size(); i++){
+                ObjectMessage message = messages.get(getToBeDeleted().get(i).getAdapterPosition());
+                message.setDeleted(true);
+                FirebaseDatabase.getInstance()
+                        .getReference("objects/" + chatRoomId)
+                        .child(message.getKey())
+                        .setValue(new ObjectMessage( message.getFirstName(),
+                                                     message.getUname(),
+                                                     message.getUserId(),
+                                                     message.getContent(),
+                                                     message.getDate(),
+                                                     message.getTime(),
+                                                     message.getMills(),
+                                                     message.getUserLv(),
+                                                     message.getPicUrl(),
+                                                     message.getPicUri(),
+                                                     message.getPicName(),
+                                                     message.isDeleted()));
+                        //.removeValue();
+            }
+            setToBeDeleted(new ArrayList<>());
+        });
         sendButton.setOnClickListener(v->{
+            if(editMessageInput.length() == 0){
+                return;
+            }
             FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).push().setValue(new ObjectMessage(myUser.getFirst_name(),
                                                                                                                         myUser.getUname(),
                                                                                                                         myUser.getId().toString(),
@@ -126,10 +267,15 @@ public class ActivityChat extends AppCompatActivity {
                                                                                                                         HelperDate.get_current_date_disply(),
                                                                                                                         Calendar.getInstance().getTime().toString(),
                                                                                                                         String.valueOf(Calendar.getInstance().getTimeInMillis()),
-                                                                                                                        myUser.getUser_lv()
+                                                                                                                        myUser.getUser_lv(),
+                                                                                                                        "",
+                                                                                                                        "",
+                                                                                                                      "",
+                                                                                                                     false
                                                                                                                         ));
             //----send notification
-            String title   = myObject.getObjectName()+"   #"+myObject.getId().toString();
+            sendMessageNotification();
+            /*String title   = myObject.getObjectName()+"   #"+myObject.getId().toString();
             String message = myUser.getFirst_name() +": "+editMessageInput.getText().toString();//messages.get(messages.size()-1).getFirstName() +": "+ messages.get(messages.size()).getContent();
             for (int i=0; i< getObjectUserArrayList().size(); i++){
                 ObjectObjUser objectObjUser = getObjectUserArrayList().get(i);
@@ -166,11 +312,11 @@ public class ActivityChat extends AppCompatActivity {
                             ActivityMain.getActivityMain());
                     notificationsSender.SendNotifications();
                 }
-            }
+            }*/
             editMessageInput.setText("");
         });
 
-        Context context = this;
+        //Context context = this;
         View.OnClickListener toProjectListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -214,48 +360,314 @@ public class ActivityChat extends AppCompatActivity {
             });
         }
 
-        myAdapterMessage = new MyAdapterMessage(messages, this, myUser);
+        myAdapterMessage = new MyAdapterMessage(messages, this, myUser, myObject);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(myAdapterMessage);
         setUpChatRoom();
 
-
-       /* FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            System.out.println("Fetching FCM registration token failed");
-                            return;
-                        }
-
-                        // Get new FCM registration token
-                        String token = task.getResult();
-
-                        // Log and toast
-                        //System.out.println(token);
-                        //Toast.makeText(context, "token " + token, Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-
-        FirebaseDatabase.getInstance().getReference("objects/").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    dataSnapshot.getValue();
+    }
+    public void sendMessageNotification(){
+        String title   = myObject.getObjectName()+"   #"+myObject.getId().toString();
+        String message = myUser.getFirst_name() +": "+editMessageInput.getText().toString();//messages.get(messages.size()-1).getFirstName() +": "+ messages.get(messages.size()).getContent();
+        for (int i=0; i< getObjectUserArrayList().size(); i++){
+            ObjectObjUser objectObjUser = getObjectUserArrayList().get(i);
+            Integer userListId = getObjectUserArrayList().get(i).getUserId();
+            Integer myUserId = myUser.getId();
+            if((!getObjectUserArrayList().get(i).getToken().isEmpty()) &&
+                    (!getObjectUserArrayList().get(i).getUserId().equals(myUser.getId()))){
+                if(message.isEmpty()){
+                    message = "img";
                 }
+                FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
+                        getObjectUserArrayList().get(i).getToken(),
+                        title,
+                        message,
+                        myObject.getId().toString(),
+                        myObject.getIcon(),
+                        getApplicationContext(),
+                        ActivityMain.getActivityMain());
+                notificationsSender.SendNotifications();
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+        }
+        for(int i=0; i<getOwnerList().size(); i++){
+            ObjectUser objectOwner = getOwnerList().get(i);
+            Integer ownerListId = getOwnerList().get(i).getId();
+            Integer myUserId = myUser.getId();
+            if((!getOwnerList().get(i).getToken().isEmpty()) &&
+                    (!getOwnerList().get(i).getId().equals(myUser.getId()))){
+                if(message.isEmpty()){
+                    message = "img";
+                }
+                FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
+                        getOwnerList().get(i).getToken(),
+                        title,
+                        message,
+                        myObject.getId().toString(),
+                        myObject.getIcon(),
+                        getApplicationContext(),
+                        ActivityMain.getActivityMain());
+                notificationsSender.SendNotifications();
             }
-        });
-        */
+        }
     }
 
-    public boolean isDateToBeDiplayed(String newDate){
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //-----take picture
+        if(resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE ){
+            galleryAddPic();
+            /*ObjectObjPic newPic = new ObjectObjPic();
+            newPic.setUserId(myUser.getId());
+            newPic.setFirstName(myUser.getFirst_name());
+            newPic.setPicUri(getmCurrentPhotoUri().toString());
+            newPic.setObjectId(myObject.getId());
+            newPic.setPosNr(0);
+            newPic.setPicName(getmPhotoFile().getName());*/
+
+            String url = "";
+            String uri = getmCurrentPhotoUri().toString();
+            progressBar.setVisibility(View.VISIBLE);
+            new Thread(new RunnableTask(this, myUser, myObject, uri, "chat_" + getmPhotoFile().getName(), hiddenPicture)).start();
+            //String.valueOf(Calendar.getInstance().getTimeInMillis())
+            setThreadStartedCount(getThreadStartedCount()+1);
+
+           /* FirebaseDatabase.getInstance().getReference("objects/" + myObject.getId().toString())
+                    .push()
+                    .setValue(new ObjectMessage(myUser.getFirst_name(),
+                            myUser.getUname(),
+                            myUser.getId().toString(),
+                            editMessageInput.getText().toString(),
+                            HelperDate.get_current_date_disply(),
+                            Calendar.getInstance().getTime().toString(),
+                            String.valueOf(Calendar.getInstance().getTimeInMillis()),
+                            myUser.getUser_lv(),
+                            url,
+                            uri,
+                            "chat_" + getmPhotoFile().getName(),
+                            false
+                    ));
+            //----send notification
+            sendMessageNotification();
+            */
+
+            //--upload picture to server
+            //new HttpsRequestUploadPicture(this, newPic).execute();
+
+        }else if(resultCode != RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE){
+            File photoImage = getmPhotoFile();
+            if(photoImage.exists()){
+                photoImage.delete();
+            }
+            setmPhotoFile(null);
+            setmCurrentPhotoUri(null);
+            setmCurrentPhotoPath(null);
+        }
+        //-----add picture/add pictures
+        if(resultCode == RESULT_OK && (requestCode == IMAGE_PICK_CODE || requestCode == PICK_IMAGE_MULTIPLE)){
+            try {
+                progressBar.setVisibility(View.VISIBLE);
+                setThreadStartedCount(data.getClipData().getItemCount());
+                for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                    Uri filePath = data.getClipData().getItemAt(i).getUri();
+                    Cursor cursor = this.getContentResolver().query(filePath, null, null, null, null);
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+
+                    cursor.moveToFirst();
+                    String fileName = myUser.getId().toString() + "_" + myObject.getId().toString() + "_" + cursor.getString(nameIndex);
+
+                    new Thread(new RunnableTask(this, myUser, myObject, filePath.toString(), "chat_" + fileName, hiddenPicture)).start();
+                    //String.valueOf(Calendar.getInstance().getTimeInMillis())
+
+                    /*FirebaseDatabase.getInstance().getReference("objects/" + myObject.getId().toString())
+                            .push()
+                            .setValue(new ObjectMessage(myUser.getFirst_name(),
+                                                        myUser.getUname(),
+                                                        myUser.getId().toString(),
+                                                        editMessageInput.getText().toString(),
+                                                        HelperDate.get_current_date_disply(),
+                                                        Calendar.getInstance().getTime().toString(),
+                                                        String.valueOf(Calendar.getInstance().getTimeInMillis()),
+                                                        myUser.getUser_lv(),
+                                                        "",
+                                                        filePath.toString(),
+                                                        "chat_" + fileName,
+                                                        false
+                            ));*/
+                }
+                //----send notification
+                //sendMessageNotification();
+
+            }catch (Exception e){
+                Uri filePath = data.getData();
+                Cursor cursor = this.getContentResolver().query(filePath, null,null,null,null);
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                cursor.moveToFirst();
+                String fileName = myUser.getId().toString() + "_" + myObject.getId().toString() + "_" + cursor.getString(nameIndex);
+
+                progressBar.setVisibility(View.VISIBLE);
+                new Thread(new RunnableTask(this, myUser, myObject, filePath.toString(), "chat_" + fileName, hiddenPicture)).start();
+                //String.valueOf(Calendar.getInstance().getTimeInMillis())
+                setThreadStartedCount(getThreadStartedCount()+1);
+
+                /*FirebaseDatabase.getInstance().getReference("objects/" + myObject.getId().toString())
+                        .push()
+                        .setValue(new ObjectMessage(myUser.getFirst_name(),
+                                myUser.getUname(),
+                                myUser.getId().toString(),
+                                editMessageInput.getText().toString(),
+                                HelperDate.get_current_date_disply(),
+                                Calendar.getInstance().getTime().toString(),
+                                String.valueOf(Calendar.getInstance().getTimeInMillis()),
+                                myUser.getUser_lv(),
+                                "",
+                                filePath.toString(),
+                                "chat_" + fileName,
+                                false
+                        ));
+
+                //----send notification
+                sendMessageNotification();
+                */
+            }
+        }
+    }
+    class RunnableTask implements Runnable {
+        Context context;
+        ObjectUser user;
+        ObjectObject object;
+        String uri, fileName;
+        ImageView hiddenImage;
+        boolean go;
+
+        public RunnableTask(Context context, ObjectUser user, ObjectObject object, String uri, String fileName, ImageView imageView) {
+            this.context = context;
+            this.user = user;
+            this.object = object;
+            this.uri = uri;
+            this.fileName = fileName;
+            this.hiddenImage = imageView;
+            this.go = false;
+        }
+        public boolean isGo() {   return go;  }
+        public void setGo(boolean go) {   this.go = go;   }
+
+        @Override
+        public void run() {
+            setGo(true);
+            RunnableTask runnableTask = this;
+            while (isGo()) {
+                if (backgroundJobs > 0) {
+                    backgroundJobs -= 1;
+                    Glide.with(context)
+                            .asBitmap()
+                            .load(Uri.parse(uri))
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                            .apply(new RequestOptions().override(500,500).centerInside())
+                            .into(new CustomTarget<Bitmap>() {
+                                @Override
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                    hiddenImage.setImageBitmap(resource);
+                                    new HttpsRequestUploadPicture(context, object, fileName, resource, runnableTask).execute();
+                                    //setGo(false);
+                                }
+                                @Override
+                                public void onLoadCleared(@Nullable Drawable placeholder) {
+                                }
+                            });
+                } else {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = getmPhotoFile();
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+        Context context = this;
+        MediaScannerConnection.scanFile(
+                context,
+                new String[]{getmCurrentPhotoPath()},
+                null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.v("foto", "file" + path + "was scanned: " + uri);
+                    }
+                }
+        );
+    }
+    public void pickImageFromGallery() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            try {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                this.startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_MULTIPLE);
+            }catch(Exception e){
+                Intent photoPickerIntent = new Intent();
+                this.startActivityForResult(photoPickerIntent, IMAGE_PICK_CODE);
+            }
+        } else {
+            Intent photoPickerIntent = new Intent();
+            this.startActivityForResult(photoPickerIntent, IMAGE_PICK_CODE);
+        }
+    }
+    public void takeNewPhoto() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        takePictureIntent.resolveActivity(this.getPackageManager());
+        //if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                Uri imageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",photoFile);
+                //Uri imageUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider",photoFile);
+                setmCurrentPhotoUri(imageUri);
+                setmPhotoFile(photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".fileprovider" , photoFile));
+                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                this.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        //}
+    }
+    public File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageName = myUser.getId().toString() + "_" + getMyObject().getId().toString() + "_" + timeStamp+"_";
+        File storageDir = //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                this.getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/Jerry");//Environment.getExternalStorageDirectory();
+        File image = File.createTempFile(imageName, ".jpg", storageDir );
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "JerrySprendimai_"+timeStamp);
+        values.put(MediaStore.Images.Media.DESCRIPTION, "JerrySprendimai_"+timeStamp);
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.ImageColumns.BUCKET_ID, image.toString().toLowerCase(Locale.ROOT).hashCode());
+        values.put(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, image.getName().toLowerCase(Locale.ROOT));
+        values.put("_data", image.getAbsolutePath());
+        ContentResolver cr = this.getContentResolver();
+        cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
+
+        setmCurrentPhotoPath(image.getAbsolutePath());
+        return image;
+    }
+    public boolean isDateToBeDisplayed(String newDate){
         boolean value = false;
 
         if(currentDate.equals("")){
@@ -284,7 +696,51 @@ public class ActivityChat extends AppCompatActivity {
     public void setOwnerList(ArrayList<ObjectUser> ownerList) {        this.ownerList = ownerList;    }
     public boolean isNavigationToActivityObjectEdit() {  return doNavigationToActivityObjectEdit;    }
     public void setDoNavigationToActivityObjectEdit(boolean doNavigationToActivityObjectEdit) {        this.doNavigationToActivityObjectEdit = doNavigationToActivityObjectEdit;    }
+    public boolean isDeletionMode() {        return deletionMode;    }
+    public void setDeletionMode(boolean deletionMode) {        this.deletionMode = deletionMode;    }
+    public ArrayList<MyAdapterMessage.MessageHolder> getToBeDeleted() {     return toBeDeleted;    }
+    public void setToBeDeleted(ArrayList<MyAdapterMessage.MessageHolder> toBeDeleted) {    this.toBeDeleted = toBeDeleted;    }
+    public String getmCurrentPhotoPath() { return mCurrentPhotoPath;    }
+    public void setmCurrentPhotoPath(String mCurrentPhotoPath) {        this.mCurrentPhotoPath = mCurrentPhotoPath;    }
+    public void setmCurrentPhotoUri(Uri mCurrentPhotoUri){       this.mCurrentPhotoUri = mCurrentPhotoUri;    }
+    public Uri getmCurrentPhotoUri() {        return mCurrentPhotoUri;    }
+    public File getmPhotoFile() {        return mPhotoFile;    }
+    public void setmPhotoFile(File mPhotoFile) {        this.mPhotoFile = mPhotoFile;    }
+    public int getUploadRunning() {        return uploadRunning;    }
+    public void setUploadRunning(int uploadRunning) {        this.uploadRunning = uploadRunning;    }
+    public ArrayList<ObjectMessage> getBeingUpdated() {        return beingUpdated;    }
+    public void setBeingUpdated(ArrayList<ObjectMessage> beingUpdated) {        this.beingUpdated = beingUpdated;    }
+    public int getThreadStartedCount() {        return threadStartedCount;    }
+    public void setThreadStartedCount(int threadStartedCount) {        this.threadStartedCount = threadStartedCount;    }
 
+    public void setDeletionModeButtons(boolean set){
+        if (set){
+           participantsButton.setVisibility(View.GONE);
+           toolsLayout.setVisibility(View.VISIBLE);
+        }else{
+            participantsButton.setVisibility(View.VISIBLE);
+            toolsLayout.setVisibility(View.GONE);
+        }
+    }
+
+    public void clearToBeDeleted(){
+        for(int i=0; i<getToBeDeleted().size(); i++){
+            getToBeDeleted().get(i).constraintLayout.setBackground(null);
+        }
+        //setToBeDeleted(new ArrayList<>());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(isDeletionMode()){
+          setDeletionModeButtons(false);
+          setDeletionMode(false);
+          clearToBeDeleted();
+          setToBeDeleted(new ArrayList<>());
+        }else{
+          super.onBackPressed();
+        }
+    }
 
     private void setUpChatRoom(){
         attachMessageListener(chatRoomId);
@@ -297,14 +753,29 @@ public class ActivityChat extends AppCompatActivity {
                 messages.clear();
                 for(DataSnapshot dataSnapshot:snapshot.getChildren()){
                     messages.add(dataSnapshot.getValue(ObjectMessage.class));
+                    messages.get(messages.size()-1).setKey(dataSnapshot.getKey());
                 }
                 setCurrentDate("");
                 setDateToDisplay("");
-                myAdapterMessage.notifyDataSetChanged();
-                recyclerView.scrollToPosition(messages.size() - 1);
-                recyclerView.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.GONE);
 
+                /*boolean notified = false;
+                for(int i = 0; i < messages.size(); i++){
+                    if(!messages.get(i).getPicUri().isEmpty()){
+                        myAdapterMessage.notifyItemChanged(i);
+                        notified = true;
+                        break;
+                    }
+                }*/
+                //if(!(getUploadRunning() > 0)) {
+                //if(!notified){
+                    myAdapterMessage.notifyDataSetChanged();
+                    recyclerView.scrollToPosition(messages.size() - 1);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    if(getThreadStartedCount() == 0){
+                      progressBar.setVisibility(View.GONE);
+                    }
+
+                //}
             }
 
             @Override
@@ -314,12 +785,31 @@ public class ActivityChat extends AppCompatActivity {
         });
     }
 
-
-    public void sendNotification(String messageBody){
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case PERMISSION_CODE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //permission granted
+                    pickImageFromGallery();
+                }else{
+                    //permission denied
+                    Toast.makeText(this, "Atšaukta", Toast.LENGTH_SHORT).show();
+                }
+            case MY_WRITE_EXTERNAL_STORAGE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //permission granted
+                    takeNewPhoto();
+                }else{
+                    //permission denied
+                    Toast.makeText(this, "Atšaukta", Toast.LENGTH_SHORT).show();
+                }
+        }
     }
+
     public void refresh(){
-        //--to do header labes darbas + addres
+        //--to do header labels darbas + address
        txtChatParticipantCount.setText("+" + String.valueOf(objectUserArrayList.size()));
        txtChattingAbout.setText(myObject.getObjectName());
        txtChattingAbout2.setText(myObject.getObjectAddress());
@@ -341,14 +831,14 @@ public class ActivityChat extends AppCompatActivity {
         private static final String view_object_url = "view_object.php";
 
         private Context context;
-        private String objectId, notVievedValue;
+        private String objectId, notViewedValue;
         ObjectObject objectToDisplay;
         Connector connector;
 
         public HttpsRequestViewObject(Context ctx, ObjectObject obj, String objId, String value){
             context  = ctx;
             objectId = objId;
-            notVievedValue = value;
+            notViewedValue = value;
             objectToDisplay = obj;
         }
         @Override
@@ -357,7 +847,7 @@ public class ActivityChat extends AppCompatActivity {
             connector = new Connector(context, view_object_url);
             connector.addPostParameter("user_id",    Base64.encodeToString(MCrypt.encrypt(String.valueOf(myUser.getId()).getBytes()), Base64.DEFAULT));
             connector.addPostParameter("object_id",  Base64.encodeToString(MCrypt.encrypt(objectId.getBytes()), Base64.DEFAULT));
-            connector.addPostParameter("not_viewed", Base64.encodeToString(MCrypt.encrypt(notVievedValue.getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("not_viewed", Base64.encodeToString(MCrypt.encrypt(notViewedValue.getBytes()), Base64.DEFAULT));
             connector.send();
             connector.receive();
             connector.disconnect();
@@ -680,7 +1170,7 @@ public class ActivityChat extends AppCompatActivity {
                     intent.putExtra("myUser", myUser);
                     intent.putExtra("objectObject", getClickObject());
                     intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
-                    intent.putParcelableArrayListExtra("listtUser", getObjectUserArrayList());
+                    intent.putParcelableArrayListExtra("listUser", getObjectUserArrayList());
                     intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
                     context.startActivity(intent);
                 }else{
@@ -695,4 +1185,173 @@ public class ActivityChat extends AppCompatActivity {
 
     }
 
+    class HttpsRequestUploadPicture extends AsyncTask<String, String, InputStream> {
+        private static final String upload_picture_url = "upload_picture.php";
+        private Context context;
+        Connector connector;
+        ObjectObjPic objectObjPic;
+        ObjectMessage message;
+        String fileName;
+        ObjectObject object;
+        Bitmap resource;
+        RunnableTask runnableTask;
+
+        public HttpsRequestUploadPicture(Context context, ObjectObject object, String fileName, Bitmap resource, RunnableTask runnableTask) {
+            this.context = context;
+            this.object = object;
+            this.fileName = fileName;
+            this.resource = resource;
+            this.runnableTask = runnableTask;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... value) {
+            try {
+                if (value[0].equals("start")) {
+                    message.getHolder().imageProgressBarUpl.setVisibility(View.VISIBLE);
+                    message.getHolder().imageProgressBarUpl.setProgress(0);
+                } else if(value[0].equals("one")) {
+                    message.getHolder().imageProgressBarUpl.setProgress(30);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(message.getHolder().imageProgressBarUpl, "progress", 5,30);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("two")) {
+                    message.getHolder().imageProgressBarUpl.setProgress(85);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(message.getHolder().imageProgressBarUpl, "progress", 30,80);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("three")) {
+                    message.getHolder().imageProgressBarUpl.setProgress(95);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(message.getHolder().imageProgressBarUpl, "progress", 80,95);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("four")) {
+                    message.getHolder().imageProgressBarUpl.setProgress(99);
+                    ObjectAnimator objectAnimator = ObjectAnimator.ofInt(message.getHolder().imageProgressBarUpl, "progress", 95,100);
+                    objectAnimator.setDuration(3000);
+                    objectAnimator.start();
+                } else if(value[0].equals("done")) {
+                    message.getHolder().imageProgressBarUpl.setProgress(100);
+                    message.getHolder().imageProgressBarUpl.setVisibility(View.GONE);
+                }
+            }catch (Exception e){
+            }
+
+            super.onProgressUpdate(value);
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+            String str_img = "";
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Bitmap bitmap = resource;
+                //bitmap =  ((BitmapDrawable)message.getHolder().image.getDrawable()).getBitmap();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArray= baos.toByteArray();
+                str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            //publishProgress("start");
+            connector = new Connector(context, upload_picture_url);
+            connector.addPostParameter("objectId",      MCrypt2.encodeToString(String.valueOf(object.getId())));
+            connector.addPostParameter("pictureName",   MCrypt2.encodeToString(fileName));//objectObjPic.getPicName()
+            //publishProgress("one");
+            connector.addPostParameter("pictureSource", str_img);
+            //publishProgress("two");
+            connector.send();
+            //publishProgress("three");
+            connector.receive();
+            //publishProgress("four");
+            connector.disconnect();
+            String result = connector.getResult();
+            //publishProgress("done");
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            //((ActivityChat)context).setUploadRunning(((ActivityChat)context).getUploadRunning() -1);
+            try {
+                connector.decodeResponse();
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String saveStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (saveStatus.equals("1")) {
+                    //objectObjPic.setPicUrl(msg);
+                    //objectObjPic.setPicUri("");
+
+                    //message.setPicUrl(msg);
+                    //message.setPicUri("");
+                    //---Save message to Firebase
+                    FirebaseDatabase.getInstance()
+                            .getReference("objects/" + object.getId().toString())
+                            //.child(message.getKey())
+                            .push()
+                            .setValue(new ObjectMessage(myUser.getFirst_name(),
+                                                        myUser.getUname(),
+                                                        myUser.getId().toString(),
+                                                        "",
+                                                        HelperDate.get_current_date_disply(),
+                                                        Calendar.getInstance().getTime().toString(),
+                                                        String.valueOf(Calendar.getInstance().getTimeInMillis()),
+                                                        myUser.getUser_lv(),
+                                                        msg,
+                                                        "",
+                                                        fileName,
+                                                        false));
+                    /*
+                    FirebaseDatabase.getInstance().getReference("objects/" + myObject.getId().toString())
+                        .push()
+                        .setValue(new ObjectMessage(myUser.getFirst_name(),
+                                myUser.getUname(),
+                                myUser.getId().toString(),
+                                editMessageInput.getText().toString(),
+                                HelperDate.get_current_date_disply(),
+                                Calendar.getInstance().getTime().toString(),
+                                String.valueOf(Calendar.getInstance().getTimeInMillis()),
+                                myUser.getUser_lv(),
+                                "",
+                                filePath.toString(),
+                                "chat_" + fileName,
+                                false
+                        ));
+                    */
+                    //((ActivityChat)context).getBeingUpdated().remove(message.getKey());
+
+                }else{
+                    //error handling?
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            backgroundJobs += 1;
+            runnableTask.setGo(false);
+            setThreadStartedCount(getThreadStartedCount()-1);
+            /*if (getThreadStartedCount() == 0){
+                progressBar.setVisibility(View.GONE);
+            }*/
+            //----send notification
+            sendMessageNotification();
+
+            super.onPostExecute(inputStream);
+        }
+        private String getPicArrayListJson(ArrayList<ObjectObjPic> pictureList){
+            JSONArray jsonArray = new JSONArray();
+            for(int i=0; i < pictureList.size(); i++){
+                jsonArray.put(pictureList.get(i).toJson());
+            }
+            return jsonArray.toString();
+        }
+        private String getDetailsArrayListJson(ArrayList<ObjectObjDetails> detailsList){
+            JSONArray jsonArray = new JSONArray();
+            for(int i=0; i < detailsList.size(); i++){
+                jsonArray.put(detailsList.get(i).toJson());
+            }
+            return jsonArray.toString();
+        }
+    }
 }

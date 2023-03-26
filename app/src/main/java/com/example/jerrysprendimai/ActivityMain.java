@@ -7,6 +7,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -242,6 +244,10 @@ public class ActivityMain extends AppCompatActivity {
 
                         Intent intent = new Intent(this.context, ActivityMenu.class);
                         intent.putExtra("myUser", myUser);
+                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                        stackBuilder.addParentStack(ActivityLogin.class);
+                        stackBuilder.addNextIntent(intent);
+                        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
 
                         //----Notification click handling
                         if(extras != null){
@@ -251,7 +257,8 @@ public class ActivityMain extends AppCompatActivity {
                             //extras.getString( "title" );
                         }
 
-                        context.startActivity(intent);
+                        //context.startActivity(intent);
+                        pendingIntent.send();
                     }
 
                 }else{

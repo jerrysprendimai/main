@@ -21,7 +21,6 @@ import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,7 +33,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.view.menu.ActionMenuItem;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -44,7 +42,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.jerrysprendimai.interfaces.OnIntentReceived;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
@@ -477,7 +474,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             }
 
         });
-        //----------take foto handler
+        //----------take photo handler
         holder.oDTakeFotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -492,11 +489,11 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                         if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                             ((ActivityObjectEdit)context).requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_WRITE_EXTERNAL_STORAGE);
                         } else {
-                            takeNewFoto();
+                            takeNewPhoto();
                         }
                     }
                 }else{
-                   takeNewFoto();
+                   takeNewPhoto();
                }
             }
         });
@@ -683,20 +680,6 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             setmCurrentPhotoUri(null);
             setmCurrentPhotoPath(null);
         }
-
-        /*
-        //---- Save Button in UserMode handling
-        if ((((ActivityObjectEdit) context).isUserMode())) {
-            if((((ActivityObjectEdit) context).isNeedSave())){
-                holder.oDUserModeSaveDetail.setEnabled(true);
-                holder.oDUserModeSaveDetail.setBackground(context.getResources().getDrawable(R.drawable.round_button));
-            }else {
-                holder.oDUserModeSaveDetail.setEnabled(false);
-                holder.oDUserModeSaveDetail.setBackground(context.getResources().getDrawable(R.drawable.round_button_grey));
-            }
-        }
-        */
-
     }
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -738,7 +721,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         return image;
     }
 
-    public void takeNewFoto(){
+    public void takeNewPhoto(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
             File photoFile = null;
@@ -791,7 +774,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             case MY_WRITE_EXTERNAL_STORAGE:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     //permission granted
-                     takeNewFoto();
+                     takeNewPhoto();
                 }else{
                     //permission denied
                     Toast.makeText(context, "Atšaukta", Toast.LENGTH_SHORT).show();
