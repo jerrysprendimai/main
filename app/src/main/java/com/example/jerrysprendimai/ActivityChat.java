@@ -63,6 +63,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class ActivityChat extends AppCompatActivity{
@@ -260,19 +261,28 @@ public class ActivityChat extends AppCompatActivity{
             if(editMessageInput.length() == 0){
                 return;
             }
-            FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).push().setValue(new ObjectMessage(myUser.getFirst_name(),
-                                                                                                                        myUser.getUname(),
-                                                                                                                        myUser.getId().toString(),
-                                                                                                                        editMessageInput.getText().toString(),
-                                                                                                                        HelperDate.get_current_date_disply(),
-                                                                                                                        Calendar.getInstance().getTime().toString(),
-                                                                                                                        String.valueOf(Calendar.getInstance().getTimeInMillis()),
-                                                                                                                        myUser.getUser_lv(),
-                                                                                                                        "",
-                                                                                                                        "",
-                                                                                                                      "",
-                                                                                                                     false
-                                                                                                                        ));
+            HashMap<String, String> usersHashMap = new HashMap<String, String>();
+            boolean contains = false;
+            for(int i=0; i<getObjectUserArrayList().size(); i++){
+                 usersHashMap.put(getObjectUserArrayList().get(i).getUserId().toString(), "false");
+            }
+
+            FirebaseDatabase.getInstance()
+                    .getReference("objects/" + chatRoomId)
+                    .push()
+                    .setValue(new ObjectMessage(myUser.getFirst_name(),
+                                                myUser.getUname(),
+                                                myUser.getId().toString(),
+                                                editMessageInput.getText().toString(),
+                                                HelperDate.get_current_date_disply(),
+                                                Calendar.getInstance().getTime().toString(),
+                                                String.valueOf(Calendar.getInstance().getTimeInMillis()),
+                                                myUser.getUser_lv(),
+                                                "",
+                                                "",
+                                                "",
+                                                false
+                                                ));
             //----send notification
             sendMessageNotification();
             /*String title   = myObject.getObjectName()+"   #"+myObject.getId().toString();
