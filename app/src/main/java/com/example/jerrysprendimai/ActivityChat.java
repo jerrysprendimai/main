@@ -65,6 +65,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class ActivityChat extends AppCompatActivity{
     private static final int IMAGE_PICK_CODE = 1000;
@@ -104,6 +105,8 @@ public class ActivityChat extends AppCompatActivity{
 
     private MyAdapterMessage myAdapterMessage;
     private ArrayList<ObjectMessage> messages;
+    private ArrayList<ObjectMessage> messagesUnseenToSeen;
+    public ValueEventListener valueEventListener;
 
     final String user = "user";
     final String admin = "admin";
@@ -136,6 +139,7 @@ public class ActivityChat extends AppCompatActivity{
         hiddenPicture           = findViewById(R.id.chat_hidden_container);
 
         messages = new ArrayList<>();
+        messagesUnseenToSeen = new ArrayList<>();
 
         //---------------Read Intent values----------------------
         this.myUser               = getIntent().getParcelableExtra("myUser");
@@ -252,7 +256,8 @@ public class ActivityChat extends AppCompatActivity{
                                                      message.getPicUrl(),
                                                      message.getPicUri(),
                                                      message.getPicName(),
-                                                     message.isDeleted()));
+                                                     message.isDeleted(),
+                                                     message.getUsers()));
                         //.removeValue();
             }
             setToBeDeleted(new ArrayList<>());
@@ -264,9 +269,23 @@ public class ActivityChat extends AppCompatActivity{
             HashMap<String, String> usersHashMap = new HashMap<String, String>();
             boolean contains = false;
             for(int i=0; i<getObjectUserArrayList().size(); i++){
-                 usersHashMap.put(getObjectUserArrayList().get(i).getUserId().toString(), "false");
+                 if(myUser.getId().equals(getObjectUserArrayList().get(i).getUserId())){
+                     contains = true;
+                     usersHashMap.put(getObjectUserArrayList().get(i).getUserId().toString(), "true");
+                 }else{
+                     usersHashMap.put(getObjectUserArrayList().get(i).getUserId().toString(), "false");
+                 }
+            }
+            for(int i=0;i<getOwnerList().size(); i++){
+                if(myUser.getId().equals(getOwnerList().get(i).getId())){
+                    usersHashMap.put(getOwnerList().get(i).getId().toString(), "true");
+                }else{
+                    usersHashMap.put(getOwnerList().get(i).getId().toString(), "false");
+                }
             }
 
+            //HashMap<String, HashMap> users = new HashMap<String, HashMap>();
+            //users.put("users", usersHashMap);
             FirebaseDatabase.getInstance()
                     .getReference("objects/" + chatRoomId)
                     .push()
@@ -281,7 +300,8 @@ public class ActivityChat extends AppCompatActivity{
                                                 "",
                                                 "",
                                                 "",
-                                                false
+                                                false,
+                                                usersHashMap
                                                 ));
             //----send notification
             sendMessageNotification();
@@ -694,6 +714,8 @@ public class ActivityChat extends AppCompatActivity{
         return value;
     }
 
+    public ArrayList<ObjectMessage> getMessagesUnseenToSeen() {        return messagesUnseenToSeen;    }
+    public void setMessagesUnseenToSeen(ArrayList<ObjectMessage> messagesUnseenToSeen) {        this.messagesUnseenToSeen = messagesUnseenToSeen;    }
     public String getCurrentDate() {        return currentDate;    }
     public void setCurrentDate(String currentDate) {        this.currentDate = currentDate;    }
     public String getDateToDisplay() {        return dateToDisplay;    }
@@ -748,6 +770,7 @@ public class ActivityChat extends AppCompatActivity{
           clearToBeDeleted();
           setToBeDeleted(new ArrayList<>());
         }else{
+            FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).removeEventListener(valueEventListener);
           super.onBackPressed();
         }
     }
@@ -756,28 +779,91 @@ public class ActivityChat extends AppCompatActivity{
         attachMessageListener(chatRoomId);
     }
 
-    private void attachMessageListener(String chatRoomId){
-        FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).addValueEventListener(new ValueEventListener() {
+    private void attachMessageListener(String myChatRoomId){
+        this.valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                 messages.clear();
+                messagesUnseenToSeen.clear();
+                //HashMap fldObj;
+
                 for(DataSnapshot dataSnapshot:snapshot.getChildren()){
-                    messages.add(dataSnapshot.getValue(ObjectMessage.class));
-                    messages.get(messages.size()-1).setKey(dataSnapshot.getKey());
+                    Map<String, String> map = (Map)dataSnapshot.getValue();
+                    Object fieldsObj = new Object();
+                    //ObjectMessage objectMessage = new ObjectMessage(map);
+                    try{
+                        fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
+                        ObjectMessage message = new ObjectMessage(fieldsObj);
+                        message.setKey(dataSnapshot.getKey());
+                        messages.add(message);
+
+                        if(message.getUsers().get(myUser.getId().toString()).equals("false")){
+                            if(!messagesUnseenToSeen.contains(message)){
+                                messagesUnseenToSeen.add(message);
+                            }
+                        }
+
+                    }catch (Exception e){
+                        continue;
+                    }
+
                 }
                 setCurrentDate("");
                 setDateToDisplay("");
 
-                /*boolean notified = false;
-                for(int i = 0; i < messages.size(); i++){
-                    if(!messages.get(i).getPicUri().isEmpty()){
-                        myAdapterMessage.notifyItemChanged(i);
-                        notified = true;
-                        break;
+
+                myAdapterMessage.notifyDataSetChanged();
+                recyclerView.scrollToPosition(messages.size() - 1);
+                recyclerView.setVisibility(View.VISIBLE);
+                if(getThreadStartedCount() == 0){
+                    progressBar.setVisibility(View.GONE);
+                }
+
+                if(messagesUnseenToSeen.size() > 0){
+                    updateSeenMessages(myChatRoomId);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        };
+        FirebaseDatabase.getInstance().getReference("objects/" + myChatRoomId).addValueEventListener(valueEventListener);
+        /*FirebaseDatabase.getInstance().getReference("objects/" + myChatRoomId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                messages.clear();
+                messagesUnseenToSeen.clear();
+                //HashMap fldObj;
+
+                for(DataSnapshot dataSnapshot:snapshot.getChildren()){
+                    Map<String, String> map = (Map)dataSnapshot.getValue();
+                    Object fieldsObj = new Object();
+                    //ObjectMessage objectMessage = new ObjectMessage(map);
+                    try{
+                        fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
+                        ObjectMessage message = new ObjectMessage(fieldsObj);
+                        message.setKey(dataSnapshot.getKey());
+                        messages.add(message);
+
+                        if(message.getUsers().get(myUser.getId().toString()).equals("false")){
+                            if(!messagesUnseenToSeen.contains(message)){
+                                messagesUnseenToSeen.add(message);
+                            }
+                        }
+
+                    }catch (Exception e){
+                        continue;
                     }
-                }*/
-                //if(!(getUploadRunning() > 0)) {
-                //if(!notified){
+
+                }
+                setCurrentDate("");
+                setDateToDisplay("");
+
+
                     myAdapterMessage.notifyDataSetChanged();
                     recyclerView.scrollToPosition(messages.size() - 1);
                     recyclerView.setVisibility(View.VISIBLE);
@@ -785,14 +871,42 @@ public class ActivityChat extends AppCompatActivity{
                       progressBar.setVisibility(View.GONE);
                     }
 
-                //}
+                    if(messagesUnseenToSeen.size() > 0){
+                        updateSeenMessages(myChatRoomId);
+                    }
+
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        });*/
+    }
+
+    public void updateSeenMessages(String chatRoom) {
+        for(int i = 0; i < getMessagesUnseenToSeen().size(); i++){
+            ObjectMessage message = getMessagesUnseenToSeen().get(i);
+            message.getUsers().remove(myUser.getId().toString());
+            message.getUsers().put(myUser.getId().toString(), "true");
+
+            FirebaseDatabase.getInstance()
+                    .getReference("objects/" + chatRoom)
+                    .child(message.getKey())
+                    .setValue(new ObjectMessage( message.getFirstName(),
+                                                 message.getUname(),
+                                                 message.getUserId(),
+                                                 message.getContent(),
+                                                 message.getDate(),
+                                                 message.getTime(),
+                                                 message.getMills(),
+                                                 message.getUserLv(),
+                                                 message.getPicUrl(),
+                                                 message.getPicUri(),
+                                                 message.getPicName(),
+                                                 message.isDeleted(),
+                                                 message.getUsers()));
+        }
     }
 
     @Override
@@ -1296,6 +1410,26 @@ public class ActivityChat extends AppCompatActivity{
 
                     //message.setPicUrl(msg);
                     //message.setPicUri("");
+
+                    HashMap<String, String> usersHashMap = new HashMap<String, String>();
+                    boolean contains = false;
+                    for(int i=0; i<getObjectUserArrayList().size(); i++){
+                        if(myUser.getId().equals(getObjectUserArrayList().get(i).getUserId())){
+                            contains = true;
+                            usersHashMap.put(getObjectUserArrayList().get(i).getUserId().toString(), "true");
+                        }else{
+                            usersHashMap.put(getObjectUserArrayList().get(i).getUserId().toString(), "false");
+                        }
+                    }
+                    for(int i=0;i<getOwnerList().size(); i++){
+                        if(myUser.getId().equals(getOwnerList().get(i).getId())){
+                            usersHashMap.put(getOwnerList().get(i).getId().toString(), "true");
+                        }else{
+                            usersHashMap.put(getOwnerList().get(i).getId().toString(), "false");
+                        }
+                    }
+                    //HashMap<String, HashMap> users = new HashMap<String, HashMap>();
+                    //users.put("users", usersHashMap);
                     //---Save message to Firebase
                     FirebaseDatabase.getInstance()
                             .getReference("objects/" + object.getId().toString())
@@ -1312,7 +1446,8 @@ public class ActivityChat extends AppCompatActivity{
                                                         msg,
                                                         "",
                                                         fileName,
-                                                        false));
+                                                        false,
+                                                        usersHashMap));
                     /*
                     FirebaseDatabase.getInstance().getReference("objects/" + myObject.getId().toString())
                         .push()

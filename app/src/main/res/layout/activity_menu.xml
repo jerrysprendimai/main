@@ -151,8 +151,7 @@
                                 android:textColor="@color/white"
                                 android:layout_marginTop="2dp"
                                 android:layout_marginRight="5dp"
-                                android:layout_gravity="right">
-                            </TextView>
+                                android:layout_gravity="right"/>
                             <androidx.cardview.widget.CardView
                             style="@style/Menu_Item_CardView"
                             android:id="@+id/CardView_main_menu_work">
@@ -263,6 +262,21 @@
                             android:backgroundTint="@android:color/transparent"
                             android:layout_margin="0dp"
                             app:cardElevation="0dp">
+                            <TextView
+                                android:id="@+id/menu_caption_chat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3"
+                                android:elevation="2dp"
+                                android:gravity="center"
+                                android:textStyle="italic|bold"
+                                android:textSize="11sp"
+                                android:background="@drawable/circle_view"
+                                android:textColor="@color/white"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="5dp"
+                                android:layout_gravity="right">
+                            </TextView>
                             <androidx.cardview.widget.CardView
                                 style="@style/Menu_Item_CardView"
                                 android:id="@+id/CardView_main_menu_chat">

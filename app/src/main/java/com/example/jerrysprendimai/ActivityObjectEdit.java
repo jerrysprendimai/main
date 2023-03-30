@@ -154,6 +154,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.oObjectIcon.setImageResource(getResources().getIdentifier(objectObject.getIcon(), "drawable", getApplicationInfo().packageName));
 
         this.employeeArrayList = new ArrayList<>();
+        this.ownerArrayList = new ArrayList<>();
 
         //---- Date Picker handling
         Context context = this;
@@ -621,6 +622,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
                     findViewById(R.id.objectEdit_add_job_button).setEnabled(false);
                     findViewById(R.id.objectEdit_add_job_button).setBackground(getDrawable(R.drawable.round_button_grey));
                     findViewById(R.id.objectEdit_date).setEnabled(false);
+                    findViewById(R.id.objectEdit_to_chat_button).setEnabled(false);
+                    findViewById(R.id.objectEdit_to_chat_button).setBackground(getDrawable(R.drawable.round_button_grey));
                     findViewById(R.id.objectEdit_objectName).setEnabled(false);
                     findViewById(R.id.objectEdit_customerName).setEnabled(false);
                     findViewById(R.id.objectEdit_objectAddress).setEnabled(false);
@@ -847,6 +850,8 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             findViewById(R.id.objectEdit_add_job_button).setEnabled(true);
             findViewById(R.id.objectEdit_add_job_button).setBackground(getDrawable(R.drawable.round_button));
             findViewById(R.id.objectEdit_date).setEnabled(true);
+            findViewById(R.id.objectEdit_to_chat_button).setEnabled(true);
+            findViewById(R.id.objectEdit_to_chat_button).setBackground(getDrawable(R.drawable.round_button));
             findViewById(R.id.objectEdit_objectName).setEnabled(true);
             findViewById(R.id.objectEdit_customerName).setEnabled(true);
             findViewById(R.id.objectEdit_objectAddress).setEnabled(true);

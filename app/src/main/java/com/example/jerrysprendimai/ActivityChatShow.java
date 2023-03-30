@@ -1,5 +1,6 @@
 package com.example.jerrysprendimai;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,12 +12,19 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActivityChatShow extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -27,6 +35,7 @@ public class ActivityChatShow extends AppCompatActivity implements SwipeRefreshL
     ArrayList<ObjectObject> myObjectListOriginal;
     RecyclerView recyclerView;
     MyAdapterChatShow myAdapterChatShow;
+    ArrayList<ValueEventListener> myChatEventListeners;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +50,7 @@ public class ActivityChatShow extends AppCompatActivity implements SwipeRefreshL
         this.myUser       = getIntent().getParcelableExtra("myUser");
         this.myObjectList = getIntent().getParcelableArrayListExtra("myObjectList");
 
+        myChatEventListeners = new ArrayList<>();
         myObjectListOriginal = new ArrayList<>();
         myObjectListOriginal.addAll(myObjectList);
 
@@ -55,11 +65,27 @@ public class ActivityChatShow extends AppCompatActivity implements SwipeRefreshL
         recyclerView.setAdapter(myAdapterChatShow);
     }
 
+    public ArrayList<ValueEventListener> getMyChatEventListeners() {        return myChatEventListeners;    }
+    public void setMyChatEventListeners(ArrayList<ValueEventListener> myChatEventListeners) {        this.myChatEventListeners = myChatEventListeners;    }
+
+    public void removeMessageListeners(){
+        for(int i=0; i<this.myObjectList.size(); i++){
+            FirebaseDatabase.getInstance().getReference("objects/" + this.myObjectList.get(i).getId().toString()).removeEventListener(this.myChatEventListeners.get(i));
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         swipeRefreshLayout.setRefreshing(true);
         new HttpsRequestCheckSessionAlive(this).execute();
+    }
+
+    @Override
+    public void onBackPressed() {
+        removeMessageListeners();
+        myChatEventListeners.clear();
+        super.onBackPressed();
     }
 
     @Override

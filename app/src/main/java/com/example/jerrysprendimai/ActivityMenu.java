@@ -1,12 +1,12 @@
 package com.example.jerrysprendimai;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -17,11 +17,18 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +36,8 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActivityMenu extends AppCompatActivity {
 
@@ -46,17 +55,21 @@ public class ActivityMenu extends AppCompatActivity {
 
     ArrayList<ObjectObject> myObjectList;
     ArrayList<ObjectObject> myObjectListOriginal;
+    public ValueEventListener valueEventListener;
+    ArrayList<ValueEventListener> valueEventListeners;
 
     ObjectUser myUser;
     LinearLayout mainContainer;
     GridLayout gridLayout;
     Integer backButtonCount;
+    public HashMap<String, Integer> unseenChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
+        this.valueEventListeners = new ArrayList<>();
         this.backButtonCount = 0;
         this.myObjectList = new ArrayList<>();
         this.myObjectListOriginal = new ArrayList<>();
@@ -96,6 +109,7 @@ public class ActivityMenu extends AppCompatActivity {
             Intent intent = new Intent(context, ActivitySettings.class);
             intent.putExtra("myUser", myUser);
             context.startActivity(intent);
+            removeMessageListeners();
         });
 
         //------------User_Show
@@ -124,6 +138,7 @@ public class ActivityMenu extends AppCompatActivity {
                 intent.putExtra("myUserEdit", objectUser);
                 intent.putExtra("myUser", myUser);
                 context.startActivity(intent);
+                removeMessageListeners();
             }
         });
         //------------User icon
@@ -145,6 +160,7 @@ public class ActivityMenu extends AppCompatActivity {
                 intent.putExtra("myUserEdit", objectUser);
                 intent.putExtra("myUser", myUser);
                 context.startActivity(intent);
+                removeMessageListeners();
             }
         };
         ((CardView) findViewById(R.id.main_menu_user_indicator)).setOnClickListener(userProfileListener);
@@ -160,6 +176,7 @@ public class ActivityMenu extends AppCompatActivity {
             Intent intent = new Intent(context, ActivityObjectShow.class);
             intent.putExtra("myUser", myUser);
             context.startActivity(intent);
+            removeMessageListeners();
         });
 
         //-----------Calendar_Show
@@ -172,9 +189,11 @@ public class ActivityMenu extends AppCompatActivity {
             Intent intent = new Intent(context, ActivityCalendar.class);
             intent.putExtra("myUser", myUser);
             context.startActivity(intent);
+            removeMessageListeners();
         });
 
         //-----------Chat
+        ((TextView) findViewById(R.id.menu_caption_chat)).setVisibility(View.GONE);
         LinearLayout chatLayout = (LinearLayout) findViewById(R.id.main_menu_chat);
         chatLayout.setOnClickListener(v->{
             this.backButtonCount = 0;
@@ -184,11 +203,8 @@ public class ActivityMenu extends AppCompatActivity {
             intent.putExtra("myUser", myUser);
             intent.putParcelableArrayListExtra("myObjectList", myObjectList);
             context.startActivity(intent);
+            removeMessageListeners();
         });
-        /*CardView chatCard = (CardView) findViewById(R.id.CardView_chat);
-        chatCard.setVisibility(View.GONE);
-
-        chatLayout.setVisibility(View.GONE);*/
 
         //-----------Supplier
         CardView supplierCard = (CardView) findViewById(R.id.CardView_dealers);
@@ -196,43 +212,131 @@ public class ActivityMenu extends AppCompatActivity {
         LinearLayout supplierLayout = (LinearLayout) findViewById(R.id.main_menu_dealers);
         supplierLayout.setVisibility(View.GONE);
 
-        //----cehck calendar permission
-        boolean permissionOk = true;
-        /*if (!(checkPermission(this, CALENDAR_READ_CODE, Manifest.permission.READ_CALENDAR) == true)   ||
-                !(checkPermission(this, CALENDAR_WRITE_CODE, Manifest.permission.WRITE_CALENDAR) == true)){
-            permissionOk = false;
-        }*/
-        /*
-        //----check pictures permission
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                //permission not granted, request it
-                String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                //show popup for runtime permission
-                requestPermissions(permissions, PERMISSION_CODE);
-            }else{
-                //permission already granted
-            }
-        }else{
-               //system os is less that marshmallow
-        }
-        //----check camera permission
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-                requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-            } else {
-                //check permission external storage
-                if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_WRITE_EXTERNAL_STORAGE);
-                } else {
-                    //permission already granted
-                }
-            }
-        }else{
-            //system os is less that marshmallow
-        }
-        */
     }
+    public void removeMessageListeners(){
+        for(int i=0; i<this.myObjectList.size(); i++){
+            FirebaseDatabase.getInstance().getReference("objects/" + this.myObjectList.get(i).getId().toString()).removeEventListener(this.valueEventListeners.get(i));
+        }
+    }
+    public void attachMessageListener(String chatRoomId) {
+        Context context = this;
+        this.valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean contains = false;
+                for(DataSnapshot dataSnapshot:snapshot.getChildren()){
+                    Map<String, String> map = (Map)dataSnapshot.getValue();
+                    Object fieldsObj = new Object();
+                    try{
+                        fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
+                        ObjectMessage message = new ObjectMessage(fieldsObj);
+                        message.setKey(dataSnapshot.getKey());
+
+                        if (message.getUsers().get(myUser.getId().toString()).equals("false")){
+                            if(!getUnseenChat().containsKey(chatRoomId)){
+                                getUnseenChat().put(chatRoomId, 1);
+                            }
+                            contains = true;
+                            break;
+                        }
+
+                    }catch (Exception e){
+                        continue;
+                    }
+                }
+                if((!contains)&&(getUnseenChat().containsKey(chatRoomId))){
+                    getUnseenChat().remove(chatRoomId);
+                }
+
+                TextView captionChat = findViewById(R.id.menu_caption_chat);
+
+                if(getUnseenChat().size() > 0){
+                    if(captionChat.getVisibility() == View.GONE){
+                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                        captionChat.setAnimation(slideIn);
+                    }else{
+                        captionChat.clearAnimation();
+                    }
+                    ((TextView) findViewById(R.id.menu_caption_chat)).setVisibility(View.VISIBLE);
+                }else{
+                    if(captionChat.getVisibility() == View.VISIBLE){
+                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadeout);
+                        captionChat.setAnimation(slideIn);
+                    }else{
+                        captionChat.clearAnimation();
+                    }
+                    ((TextView) findViewById(R.id.menu_caption_chat)).setVisibility(View.GONE);
+                }
+                ((TextView) findViewById(R.id.menu_caption_chat)).setText(String.valueOf(getUnseenChat().size()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).addValueEventListener(this.valueEventListener);
+        this.valueEventListeners.add(this.valueEventListener);
+
+        /*FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean contains = false;
+                for(DataSnapshot dataSnapshot:snapshot.getChildren()){
+                    Map<String, String> map = (Map)dataSnapshot.getValue();
+                    Object fieldsObj = new Object();
+                    try{
+                        fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
+                        ObjectMessage message = new ObjectMessage(fieldsObj);
+                        message.setKey(dataSnapshot.getKey());
+
+                        if (message.getUsers().get(myUser.getId().toString()).equals("false")){
+                            if(!getUnseenChat().containsKey(chatRoomId)){
+                                getUnseenChat().put(chatRoomId, 1);
+                            }
+                            contains = true;
+                            break;
+                        }
+
+                    }catch (Exception e){
+                        continue;
+                    }
+                }
+                if((!contains)&&(getUnseenChat().containsKey(chatRoomId))){
+                    getUnseenChat().remove(chatRoomId);
+                }
+
+                TextView captionChat = findViewById(R.id.menu_caption_chat);                
+
+                if(getUnseenChat().size() > 0){
+                    if(captionChat.getVisibility() == View.GONE){
+                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                        captionChat.setAnimation(slideIn);
+                    }else{
+                        captionChat.clearAnimation();
+                    }
+                    ((TextView) findViewById(R.id.menu_caption_chat)).setVisibility(View.VISIBLE);
+                }else{
+                    if(captionChat.getVisibility() == View.VISIBLE){
+                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadeout);
+                        captionChat.setAnimation(slideIn);
+                    }else{
+                        captionChat.clearAnimation();
+                    }
+                    ((TextView) findViewById(R.id.menu_caption_chat)).setVisibility(View.GONE);
+                }
+                ((TextView) findViewById(R.id.menu_caption_chat)).setText(String.valueOf(getUnseenChat().size()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });*/
+    }
+
+    public HashMap<String, Integer> getUnseenChat() {       return unseenChat;    }
+    public void setUnseenChat(HashMap<String, Integer> unseenChat) {        this.unseenChat = unseenChat;    }
 
     public static void setMyUser(ObjectUser user){
         ActivityMenu.objectUser = user;
@@ -263,6 +367,8 @@ public class ActivityMenu extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        this.valueEventListeners = new ArrayList<>();
+        setUnseenChat(new HashMap<String, Integer>());
         if(ActivityMenu.objectUser != null){
             this.myUser.setFirst_name(ActivityMenu.objectUser.getFirst_name());
             this.myUser.setLast_name(ActivityMenu.objectUser.getLast_name());
@@ -360,6 +466,12 @@ public class ActivityMenu extends AppCompatActivity {
             ((ActivityMenu) context).myObjectList.addAll(objectArryList);
             ((ActivityMenu) context).myObjectListOriginal = new ArrayList<ObjectObject>();
             ((ActivityMenu) context).myObjectListOriginal.addAll(((ActivityMenu) context).myObjectList);
+
+            //--Attach Firebase listener
+            setUnseenChat(new HashMap<String, Integer>());
+            for(int i = 0; i < myObjectList.size(); i++ ){
+                attachMessageListener(myObjectList.get(i).getId().toString());
+            }
 
             //----Work Caption handling
             int newCount = 0;

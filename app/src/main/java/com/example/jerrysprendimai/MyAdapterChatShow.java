@@ -7,6 +7,8 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -14,13 +16,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.MyViewHolder> {
 
@@ -55,6 +64,58 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
             ((ActivityChatShow)context).swipeRefreshLayout.setRefreshing(true);
             new HttpsRequestGetObjectDetails(context, myObject).execute();
         });
+
+        attachMessageListener(myObject.getId().toString(), holder);
+    }
+
+    public void attachMessageListener(String chatRoomId, MyViewHolder holder) {
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int count = 0;
+                for(DataSnapshot dataSnapshot:snapshot.getChildren()){
+                    Map<String, String> map = (Map)dataSnapshot.getValue();
+                    Object fieldsObj = new Object();
+                    try{
+                        fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
+                        ObjectMessage message = new ObjectMessage(fieldsObj);
+                        message.setKey(dataSnapshot.getKey());
+
+                        if (message.getUsers().get(myUser.getId().toString()).equals("false")){
+                            count++;
+                        }
+
+                    }catch (Exception e){
+                        continue;
+                    }
+                }
+
+                if(count > 0){
+                    if(holder.chatUnseenCount.getVisibility() == View.GONE){
+                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                        holder.chatUnseenCount.setAnimation(slideIn);
+                    }else{
+                        holder.chatUnseenCount.clearAnimation();
+                    }
+                    holder.chatUnseenCount.setVisibility(View.VISIBLE);
+                }else{
+                    if(holder.chatUnseenCount.getVisibility() == View.VISIBLE){
+                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadeout);
+                        holder.chatUnseenCount.setAnimation(slideIn);
+                    }else{
+                        holder.chatUnseenCount.clearAnimation();
+                    }
+                    holder.chatUnseenCount.setVisibility(View.GONE);
+                }
+                holder.chatUnseenCount.setText(String.valueOf(count));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).addValueEventListener(eventListener);
+        ((ActivityChatShow)context).getMyChatEventListeners().add(eventListener);
     }
 
     @Override
@@ -67,6 +128,7 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
         LinearLayout myRow;
         ImageView chatObjectIcon;
         TextView chatObjectName, chatObjectCustomer;
+        TextView chatUnseenCount;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,7 +136,9 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
             chatObjectIcon     = itemView.findViewById(R.id.chat_object_icon);
             chatObjectName     = itemView.findViewById(R.id.chat_object_name);
             chatObjectCustomer = itemView.findViewById(R.id.chat_object_customer);
+            chatUnseenCount    = itemView.findViewById(R.id.chat_caption_count);
             myRow              = itemView.findViewById(R.id.chat_my_container);
+
         }
     }
 
@@ -206,6 +270,9 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
                     objectObject = new ObjectObject((JSONObject) responseHeader.get(i), "wa");
                     break;
                 }
+
+                ((ActivityChatShow)context).removeMessageListeners();
+                ((ActivityChatShow)context).getMyChatEventListeners().clear();
 
                 Intent intent = new Intent(context, ActivityChat.class);
                 intent.putExtra("myUser", myUser);

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,7 +33,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectShow.MyViewHolder>{
@@ -39,6 +44,10 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
 
     List<ObjectObject> myObjectList;
     List<ObjectObject> myObjectListFull;
+
+    final String USER = "user";
+    final String OWNER = "owner";
+    final String ADMIN = "admin";
 
     ObjectObject clickObject;
     ObjectUser myUser;
@@ -447,6 +456,45 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 ((TextView)    bottomSheetView.findViewById(R.id.object_progess_bar_label)).setText(String.valueOf(clickObject.getCompleteness()) + "%");
                 ((ProgressBar) bottomSheetView.findViewById(R.id.object_progess_bar)).setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(clickObject.getCompleteness())))));
 
+                if((myUser.getUser_lv().equals(ADMIN))||(myUser.getUser_lv().equals(OWNER))) {
+                    TextView dateLabel = (TextView) bottomSheetView.findViewById(R.id.bottomsheet_objectDate);
+                    dateLabel.setOnClickListener(v -> {
+                        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_date_picker, null, false);
+                        TextView dialogDateLabel = dialogView.findViewById(R.id.datePicker_date_label);
+                        CalendarView datePickerCalender = dialogView.findViewById(R.id.datePicker_calenderView);
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(Calendar.YEAR, Integer.parseInt(HelperDate.get_YMD_from_date_display("year",        clickObject.getDate())));
+                        calendar.set(Calendar.MONTH, Integer.parseInt(HelperDate.get_YMD_from_date_display("month",      clickObject.getDate())) - 1);
+                        calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(HelperDate.get_YMD_from_date_display("day", clickObject.getDate())));
+                        dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
+                        long milliTime = calendar.getTimeInMillis();
+                        datePickerCalender.setDate(milliTime);
+                        datePickerCalender.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+                            calendar.set(Calendar.YEAR, year);
+                            calendar.set(Calendar.MONTH, month );
+                            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                            dialogDateLabel.setText(DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime()));
+                            long milliTime1 = calendar.getTimeInMillis();
+                            datePickerCalender.setDate(milliTime1);
+                        });
+                        AlertDialog.Builder datePickerDialog = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
+                        datePickerDialog.setPositiveButton("Ok", (dialog, which) -> {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            String dialogDate = dateFormat.format(datePickerCalender.getDate());
+
+                            clickObject.setDate(dialogDate);
+                            dateLabel.setText(dialogDate);
+
+
+                            new HttpsRequestSetObjectDate(context, clickObject).execute();
+                        });
+                        datePickerDialog.setNegativeButton("Cancel", null);
+                        datePickerDialog.setView(dialogView);
+                        datePickerDialog.create();
+                        datePickerDialog.show();
+                    });
+                }
+
                 //---- retractable button/view handling
                 LinearLayout retractableLayout     = bottomSheetView.findViewById(R.id.bottomsheet_retractable_layout);
                 LinearLayout retractableLayoutLine = bottomSheetView.findViewById(R.id.bottomsheet_retractableLine);
@@ -673,4 +721,52 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
             new HttpsRequestGetObjectDetails(context, clickObject).execute();
         }
     }
+
+    class HttpsRequestSetObjectDate extends AsyncTask<String, Void, InputStream> {
+        private static final String set_object_date_url = "set_object_date.php";
+
+        private Context context;
+        private ObjectObject clickObject;
+
+        Connector connector;
+
+        public HttpsRequestSetObjectDate(Context ctx, ObjectObject obj){
+            context     = ctx;
+            clickObject = obj;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, set_object_date_url);
+            connector.addPostParameter("user_id",     MCrypt2.encodeToString(myUser.getId().toString()));
+            connector.addPostParameter("object_id",   MCrypt2.encodeToString(clickObject.getId().toString()));
+            connector.addPostParameter("object_date", MCrypt2.encodeToString(clickObject.getDate()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            try {
+                connector.decodeResponse();
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String saveStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
+                if (saveStatus.equals("1")) {
+
+                }
+                if(msg.equals("")){
+
+                }
+            }catch (Exception e){
+
+            }
+            new HttpsRequestGetObjectDetails(context, clickObject).execute();
+        }
+    }
+
 }

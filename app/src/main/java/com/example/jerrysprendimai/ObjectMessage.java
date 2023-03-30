@@ -1,6 +1,8 @@
 package com.example.jerrysprendimai;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ObjectMessage {
 
@@ -11,8 +13,9 @@ public class ObjectMessage {
     public String picUrl, picUri, picName;
     public boolean deleted;
     public MyAdapterMessage.MessageHolder holder;
+    public HashMap<String, String> users;
 
-    public ObjectMessage(String firstName, String uname, String userId, String content, String date, String time, String mills, String userLv, String picUrl, String picUri, String picName, boolean deleted) {
+    public ObjectMessage(String firstName, String uname, String userId, String content, String date, String time, String mills, String userLv, String picUrl, String picUri, String picName, boolean deleted, HashMap users) {
         this.firstName = firstName;
         this.uname = uname;
         this.userId = userId;
@@ -25,9 +28,42 @@ public class ObjectMessage {
         this.picUri = picUri;
         this.picName = picName;
         this.deleted = deleted;
+        this.users = users;
     }
 
     public ObjectMessage() {
+    }
+
+    public ObjectMessage(Map<String, String> map) {
+        this.firstName = map.get("firstName");
+        this.uname = map.get("uname");
+        this.userId = map.get("userId");
+        this.content = map.get("content");
+        this.date = map.get("date");
+        this.time = map.get("time");
+        this.mills = map.get("mills");
+        this.userLv = map.get("userLv");
+        this.picUrl = map.get("picUrl");
+        this.picUri = map.get("picUri");
+        this.picName = map.get("picName");
+        this.deleted = Boolean.parseBoolean(map.get("deleted"));
+        //this.users = map.get("users");
+    }
+
+    public ObjectMessage(Object fieldsObj) {
+        this.setFirstName((String) ((HashMap<?, ?>) fieldsObj).get("firstName"));
+        this.setUname((String) ((HashMap<?, ?>) fieldsObj).get("uname"));
+        this.setUserId((String) ((HashMap<?, ?>) fieldsObj).get("userId"));
+        this.setContent((String) ((HashMap<?, ?>) fieldsObj).get("content"));
+        this.setDate((String) ((HashMap<?, ?>) fieldsObj).get("date"));
+        this.setTime((String) ((HashMap<?, ?>) fieldsObj).get("time"));
+        this.setMills((String) ((HashMap<?, ?>) fieldsObj).get("mills"));
+        this.setUserLv((String) ((HashMap<?, ?>) fieldsObj).get("userLv"));
+        this.setPicUrl((String) ((HashMap<?, ?>) fieldsObj).get("picUrl"));
+        this.setPicUri((String) ((HashMap<?, ?>) fieldsObj).get("picUri"));
+        this.setPicName((String) ((HashMap<?, ?>) fieldsObj).get("picName"));
+        this.setDeleted((Boolean) ((HashMap<?, ?>) fieldsObj).get("deleted"));
+        this.setUsers((HashMap) ((HashMap<?, ?>) fieldsObj).get("users"));
     }
 
     public static class User{
@@ -72,5 +108,6 @@ public class ObjectMessage {
     public void setPicUri(String picUri) {        this.picUri = picUri;    }
     public String getPicName() {        return picName;    }
     public void setPicName(String picName) {        this.picName = picName;    }
-
+    public HashMap getUsers() {        return users;    }
+    public void setUsers(HashMap users) {        this.users = users;    }
 }

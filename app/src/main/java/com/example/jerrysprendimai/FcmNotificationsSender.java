@@ -77,7 +77,6 @@ public class FcmNotificationsSender  {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
 
-
                     Map<String, String> header = new HashMap<>();
                     header.put("content-type", "application/json");
                     header.put("authorization", "key=" + fcmServerKey);

@@ -507,7 +507,8 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
                                                         msg,
                                                         "",
                                                         message.getPicName(),
-                                                        message.isDeleted()));
+                                                        message.isDeleted(),
+                                                        message.getUsers()));
                     //((ActivityChat)context).getBeingUpdated().remove(message.getKey());
 
                 }else{
