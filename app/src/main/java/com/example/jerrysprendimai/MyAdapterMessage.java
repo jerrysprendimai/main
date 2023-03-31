@@ -58,6 +58,7 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
     private MyAdapterObjectEditPicture myAdapterObjectEditPicture;
     private ObjectObject object;
     private int backgroundJobs = 1;
+    private boolean longClick;
 
     public MyAdapterMessage(ArrayList<ObjectMessage> messages, Context context, ObjectUser myUser, ObjectObject obj) {
         this.messages = messages;
@@ -273,29 +274,30 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
 
         constraintLayout.setOnClickListener(v->{
             if(objectMessage.getUserId().equals(myUser.getId().toString())) {
-                if (((ActivityChat) context).isDeletionMode()) {
-                    if (!holder.isBackgroundSet()) {
-                        holder.constraintLayout.setBackground(context.getResources().getDrawable(R.drawable.round_button_blue_op));
-                        holder.setBackgroundSet(true);
-                        if (!((ActivityChat) context).getToBeDeleted().contains(holder)) {
-                            ((ActivityChat) context).getToBeDeleted().add(holder);
+                    if (((ActivityChat) context).isDeletionMode()) {
+                        if (!holder.isBackgroundSet()) {
+                            holder.constraintLayout.setBackground(context.getResources().getDrawable(R.drawable.round_button_blue_op));
+                            holder.setBackgroundSet(true);
+                            if (!((ActivityChat) context).getToBeDeleted().contains(holder)) {
+                                ((ActivityChat) context).getToBeDeleted().add(holder);
+                            }
+                        } else {
+                            holder.constraintLayout.setBackground(null);
+                            holder.setBackgroundSet(false);
+                            if (((ActivityChat) context).getToBeDeleted().contains(holder)) {
+                                ((ActivityChat) context).getToBeDeleted().remove(holder);
+                            }
                         }
-                    } else {
-                        holder.constraintLayout.setBackground(null);
-                        holder.setBackgroundSet(false);
-                        if (((ActivityChat) context).getToBeDeleted().contains(holder)) {
-                            ((ActivityChat) context).getToBeDeleted().remove(holder);
+                        if (((ActivityChat) context).getToBeDeleted().size() == 0) {
+                            ((ActivityChat) context).setDeletionMode(false);
+                            ((ActivityChat) context).setDeletionModeButtons(false);
                         }
-                    }
-                    if (((ActivityChat) context).getToBeDeleted().size() == 0) {
-                        ((ActivityChat) context).setDeletionMode(false);
-                        ((ActivityChat) context).setDeletionModeButtons(false);
                     }
                 }
-            }
         });
         constraintLayout.setOnLongClickListener(v->{
             if(objectMessage.getUserId().equals(myUser.getId().toString())){
+                //longClick = true;
                 ((ActivityChat)context).setDeletionMode(true);
                 holder.constraintLayout.setBackground(context.getResources().getDrawable(R.drawable.round_button_blue_op));
                 ((ActivityChat)context).getToBeDeleted().add(holder);

@@ -70,13 +70,14 @@ public class ActivityMain extends AppCompatActivity {
         }
 
         dbHelper.close();
-
+        /*
         if(getIntent().getExtras() != null){
             String chatId = getIntent().getExtras().getString("chatObjID");
             getIntent().putExtra("chatObjID", chatId);
             //String title = getIntent().getExtras().getString("title");
             //String message = getIntent().getExtras().getString("body");
         }
+        */
 
         //----------initialize singel sign on
         SQLiteSSO dbSSO = new SQLiteSSO(this);
@@ -244,18 +245,17 @@ public class ActivityMain extends AppCompatActivity {
 
                         Intent intent = new Intent(this.context, ActivityMenu.class);
                         intent.putExtra("myUser", myUser);
-                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-                        stackBuilder.addParentStack(ActivityLogin.class);
-                        stackBuilder.addNextIntent(intent);
-                        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
-
                         //----Notification click handling
                         if(extras != null){
                             String chatObjId = extras.getString( "chatObjID" );
                             intent.putExtra("chatObjID", chatObjId);
-                            extras.remove("chatObjID");
+                            //extras.remove("chatObjID");
                             //extras.getString( "title" );
                         }
+                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                        stackBuilder.addParentStack(ActivityLogin.class);
+                        stackBuilder.addNextIntent(intent);
+                        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
 
                         //context.startActivity(intent);
                         pendingIntent.send();

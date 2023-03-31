@@ -7,12 +7,14 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
@@ -41,11 +43,12 @@ import java.util.Map;
 
 public class ActivityMenu extends AppCompatActivity {
 
-    private static final int MY_CAMERA_PERMISSION_CODE = 100;
-    static final int MY_WRITE_EXTERNAL_STORAGE = 101;
-    private static final int PERMISSION_CODE = 1001;
-    private static final int CALENDAR_READ_CODE  = 2000;
-    private static final int CALENDAR_WRITE_CODE = 2001;
+    public static final int  WRITE_EXTERNAL   = 1001;
+    public static final int  READ_EXTERNAL    = 1002;
+    public static final int  CAMERA           = 1003;
+    public static final int  READ_CALENDAR    = 1004;
+    public static final int  WRITE_CALENDAR   = 1005;
+    public static final int  INSTALL_PACKAGES = 1006;
 
     final String user = "user";
     final String owner = "owner";
@@ -63,11 +66,18 @@ public class ActivityMenu extends AppCompatActivity {
     GridLayout gridLayout;
     Integer backButtonCount;
     public HashMap<String, Integer> unseenChat;
+    boolean permissionRequested;
+    int permissoinRunCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        permissoinRunCounter = 0;
+        if(!checkPersmission()){
+            return;
+        }
 
         this.valueEventListeners = new ArrayList<>();
         this.backButtonCount = 0;
@@ -212,10 +222,68 @@ public class ActivityMenu extends AppCompatActivity {
         LinearLayout supplierLayout = (LinearLayout) findViewById(R.id.main_menu_dealers);
         supplierLayout.setVisibility(View.GONE);
 
+
     }
+
+    private boolean checkPersmission() {
+        boolean value = true;
+        permissionRequested = false;
+        permissoinRunCounter++;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL);
+                permissionRequested = true;
+            }else if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL);
+                permissionRequested = true;
+            }else if(checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA);
+                permissionRequested = true;
+            }else if(checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.READ_CALENDAR}, READ_CALENDAR);
+                permissionRequested = true;
+            }else if(checkSelfPermission(Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.WRITE_CALENDAR}, WRITE_CALENDAR);
+                permissionRequested = true;
+            }
+        }
+        if(permissoinRunCounter >= 10){
+            value = false;
+        }
+        return value;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case WRITE_EXTERNAL:
+                break;
+            case READ_EXTERNAL:
+                break;
+            case CAMERA:
+                break;
+            case READ_CALENDAR:
+                break;
+            case WRITE_CALENDAR:
+                break;
+            case INSTALL_PACKAGES:
+                break;
+        }
+        if(permissionRequested){
+            checkPersmission();
+        }
+        //finish();
+        //startActivity(getIntent());
+    }
+
     public void removeMessageListeners(){
         for(int i=0; i<this.myObjectList.size(); i++){
-            FirebaseDatabase.getInstance().getReference("objects/" + this.myObjectList.get(i).getId().toString()).removeEventListener(this.valueEventListeners.get(i));
+            try {
+                FirebaseDatabase.getInstance().getReference("objects/" + this.myObjectList.get(i).getId().toString()).removeEventListener(this.valueEventListeners.get(i));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
     public void attachMessageListener(String chatRoomId) {
@@ -515,7 +583,8 @@ public class ActivityMenu extends AppCompatActivity {
 
             //-------Notification click handling
             String objectId = ((ActivityMenu)context).getIntent().getExtras().getString("chatObjID");
-            //String objectId = ((ActivityMenu)context).getIntent().getParcelableExtra("chatObjID");
+            //String objectId1 = ((ActivityMenu)context).getIntent().getParcelableExtra("chatObjID");
+            //String objectId = ((ActivityMain)context).getIntent().getExtras().getString("chatObjID");
             ObjectObject obj = null;
             if(objectId != null){
                 ((ActivityMenu)context).getIntent().removeExtra("chatObjID");
