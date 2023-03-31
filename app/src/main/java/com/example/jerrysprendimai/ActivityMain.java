@@ -255,7 +255,7 @@ public class ActivityMain extends AppCompatActivity {
                         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
                         stackBuilder.addParentStack(ActivityLogin.class);
                         stackBuilder.addNextIntent(intent);
-                        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
 
                         //context.startActivity(intent);
                         pendingIntent.send();

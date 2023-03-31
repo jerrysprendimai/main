@@ -583,7 +583,7 @@ public class ActivityMenu extends AppCompatActivity {
 
             //-------Notification click handling
             String objectId = ((ActivityMenu)context).getIntent().getExtras().getString("chatObjID");
-            //String objectId1 = ((ActivityMenu)context).getIntent().getParcelableExtra("chatObjID");
+            String objectId1 = ((ActivityMenu)context).getIntent().getParcelableExtra("chatObjID");
             //String objectId = ((ActivityMain)context).getIntent().getExtras().getString("chatObjID");
             ObjectObject obj = null;
             if(objectId != null){
