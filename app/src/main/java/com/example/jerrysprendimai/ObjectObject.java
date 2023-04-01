@@ -13,11 +13,9 @@ import java.util.ArrayList;
 public class ObjectObject implements Parcelable {
     private Integer id;
     private String date, objectName, objectAddress,customerName,completeness,lockedByUserId, lockedUname, icon, notViewed;
+    private MyAdapterObjectShow.MyViewHolder myViewHolder;
+    private MyAdapterChatShow.MyViewHolder myViewHolderChatShow;
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         if (id == null) {
@@ -36,21 +34,9 @@ public class ObjectObject implements Parcelable {
         dest.writeString(icon);
         dest.writeString(notViewed);
     }
-    protected ObjectObject(Parcel in) {
-        if (in.readByte() == 0) {
-            id = null;
-        } else {
-            id = in.readInt();
-        }
-        date = in.readString();
-        objectName = in.readString();
-        objectAddress = in.readString();
-        customerName = in.readString();
-        completeness = in.readString();
-        lockedByUserId = in.readString();
-        lockedUname = in.readString();
-        icon = in.readString();
-        notViewed = in.readString();
+    @Override
+    public int describeContents() {
+        return 0;
     }
     public static final Creator<ObjectObject> CREATOR = new Creator<ObjectObject>() {
         @Override
@@ -109,6 +95,24 @@ public class ObjectObject implements Parcelable {
             e.printStackTrace();
         }
         //String decUname = Base64.encodeToString(MCrypt.decrypt(uname),  Base64.DEFAULT);
+    }
+
+
+    protected ObjectObject(Parcel in) {
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readInt();
+        }
+        date = in.readString();
+        objectName = in.readString();
+        objectAddress = in.readString();
+        customerName = in.readString();
+        completeness = in.readString();
+        lockedByUserId = in.readString();
+        lockedUname = in.readString();
+        icon = in.readString();
+        notViewed = in.readString();
     }
 
     public String toJson(){
@@ -181,5 +185,9 @@ public class ObjectObject implements Parcelable {
     public void setIcon(String icon) {        this.icon = icon;    }
     public String getNotViewed() {        return notViewed;    }
     public void setNotViewed(String notViewed) {        this.notViewed = notViewed;    }
+    public MyAdapterObjectShow.MyViewHolder getMyViewHolder() {        return myViewHolder;    }
+    public void setMyViewHolder(MyAdapterObjectShow.MyViewHolder myViewHolder) {        this.myViewHolder = myViewHolder;    }
+    public MyAdapterChatShow.MyViewHolder getMyViewHolderChatShow() {        return myViewHolderChatShow;    }
+    public void setMyViewHolderChatShow(MyAdapterChatShow.MyViewHolder myViewHolderChatShow) {        this.myViewHolderChatShow = myViewHolderChatShow;    }
 
 }

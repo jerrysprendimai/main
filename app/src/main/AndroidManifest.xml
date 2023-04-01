@@ -38,7 +38,7 @@
             android:exported="false" />
         <activity
             android:name=".ActivityChat"
-            android:exported="false" />
+            android:exported="false"/>
         <activity
             android:name=".ActivityCalendar"
             android:exported="false" />

@@ -12,6 +12,7 @@ import org.json.JSONObject;
 public class ObjectUser implements Parcelable {
     private Integer id;
     private String email, uname, type, locked, first_name, last_name, passwd, reg_date, last_login, user_lv, sessionId, last_action, token;
+    private MyAdapterUserShow.MyViewHolder myViewHolderUserShow;
 
     private Boolean checked;
 
@@ -37,21 +38,6 @@ public class ObjectUser implements Parcelable {
         byte tmpChecked = in.readByte();
         checked = tmpChecked == 0 ? null : tmpChecked == 1;
     }
-    public static final Creator<ObjectUser> CREATOR = new Creator<ObjectUser>() {
-        @Override
-        public ObjectUser createFromParcel(Parcel in) {
-            return new ObjectUser(in);
-        }
-
-        @Override
-        public ObjectUser[] newArray(int size) {
-            return new ObjectUser[size];
-        }
-    };
-    @Override
-    public int describeContents() {
-        return 0;
-    }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         if (id == null) {
@@ -75,6 +61,21 @@ public class ObjectUser implements Parcelable {
         dest.writeString(token);
         dest.writeByte((byte) (checked == null ? 0 : checked ? 1 : 2));
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    public static final Creator<ObjectUser> CREATOR = new Creator<ObjectUser>() {
+        @Override
+        public ObjectUser createFromParcel(Parcel in) {
+            return new ObjectUser(in);
+        }
+
+        @Override
+        public ObjectUser[] newArray(int size) {
+            return new ObjectUser[size];
+        }
+    };
 
     public ObjectUser(){
         this.id          = -1;
@@ -206,113 +207,85 @@ public class ObjectUser implements Parcelable {
     public Integer getId() {
         return id;
     }
-
     public void setId(Integer id) {
         this.id = id;
     }
-
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public String getUname() {
         return uname;
     }
-
     public void setUname(String uname) {
         this.uname = uname;
     }
-
     public String getType() {
         return type;
     }
-
     public void setType(String type) {
         this.type = type;
     }
-
     public String getLocked() {
         return locked;
     }
-
     public void setLocked(String locked) {
         this.locked = locked;
     }
-
     public String getFirst_name() {
         return first_name;
     }
-
     public void setFirst_name(String first_name) {
         this.first_name = first_name;
     }
-
     public String getLast_name() {
         return last_name;
     }
-
     public void setLast_name(String last_name) {
         this.last_name = last_name;
     }
-
     public String getPasswd() {
         return passwd;
     }
-
     public void setPasswd(String passwd) {
         this.passwd = passwd;
     }
-
     public String getReg_date() {
         return reg_date;
     }
-
     public void setReg_date(String reg_date) {
         this.reg_date = reg_date;
     }
-
     public String getLast_login() {
         return last_login;
     }
-
     public void setLast_login(String last_login) {
         this.last_login = last_login;
     }
-
     public String getUser_lv() {
         return user_lv;
     }
-
     public void setUser_lv(String user_lv) {
         this.user_lv = user_lv;
     }
-
     public String getSessionId() {
         return sessionId;
     }
-
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
-
     public Boolean getChecked() {
         return checked;
     }
-
     public void setChecked(Boolean checked) {
         this.checked = checked;
     }
-
     public String getLast_action() {        return last_action;    }
-
     public void setLast_action(String last_action) {        this.last_action = last_action;    }
-
     public String getToken() {        return token;    }
-
     public void setToken(String token) {        this.token = token;    }
-
+    public MyAdapterUserShow.MyViewHolder getMyViewHolderUserShow() {        return myViewHolderUserShow;    }
+    public void setMyViewHolderUserShow(MyAdapterUserShow.MyViewHolder myViewHolderUserShow) {        this.myViewHolderUserShow = myViewHolderUserShow;    }
 }

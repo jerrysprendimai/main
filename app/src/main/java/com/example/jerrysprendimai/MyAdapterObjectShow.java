@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -104,6 +105,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ObjectObject myObjectObject = this.myObjectList.get(position);
 
+        myObjectObject.setMyViewHolder(holder);
         holder.objectCardView.setBackgroundResource(R.drawable.card_view_background);
 
         //-------lock icon
@@ -157,7 +159,8 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         holder.myRow.setOnClickListener(v -> {
             ((ActivityObjectShow) context).setNotUserRefresh(true);
             ((ActivityObjectShow) context).setAnimationShowed(true);
-            //--todo lock parent view
+            ((ActivityObjectShow) context).lockView();
+
             clickObject = myObjectObject;
             if(!((ActivityObjectShow) context).isUserMode()){
               //--lock Object in DB
@@ -608,6 +611,8 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     //--unlock Object in DB
                     ((ActivityObjectShow) context).setNotUserRefresh(true);
                     ((ActivityObjectShow) context).setAnimationShowed(true);
+                    ((ActivityObjectShow) context).unlockView();
+
                     new HttpsRequestLockObject(context, clickObject.getId().toString(),"unlock").execute();
                     //((ActivityObjectShow) context).executeLockUnlock(myObjectObject.getId().toString(),"unlock");
                 });
@@ -660,6 +665,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     if(bottomSheetDialog != null){
                         bottomSheetDialog.dismiss();
                     }
+                    FirebaseDatabase.getInstance().getReference("objects/" + objId).removeValue();
                     Toast.makeText(context, "Ištrinta", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(context, "Klaida", Toast.LENGTH_SHORT).show();

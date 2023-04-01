@@ -225,6 +225,25 @@ public class ActivityCalendar extends AppCompatActivity {
 
         super.onResume();
     }
+    public void lockView(){
+        for(int i=0; i<myEventList.size(); i++){
+            try {
+                myEventList.get(i).getMyViewHolderCalendarEvents().myRow.setEnabled(false);
+            }catch (Exception e){
+
+            }
+        }
+    }
+
+    public void unlockView(){
+        for(int i=0; i<myEventList.size(); i++){
+            try {
+                myEventList.get(i).getMyViewHolderCalendarEvents().myRow.setEnabled(true);
+            }catch (Exception e){
+
+            }
+        }
+    }
 
     public ObjectObject getObjectToDisplay() {       return objectToDisplay;    }
     public void setObjectToDisplay(ObjectObject objectToDisplay) {        this.objectToDisplay = objectToDisplay;    }
@@ -383,6 +402,7 @@ public class ActivityCalendar extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            unlockView();
             super.onPostExecute(inputStream);
         }
     }

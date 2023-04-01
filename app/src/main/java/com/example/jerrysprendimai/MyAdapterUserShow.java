@@ -101,6 +101,7 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
         }
         //-----------------Read Object--------------------------
         ObjectUser objectUser = this.myUserList.get(position);
+        objectUser.setMyViewHolderUserShow(holder);
         holder.myPosition.setText(String.valueOf(position));
         holder.myUserName.setText(objectUser.getUname());
         holder.myUserLevel.setText(objectUser.getUser_lv());
@@ -121,38 +122,36 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
             holder.myCardViewDeleteButton.setVisibility(View.GONE);
         }*/
 
-        holder.myRow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (((ActivityUserShow) context).getDeletionMode().equals(true)){
-                    if(objectUser.getUname().equals("admin")){
-                        return;
-                    }
-                    if(!holder.isMyHoldIndicator()){
-                        if( holder.myPersonCeckImg.getVisibility() == View.GONE){
-                          holder.myPersonCeckImg.setVisibility(View.VISIBLE);
-                         ((ActivityUserShow) context).addToBeDeleted(position);
-                        }else{
-                          holder.myPersonCeckImg.setVisibility(View.GONE);
-                          ((ActivityUserShow) context).removeToBeDeleted(position);
-                        }
+        holder.myRow.setOnClickListener(v -> {
+            ((ActivityUserShow)context).lockView();
+            if (((ActivityUserShow) context).getDeletionMode().equals(true)){
+                if(objectUser.getUname().equals("admin")){
+                    return;
+                }
+                if(!holder.isMyHoldIndicator()){
+                    if( holder.myPersonCeckImg.getVisibility() == View.GONE){
+                      holder.myPersonCeckImg.setVisibility(View.VISIBLE);
+                     ((ActivityUserShow) context).addToBeDeleted(position);
                     }else{
-                        holder.setMyHoldIndicator(false);
+                      holder.myPersonCeckImg.setVisibility(View.GONE);
+                      ((ActivityUserShow) context).removeToBeDeleted(position);
                     }
                 }else{
-                //((UserShow) context).swipeRefreshCommit(true);
-                parentView.findViewById(R.id.my_swipe_refresh);
-                ObjectUser objectUser = myUserList.get(holder.getPosition());
+                    holder.setMyHoldIndicator(false);
+                }
+            }else{
+            //((UserShow) context).swipeRefreshCommit(true);
+            parentView.findViewById(R.id.my_swipe_refresh);
+            ObjectUser objectUser1 = myUserList.get(holder.getPosition());
 
-                ObjectUser myUser = ((ActivityUserShow) context).getIntent().getParcelableExtra("myUser");
+            ObjectUser myUser = ((ActivityUserShow) context).getIntent().getParcelableExtra("myUser");
 
-                Intent intent = new Intent(context, ActivityUserEdit.class);
-                intent.putExtra("myUserEdit", objectUser);
-                intent.putExtra("myUser", myUser);
-                context.startActivity(intent);
-            }
-            }
-    });
+            Intent intent = new Intent(context, ActivityUserEdit.class);
+            intent.putExtra("myUserEdit", objectUser1);
+            intent.putExtra("myUser", myUser);
+            context.startActivity(intent);
+        }
+        });
         /*holder.myRow.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {

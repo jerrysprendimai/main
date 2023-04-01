@@ -55,6 +55,7 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ObjectObject myObject = myObjectList.get(holder.getAdapterPosition());
 
+        myObject.setMyViewHolderChatShow(holder);
         holder.chatObjectIcon.setImageResource(context.getResources().getIdentifier(myObject.getIcon(), "drawable", context.getApplicationInfo().packageName));
         holder.chatObjectName.setText(myObject.getObjectName());
         holder.chatObjectCustomer.setText(myObject.getCustomerName());
@@ -62,6 +63,7 @@ public class MyAdapterChatShow extends RecyclerView.Adapter<MyAdapterChatShow.My
         //---row on click listener
         holder.myRow.setOnClickListener(v->{
             ((ActivityChatShow)context).swipeRefreshLayout.setRefreshing(true);
+            ((ActivityChatShow)context).lockView();
             new HttpsRequestGetObjectDetails(context, myObject).execute();
         });
 

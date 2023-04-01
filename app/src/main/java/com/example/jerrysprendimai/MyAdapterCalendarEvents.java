@@ -81,6 +81,7 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ObjectEvent myObjectEvent = myEventList.get(holder.getAdapterPosition());
+        myObjectEvent.setMyViewHolderCalendarEvents(holder);
 
         holder.objectToDisplay = null;
         try {
@@ -111,6 +112,8 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
         holder.description.setText(myObjectEvent.getDescription());
         holder.myRow.setOnClickListener(v->{
             ((ActivityCalendar) context).setViewEnabled(false);
+            ((ActivityCalendar) context).lockView();
+
             setMyClickObjectEvent(myObjectEvent);
             /*
             ObjectObject objectToDisplay = null;
@@ -388,9 +391,10 @@ public class MyAdapterCalendarEvents extends RecyclerView.Adapter<MyAdapterCalen
                 Intent intent = new Intent(context, ActivityObjectEdit.class);
                 intent.putExtra("myUser", myUser);
                 intent.putExtra("objectObject", getClickObject());
-                intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
-                intent.putParcelableArrayListExtra("listtUser", getObjectUserArrayList());
+                intent.putParcelableArrayListExtra("listDetails",  getObjectDetailsArrayList());
+                intent.putParcelableArrayListExtra("listUser",     getObjectUserArrayList());
                 intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
+                intent.putParcelableArrayListExtra("employeeList", employeeArrayList);
                 context.startActivity(intent);
 
             } catch (JSONException e) {

@@ -11,6 +11,7 @@ public class ObjectEvent {
     int month, year, day;
     Date date;
     Calendar calendar;
+    MyAdapterCalendarEvents.MyViewHolder myViewHolderCalendarEvents;
 
     public ObjectEvent(Cursor cursor, int indicator){
         this.id            = cursor.getString(0);   //ID
@@ -83,4 +84,7 @@ public class ObjectEvent {
     public void setCalendar(Calendar calendar) {        this.calendar = calendar;    }
     public Date getDate() {       return date;    }
     public void setDate(Date date) {        this.date = date;    }
+    public MyAdapterCalendarEvents.MyViewHolder getMyViewHolderCalendarEvents() {        return myViewHolderCalendarEvents;    }
+    public void setMyViewHolderCalendarEvents(MyAdapterCalendarEvents.MyViewHolder myViewHolderCalendarEvents) {        this.myViewHolderCalendarEvents = myViewHolderCalendarEvents;    }
+
 }

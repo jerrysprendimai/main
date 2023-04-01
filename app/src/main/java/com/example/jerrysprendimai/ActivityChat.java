@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -50,6 +51,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -97,7 +101,7 @@ public class ActivityChat extends AppCompatActivity{
     private int backgroundJobs = 1;
     public ImageView hiddenPicture;
     public int threadStartedCount;
-
+    public ArrayList<ObjectObjPic> myPictureList;
 
     private String chatRoomId;
     int uploadRunning;
@@ -151,6 +155,7 @@ public class ActivityChat extends AppCompatActivity{
         //----Initialize screen values
         this.threadStartedCount = 0;
         this.uploadRunning = 0;
+        this.myPictureList = new ArrayList<>();
         this.beingUpdated = new ArrayList<>();
         toBeDeleted = new ArrayList<>();
         myDisplayDates = new ArrayList<>();
@@ -174,6 +179,7 @@ public class ActivityChat extends AppCompatActivity{
         Context context = this;
         //-----------add picture handler
         attachmentButton.setOnClickListener(v->{
+            lockView();
             //check permission
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
                 if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
@@ -192,6 +198,7 @@ public class ActivityChat extends AppCompatActivity{
         });
         //-----------take new photo handler
         cameraButton.setOnClickListener(v->{
+            lockView();
             //check permission camera
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
@@ -215,13 +222,16 @@ public class ActivityChat extends AppCompatActivity{
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if(s.length() == 0){
                     Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                    attachmentButton.setAnimation(slideIn);
+                    attachmentButton.setVisibility(View.VISIBLE);
                     cameraButton.setAnimation(slideIn);
                     cameraButton.setVisibility(View.VISIBLE);
                 }else{
                     Animation slideOut = AnimationUtils.loadAnimation(context, R.anim.fadeout);
+                    attachmentButton.setAnimation(slideOut);
+                    attachmentButton.setVisibility(View.GONE);
                     cameraButton.setAnimation(slideOut);
                     cameraButton.setVisibility(View.GONE);
-
                 }
             }
             @Override
@@ -305,66 +315,27 @@ public class ActivityChat extends AppCompatActivity{
                                                 ));
             //----send notification
             sendMessageNotification();
-            /*String title   = myObject.getObjectName()+"   #"+myObject.getId().toString();
-            String message = myUser.getFirst_name() +": "+editMessageInput.getText().toString();//messages.get(messages.size()-1).getFirstName() +": "+ messages.get(messages.size()).getContent();
-            for (int i=0; i< getObjectUserArrayList().size(); i++){
-                ObjectObjUser objectObjUser = getObjectUserArrayList().get(i);
-                Integer userListId = getObjectUserArrayList().get(i).getUserId();
-                Integer myUserId = myUser.getId();
-                if((!getObjectUserArrayList().get(i).getToken().isEmpty()) &&
-                   (!getObjectUserArrayList().get(i).getUserId().equals(myUser.getId()))){
-
-                    FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
-                            getObjectUserArrayList().get(i).getToken(),
-                            title,
-                            message,
-                            myObject.getId().toString(),
-                            myObject.getIcon(),
-                            getApplicationContext(),
-                            ActivityMain.getActivityMain());
-                    notificationsSender.SendNotifications();
-                }
-            }
-            for(int i=0; i<getOwnerList().size(); i++){
-                ObjectUser objectOwner = getOwnerList().get(i);
-                Integer ownerListId = getOwnerList().get(i).getId();
-                Integer myUserId = myUser.getId();
-                if((!getOwnerList().get(i).getToken().isEmpty()) &&
-                        (!getOwnerList().get(i).getId().equals(myUser.getId()))){
-
-                    FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
-                            getOwnerList().get(i).getToken(),
-                            title,
-                            message,
-                            myObject.getId().toString(),
-                            myObject.getIcon(),
-                            getApplicationContext(),
-                            ActivityMain.getActivityMain());
-                    notificationsSender.SendNotifications();
-                }
-            }*/
             editMessageInput.setText("");
         });
 
         //Context context = this;
-        View.OnClickListener toProjectListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setDoNavigationToActivityObjectEdit(true);
-                if((myUser.getUser_lv().equals(owner))||(myUser.getUser_lv().equals(admin))){
-                    //lock object
-                    new HttpsRequestLockObject(context, myObject, myObject.getId().toString(),"lock").execute();
-                }else{
-                    //display object
-                    myObject.setNotViewed("");
-                    new HttpsRequestViewObject(context, myObject, myObject.getId().toString(), myObject.getNotViewed()).execute();
-                }
+        View.OnClickListener toProjectListener = v -> {
+            lockView();
+            setDoNavigationToActivityObjectEdit(true);
+            if((myUser.getUser_lv().equals(owner))||(myUser.getUser_lv().equals(admin))){
+                //lock object
+                new HttpsRequestLockObject(context, myObject, myObject.getId().toString(),"lock").execute();
+            }else{
+                //display object
+                myObject.setNotViewed("");
+                new HttpsRequestViewObject(context, myObject, myObject.getId().toString(), myObject.getNotViewed()).execute();
             }
         };
         objectNameButton.setOnClickListener(toProjectListener);
         objectIconButton.setOnClickListener(toProjectListener);
         if((myUser.getUser_lv().equals(admin)) || (myUser.getUser_lv().equals(owner))){
             participantsButton.setOnClickListener(v ->{
+                lockView();
                 View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_object_user_assignment, findViewById(R.id.chat_main_containerView), false);
                 MyAdapterUserAssignmentShow myAdapterUserAssignmentShow = new MyAdapterUserAssignmentShow(this, employeeList, myObject, objectUserArrayList);
                 RecyclerView dialogRecyclerView = dialogView.findViewById(R.id.my_recycle_view_user);
@@ -384,7 +355,12 @@ public class ActivityChat extends AppCompatActivity{
                     }
                     new HttpsRequestSetObjectUser(this, myObject, assignedUserIdList).execute();
                 });
-                builder.setNegativeButton("Cancel", null);
+                builder.setNegativeButton("Cancel", (dialog, which)->{
+                    unlockView();
+                });
+                builder.setOnDismissListener(dialog -> {
+                    unlockView();
+                });
                 builder.create();
                 builder.show();
             });
@@ -395,7 +371,36 @@ public class ActivityChat extends AppCompatActivity{
         recyclerView.setAdapter(myAdapterMessage);
         setUpChatRoom();
 
+        KeyboardVisibilityEvent.setEventListener(this, new KeyboardVisibilityEventListener() {
+            @Override
+            public void onVisibilityChanged(boolean isOpen) {
+                if((isOpen) && (recyclerView != null)){
+                    recyclerView.scrollToPosition(messages.size() - 1);
+                }
+            }
+        });
+
     }
+
+    public void lockView(){
+        participantsButton.setEnabled(false);
+        attachmentButton.setEnabled(false);
+        cameraButton.setEnabled(false);
+        sendButton.setEnabled(false);
+        objectNameButton.setEnabled(false);
+        objectIconButton.setEnabled(false);
+        editMessageInput.setEnabled(false);
+    }
+    public void unlockView(){
+        participantsButton.setEnabled(true);
+        attachmentButton.setEnabled(true);
+        cameraButton.setEnabled(true);
+        sendButton.setEnabled(true);
+        objectNameButton.setEnabled(true);
+        objectIconButton.setEnabled(true);
+        editMessageInput.setEnabled(true);
+    }
+
     public void sendMessageNotification(){
         String title   = myObject.getObjectName()+"   #"+myObject.getId().toString();
         String message = myUser.getFirst_name() +": "+editMessageInput.getText().toString();//messages.get(messages.size()-1).getFirstName() +": "+ messages.get(messages.size()).getContent();
@@ -461,25 +466,6 @@ public class ActivityChat extends AppCompatActivity{
             new Thread(new RunnableTask(this, myUser, myObject, uri, "chat_" + getmPhotoFile().getName(), hiddenPicture)).start();
             //String.valueOf(Calendar.getInstance().getTimeInMillis())
             setThreadStartedCount(getThreadStartedCount()+1);
-
-           /* FirebaseDatabase.getInstance().getReference("objects/" + myObject.getId().toString())
-                    .push()
-                    .setValue(new ObjectMessage(myUser.getFirst_name(),
-                            myUser.getUname(),
-                            myUser.getId().toString(),
-                            editMessageInput.getText().toString(),
-                            HelperDate.get_current_date_disply(),
-                            Calendar.getInstance().getTime().toString(),
-                            String.valueOf(Calendar.getInstance().getTimeInMillis()),
-                            myUser.getUser_lv(),
-                            url,
-                            uri,
-                            "chat_" + getmPhotoFile().getName(),
-                            false
-                    ));
-            //----send notification
-            sendMessageNotification();
-            */
 
             //--upload picture to server
             //new HttpsRequestUploadPicture(this, newPic).execute();
@@ -744,6 +730,8 @@ public class ActivityChat extends AppCompatActivity{
     public void setBeingUpdated(ArrayList<ObjectMessage> beingUpdated) {        this.beingUpdated = beingUpdated;    }
     public int getThreadStartedCount() {        return threadStartedCount;    }
     public void setThreadStartedCount(int threadStartedCount) {        this.threadStartedCount = threadStartedCount;    }
+    public ArrayList<ObjectObjPic> getMyPictureList() {        return myPictureList;    }
+    public void setMyPictureList(ArrayList<ObjectObjPic> myPictureList) {        this.myPictureList = myPictureList;    }
 
     public void setDeletionModeButtons(boolean set){
         if (set){
@@ -1150,6 +1138,7 @@ public class ActivityChat extends AppCompatActivity{
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            unlockView();
             super.onPostExecute(inputStream);
         }
     }

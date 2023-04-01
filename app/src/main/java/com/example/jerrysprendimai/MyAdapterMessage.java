@@ -155,6 +155,11 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
                             }
                         });
 
+                    holder.picturePosition = ((ActivityChat)context).getMyPictureList().size();
+                    ObjectObjPic objectObjPic = new ObjectObjPic();
+                    objectObjPic.setPicUri(objectMessage.getPicUri());
+                    ((ActivityChat)context).getMyPictureList().add(objectObjPic);
+
             } else {
                 holder.imageProgressBar.setVisibility(View.VISIBLE);
                 Glide.with(context)
@@ -178,6 +183,11 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
                             public void onLoadCleared(@Nullable Drawable placeholder) {
                             }
                         });
+
+                holder.picturePosition = ((ActivityChat)context).getMyPictureList().size();
+                ObjectObjPic objectObjPic = new ObjectObjPic();
+                objectObjPic.setPicUrl(objectMessage.getPicUrl());
+                ((ActivityChat)context).getMyPictureList().add(objectObjPic);
             }
         }else{
             holder.cardView.setVisibility(View.VISIBLE);
@@ -187,14 +197,15 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
         }
 
         holder.image.setOnClickListener(v->{
-            ArrayList<ObjectObjPic> myPictureList = new ArrayList<>();
+            /*ArrayList<ObjectObjPic> myPictureList = new ArrayList<>();
             ObjectObjPic objectObjPic = new ObjectObjPic();
             objectObjPic.setPicUrl(objectMessage.getPicUrl());
-            myPictureList.add(objectObjPic);
+            myPictureList.add(objectObjPic);*/
+
             Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
-            intent.putParcelableArrayListExtra("myPictureList", myPictureList);
+            intent.putParcelableArrayListExtra("myPictureList", ((ActivityChat)context).getMyPictureList());//myPictureList);
             intent.putExtra("myUser", myUser);
-            intent.putExtra("myPosition", 0);
+            intent.putExtra("myPosition", holder.getPicturePosition());
             context.startActivity(intent);
         });
         holder.image.setOnLongClickListener(v->{
@@ -365,6 +376,7 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
         ImageView profImage, image;
         ProgressBar imageProgressBar, imageProgressBarUpl;
         CardView cardView;
+        int picturePosition;
 
         public MessageHolder(@NonNull View itemView) {
             super(itemView);
@@ -389,7 +401,7 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
 
         public boolean isBackgroundSet() {   return backgroundSet;  }
         public void setBackgroundSet(boolean backgroundSet) {   this.backgroundSet = backgroundSet;   }
-
+        public int getPicturePosition() {            return picturePosition;        }
     }
 
 

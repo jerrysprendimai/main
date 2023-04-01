@@ -109,6 +109,26 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
+    public void lockView(){
+        for(int i=0; i<myObjectList.size(); i++){
+            try {
+                myObjectList.get(i).getMyViewHolder().myRow.setEnabled(false);
+            }catch (Exception e){
+
+            }
+        }
+    }
+
+    public void unlockView(){
+        for(int i=0; i<myObjectList.size(); i++){
+            try {
+                myObjectList.get(i).getMyViewHolder().myRow.setEnabled(true);
+            }catch (Exception e){
+
+            }
+        }
+    }
+
     @Override
     public void onRefresh() {
         setAnimationShowed(false);
@@ -179,6 +199,7 @@ public class ActivityObjectShow extends AppCompatActivity implements SwipeRefres
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            unlockView();
             super.onPostExecute(inputStream);
         }
     }

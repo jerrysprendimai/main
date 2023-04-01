@@ -63,6 +63,7 @@ public class ActivityChatShow extends AppCompatActivity implements SwipeRefreshL
         myAdapterChatShow = new MyAdapterChatShow(this, myObjectList, myUser);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(myAdapterChatShow);
+
     }
 
     public ArrayList<ValueEventListener> getMyChatEventListeners() {        return myChatEventListeners;    }
@@ -92,6 +93,25 @@ public class ActivityChatShow extends AppCompatActivity implements SwipeRefreshL
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         new HttpsRequestGetObjectList(this).execute();
+    }
+
+    public void lockView(){
+        for(int i = 0; i < myObjectList.size(); i++){
+          try {
+            myObjectList.get(i).getMyViewHolderChatShow().myRow.setEnabled(false);
+          }catch (Exception e){
+
+          }
+        }
+    }
+    public void unlockView(){
+        for(int i = 0; i < myObjectList.size(); i++){
+            try {
+                myObjectList.get(i).getMyViewHolderChatShow().myRow.setEnabled(true);
+            }catch (Exception e){
+
+            }
+        }
     }
 
     class HttpsRequestGetObjectList extends AsyncTask<String, Void, InputStream> {
@@ -198,6 +218,7 @@ public class ActivityChatShow extends AppCompatActivity implements SwipeRefreshL
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            unlockView();
             super.onPostExecute(inputStream);
         }
     }

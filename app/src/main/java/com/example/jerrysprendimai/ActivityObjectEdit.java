@@ -42,6 +42,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
+import org.checkerframework.checker.units.qual.A;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,11 +99,22 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_object_edit);
 
+        this.employeeArrayList = new ArrayList<>();
+        this.ownerArrayList = new ArrayList<>();
+
         this.myUser       = getIntent().getParcelableExtra("myUser");
         this.objectObject = getIntent().getParcelableExtra("objectObject");
         this.objectDetailsArrayList  = getIntent().getParcelableArrayListExtra("listDetails");
         this.objectUserArrayList     = getIntent().getParcelableArrayListExtra("listUser");
         this.objectPicturesArrayList = getIntent().getParcelableArrayListExtra("listPictures");
+
+        if(getIntent().getParcelableArrayListExtra("employeeList") != null){
+            this.employeeArrayList = getIntent().getParcelableArrayListExtra("employeeList");
+        }
+        if(getIntent().getParcelableArrayListExtra("ownerList") != null){
+            this.ownerArrayList = getIntent().getParcelableArrayListExtra("ownerList");
+        }
+
 
         //-----------------BackButton press counter
         //this.backButtonCount = 0;
@@ -152,9 +164,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         //---- Object Icon handling
         this.oObjectIcon.setImageResource(getResources().getIdentifier(objectObject.getIcon(), "drawable", getApplicationInfo().packageName));
-
-        this.employeeArrayList = new ArrayList<>();
-        this.ownerArrayList = new ArrayList<>();
 
         //---- Date Picker handling
         Context context = this;
@@ -304,7 +313,23 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         });
 
         //---- to Chat handling
+        if(objectObject.getId() == -1){
+            toChat.setEnabled(false);
+            toChat.setBackground(getResources().getDrawable(R.drawable.round_button_grey));
+        }else{
+            toChat.setEnabled(true);
+            toChat.setBackground(getResources().getDrawable(R.drawable.round_button));
+        }
         toChat.setOnClickListener(v->{
+            if(getEmployeeArrayList() == null){
+                setEmployeeArrayList(new ArrayList<>());
+            }
+            if(getOwnerArrayList() == null){
+                setOwnerArrayList(new ArrayList<>());
+            }
+            if(objectUserArrayList == null){
+                objectUserArrayList = new ArrayList<>();
+            }
             Intent intent = new Intent(this, ActivityChat.class);
             intent.putExtra("myUser", myUser);
             intent.putExtra("objectObject", objectObject);

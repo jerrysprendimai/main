@@ -150,6 +150,25 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
 
         super.onResume();
     }
+    public void lockView(){
+        for(int i=0; i<myUserList.size(); i++){
+            try {
+                myUserList.get(i).getMyViewHolderUserShow().myRow.setEnabled(false);
+            }catch (Exception e){
+
+            }
+        }
+    }
+
+    public void unlockView(){
+        for(int i=0; i<myUserList.size(); i++){
+            try {
+                myUserList.get(i).getMyViewHolderUserShow().myRow.setEnabled(true);
+            }catch (Exception e){
+
+            }
+        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -241,6 +260,8 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            unlockView();
             super.onPostExecute(inputStream);
         }
     }
