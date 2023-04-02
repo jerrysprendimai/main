@@ -14,6 +14,8 @@ public class ObjectMessage {
     public boolean deleted;
     public MyAdapterMessage.MessageHolder holder;
     public HashMap<String, String> users;
+    public int picturePosition;
+    public boolean dateSeparator;
 
     public ObjectMessage(String firstName, String uname, String userId, String content, String date, String time, String mills, String userLv, String picUrl, String picUri, String picName, boolean deleted, HashMap users) {
         this.firstName = firstName;
@@ -110,4 +112,8 @@ public class ObjectMessage {
     public void setPicName(String picName) {        this.picName = picName;    }
     public HashMap getUsers() {        return users;    }
     public void setUsers(HashMap users) {        this.users = users;    }
+    public int getPicturePosition() {        return picturePosition;    }
+    public void setPicturePosition(int picturePosition) {        this.picturePosition = picturePosition;    }
+    public boolean isDateSeparator() {        return dateSeparator;    }
+    public void setDateSeparator(boolean dateSeparator) {        this.dateSeparator = dateSeparator;    }
 }

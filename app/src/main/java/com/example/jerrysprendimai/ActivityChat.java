@@ -366,7 +366,7 @@ public class ActivityChat extends AppCompatActivity{
             });
         }
 
-        myAdapterMessage = new MyAdapterMessage(messages, this, myUser, myObject);
+        myAdapterMessage = new MyAdapterMessage(messages, this, myUser, myObject, employeeList, ownerList, objectUserArrayList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(myAdapterMessage);
         setUpChatRoom();
@@ -408,15 +408,17 @@ public class ActivityChat extends AppCompatActivity{
             ObjectObjUser objectObjUser = getObjectUserArrayList().get(i);
             Integer userListId = getObjectUserArrayList().get(i).getUserId();
             Integer myUserId = myUser.getId();
+            String type = "message";
             if((!getObjectUserArrayList().get(i).getToken().isEmpty()) &&
                     (!getObjectUserArrayList().get(i).getUserId().equals(myUser.getId()))){
                 if(message.isEmpty()){
-                    message = "img";
+                    type = "image";
                 }
                 FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
                         getObjectUserArrayList().get(i).getToken(),
                         title,
                         message,
+                        type,
                         myObject.getId().toString(),
                         myObject.getIcon(),
                         getApplicationContext(),
@@ -428,15 +430,17 @@ public class ActivityChat extends AppCompatActivity{
             ObjectUser objectOwner = getOwnerList().get(i);
             Integer ownerListId = getOwnerList().get(i).getId();
             Integer myUserId = myUser.getId();
+            String type = "message";
             if((!getOwnerList().get(i).getToken().isEmpty()) &&
                     (!getOwnerList().get(i).getId().equals(myUser.getId()))){
                 if(message.isEmpty()){
-                    message = "img";
+                    type = "image";
                 }
                 FcmNotificationsSender notificationsSender = new FcmNotificationsSender(
                         getOwnerList().get(i).getToken(),
                         title,
                         message,
+                        type,
                         myObject.getId().toString(),
                         myObject.getIcon(),
                         getApplicationContext(),
@@ -784,6 +788,17 @@ public class ActivityChat extends AppCompatActivity{
                         fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
                         ObjectMessage message = new ObjectMessage(fieldsObj);
                         message.setKey(dataSnapshot.getKey());
+
+                        if(messages.size() == 0 ){
+                            message.setDateSeparator(true);
+                        }else{
+                            if(!message.getDate().equals(messages.get(messages.size()-1).getDate())){
+                                message.setDateSeparator(true);
+                            }else{
+                                message.setDateSeparator(false);
+                            }
+                        }
+
                         messages.add(message);
 
                         if(message.getUsers().get(myUser.getId().toString()).equals("false")){
@@ -791,6 +806,18 @@ public class ActivityChat extends AppCompatActivity{
                                 messagesUnseenToSeen.add(message);
                             }
                         }
+                        if(!message.getPicUri().isEmpty()){
+                            message.setPicturePosition(getMyPictureList().size());
+                            ObjectObjPic objectObjPic = new ObjectObjPic();
+                            objectObjPic.setPicUri(message.getPicUri());
+                            getMyPictureList().add(objectObjPic);
+                        }else if(!message.getPicUrl().isEmpty()){
+                            message.setPicturePosition(getMyPictureList().size());
+                            ObjectObjPic objectObjPic = new ObjectObjPic();
+                            objectObjPic.setPicUrl(message.getPicUrl());
+                            getMyPictureList().add(objectObjPic);
+                        }
+
 
                     }catch (Exception e){
                         continue;

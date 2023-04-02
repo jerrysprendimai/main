@@ -26,13 +26,14 @@ public class FcmNotificationsSender  {
     String icon;
     Context mContext;
     Activity mActivity;
+    String type;
 
 
     private RequestQueue requestQueue;
     private final String postUrl = "https://fcm.googleapis.com/fcm/send";
     private final String fcmServerKey ="";
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body, String objectId, String icon, Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body,String type, String objectId, String icon, Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
@@ -40,7 +41,7 @@ public class FcmNotificationsSender  {
         this.icon = icon;
         this.mContext = mContext;
         this.mActivity = mActivity;
-
+        this.type = type;
     }
 
     public void SendNotifications() {
@@ -52,6 +53,7 @@ public class FcmNotificationsSender  {
             JSONObject notiObject = new JSONObject();
             notiObject.put("title", title);
             notiObject.put("body", body);
+            notiObject.put("type", type);
             notiObject.put("objectId", objectId);
             notiObject.put("icon",  icon);
             notiObject.put("sound", "default");

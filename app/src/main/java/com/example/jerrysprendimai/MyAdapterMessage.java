@@ -14,6 +14,8 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -27,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -52,6 +55,9 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
 
     private String url;
     private ArrayList <ObjectMessage> messages;
+    ArrayList<ObjectUser> employeeList;
+    ArrayList<ObjectUser>ownerList;
+    ArrayList<ObjectObjUser> objectUserArrayList;
     private String senderImg, recyverImg;
     private Context context;
     private ObjectUser myUser;
@@ -60,11 +66,14 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
     private int backgroundJobs = 1;
     private boolean longClick;
 
-    public MyAdapterMessage(ArrayList<ObjectMessage> messages, Context context, ObjectUser myUser, ObjectObject obj) {
+    public MyAdapterMessage(ArrayList<ObjectMessage> messages, Context context, ObjectUser myUser, ObjectObject obj, ArrayList<ObjectUser> employeeList, ArrayList<ObjectUser>ownerList, ArrayList<ObjectObjUser> objectUserArrayList) {
         this.messages = messages;
         this.context = context;
         this.myUser = myUser;
         this.object = obj;
+        this.employeeList = employeeList;
+        this.ownerList = ownerList;
+        this.objectUserArrayList = objectUserArrayList;
     }
 
     @NonNull
@@ -88,7 +97,15 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
         holder.imageProgressBarUpl.setVisibility(View.GONE);
 
         //holder.txtDate.setText(objectMessage.getDate());
-        if(((ActivityChat) context).isDateToBeDisplayed(objectMessage.getDate())){
+        if(objectMessage.isDateSeparator()){
+            holder.txtDateSeparator.setVisibility(View.VISIBLE);
+            holder.txtDate.setVisibility(View.VISIBLE);
+            holder.txtDate.setText(objectMessage.getDate());
+        }else{
+            holder.txtDateSeparator.setVisibility(View.GONE);
+            holder.txtDate.setVisibility(View.GONE);
+        }
+        /*if(((ActivityChat) context).isDateToBeDisplayed(objectMessage.getDate())){
             holder.txtDateSeparator.setVisibility(View.VISIBLE);
             holder.txtDate.setVisibility(View.VISIBLE);
             holder.txtDate.setText(((ActivityChat) context).getDateToDisplay());
@@ -102,7 +119,7 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             holder.txtDate.setVisibility(View.VISIBLE);
             holder.txtDate.setText(((ActivityChat) context).getDateToDisplay());
             ((ActivityChat) context).setDateToDisplay(objectMessage.getDate());
-        }
+        }*/
 
         if((!objectMessage.getPicUrl().isEmpty())||(!objectMessage.getPicUri().isEmpty())) {
             SQLiteDB dbHelper = new SQLiteDB(context);
@@ -155,11 +172,6 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
                             }
                         });
 
-                    holder.picturePosition = ((ActivityChat)context).getMyPictureList().size();
-                    ObjectObjPic objectObjPic = new ObjectObjPic();
-                    objectObjPic.setPicUri(objectMessage.getPicUri());
-                    ((ActivityChat)context).getMyPictureList().add(objectObjPic);
-
             } else {
                 holder.imageProgressBar.setVisibility(View.VISIBLE);
                 Glide.with(context)
@@ -184,10 +196,6 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
                             }
                         });
 
-                holder.picturePosition = ((ActivityChat)context).getMyPictureList().size();
-                ObjectObjPic objectObjPic = new ObjectObjPic();
-                objectObjPic.setPicUrl(objectMessage.getPicUrl());
-                ((ActivityChat)context).getMyPictureList().add(objectObjPic);
             }
         }else{
             holder.cardView.setVisibility(View.VISIBLE);
@@ -197,15 +205,10 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
         }
 
         holder.image.setOnClickListener(v->{
-            /*ArrayList<ObjectObjPic> myPictureList = new ArrayList<>();
-            ObjectObjPic objectObjPic = new ObjectObjPic();
-            objectObjPic.setPicUrl(objectMessage.getPicUrl());
-            myPictureList.add(objectObjPic);*/
-
             Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
             intent.putParcelableArrayListExtra("myPictureList", ((ActivityChat)context).getMyPictureList());//myPictureList);
             intent.putExtra("myUser", myUser);
-            intent.putExtra("myPosition", holder.getPicturePosition());
+            intent.putExtra("myPosition", objectMessage.getPicturePosition());//holder.getPicturePosition());
             context.startActivity(intent);
         });
         holder.image.setOnLongClickListener(v->{
@@ -227,21 +230,27 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             constraintSet.clone(constraintLayout);
             constraintSet.clear(R.id.profile_cardView, ConstraintSet.LEFT);
             constraintSet.clear(R.id.txt_message_content, ConstraintSet.LEFT);
-            constraintSet.clear(R.id.chat_photo_LinearView, ConstraintSet.LEFT);
+            constraintSet.clear(R.id.chat_seen_LinearView, ConstraintSet.LEFT);
             constraintSet.connect(R.id.chat_photo_LinearView, ConstraintSet.RIGHT, R.id.ccLayout,ConstraintSet.RIGHT, 0);
             constraintSet.connect(R.id.profile_cardView, ConstraintSet.RIGHT, R.id.ccLayout,ConstraintSet.RIGHT, 3);
             constraintSet.connect(R.id.txt_message_content, ConstraintSet.RIGHT,  R.id.profile_cardView,    ConstraintSet.LEFT, 3);
 
+
             constraintSet.clear(R.id.txt_time, ConstraintSet.LEFT);
             constraintSet.clear(R.id.txt_time, ConstraintSet.BOTTOM);
+            constraintSet.clear(R.id.chat_photo_LinearView, ConstraintSet.LEFT);
+            constraintSet.clear(R.id.chat_photo_LinearView, ConstraintSet.BOTTOM);
 
             if((!objectMessage.getPicUrl().isEmpty())||(!objectMessage.getPicUri().isEmpty())){
                 constraintSet.connect(R.id.txt_time, ConstraintSet.LEFT, R.id.chat_photo_LinearView, ConstraintSet.LEFT, 3);
                 constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.chat_photo_LinearView, ConstraintSet.BOTTOM, 3);
+                constraintSet.connect(R.id.chat_seen_LinearView, ConstraintSet.TOP, R.id.chat_photo_LinearView, ConstraintSet.BOTTOM, 3);
             }else{
                 constraintSet.connect(R.id.txt_time, ConstraintSet.LEFT, R.id.txt_message_content, ConstraintSet.LEFT, 3);
                 constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 3);
+                constraintSet.connect(R.id.chat_seen_LinearView, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 3);
             }
+            constraintSet.connect(R.id.chat_seen_LinearView, ConstraintSet.RIGHT, R.id.txt_time, ConstraintSet.LEFT, 3);
 
 
             constraintSet.clear(R.id.ccLayout,   ConstraintSet.TOP);
@@ -263,14 +272,19 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
 
             constraintSet.clear(R.id.txt_time, ConstraintSet.RIGHT);
             constraintSet.clear(R.id.txt_time, ConstraintSet.BOTTOM);
+            constraintSet.clear(R.id.chat_seen_LinearView, ConstraintSet.RIGHT);
+            constraintSet.clear(R.id.chat_seen_LinearView, ConstraintSet.BOTTOM);
 
             if(!objectMessage.getPicUrl().isEmpty()){
                 constraintSet.connect(R.id.txt_time, ConstraintSet.RIGHT, R.id.chat_photo_LinearView, ConstraintSet.RIGHT, 3);
                 constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.chat_photo_LinearView, ConstraintSet.BOTTOM, 3);
+                constraintSet.connect(R.id.chat_seen_LinearView, ConstraintSet.TOP, R.id.chat_photo_LinearView, ConstraintSet.BOTTOM, 3);
             }else{
                 constraintSet.connect(R.id.txt_time, ConstraintSet.RIGHT, R.id.txt_message_content, ConstraintSet.RIGHT, 3);
                 constraintSet.connect(R.id.txt_time, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 3);
+                constraintSet.connect(R.id.chat_seen_LinearView, ConstraintSet.TOP, R.id.txt_message_content, ConstraintSet.BOTTOM, 3);
             }
+            constraintSet.connect(R.id.chat_seen_LinearView, ConstraintSet.LEFT, R.id.txt_time, ConstraintSet.RIGHT, 3);
 
             constraintSet.clear(R.id.chat_date_line, ConstraintSet.LEFT);
             constraintSet.connect(R.id.chat_date_line, ConstraintSet.TOP, R.id.chat_mainContainer, ConstraintSet.TOP, 3);
@@ -327,6 +341,24 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             holder.constraintLayout.setVisibility(View.VISIBLE);
             holder.txtDeleted.setVisibility(View.GONE);
         }
+
+        holder.seenLinearLayout.setVisibility(View.GONE);
+        holder.txtTime.setOnClickListener(v->{
+            if(holder.seenLinearLayout.getVisibility() == View.GONE){
+                Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                holder.seenLinearLayout.setAnimation(slideIn);
+                holder.seenLinearLayout.setVisibility(View.VISIBLE);
+            }else{
+                Animation slideOut = AnimationUtils.loadAnimation(context, R.anim.fadeout);
+                holder.seenLinearLayout.setAnimation(slideOut);
+                holder.seenLinearLayout.setVisibility(View.GONE);
+            }
+
+        });
+
+        holder.myAdapterMessageSeen = new MyAdapterMessageSeen(context, objectMessage.getUsers(), employeeList, ownerList, objectUserArrayList);
+        holder.seenRecyclerView.setAdapter(holder.myAdapterMessageSeen);
+        holder.seenRecyclerView.setLayoutManager(new LinearLayoutManager(context));
     }
 
     @Override
@@ -372,11 +404,13 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
         ConstraintLayout constraintLayout;
         TextView txtMessage, txtSenderName, txtTime, txtDateSeparator, txtDate, txtDeleted;
         boolean backgroundSet;
-        LinearLayout photoLinearLayout, imageContainer;
+        LinearLayout photoLinearLayout, imageContainer, seenLinearLayout;
         ImageView profImage, image;
         ProgressBar imageProgressBar, imageProgressBarUpl;
         CardView cardView;
         int picturePosition;
+        RecyclerView seenRecyclerView;
+        MyAdapterMessageSeen myAdapterMessageSeen;
 
         public MessageHolder(@NonNull View itemView) {
             super(itemView);
@@ -391,6 +425,8 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             cardView          = itemView.findViewById(R.id.profile_cardView);
             txtDeleted        = itemView.findViewById(R.id.chat_deleted);
             photoLinearLayout = itemView.findViewById(R.id.chat_photo_LinearView);
+            seenLinearLayout  = itemView.findViewById(R.id.chat_seen_LinearView);
+            seenRecyclerView  = itemView.findViewById(R.id.chat_seen_recyclerView);
             image             = itemView.findViewById(R.id.chat_img);
             imageContainer    = itemView.findViewById(R.id.chat_img_container);
             imageProgressBar  = itemView.findViewById(R.id.chat_img_progressBar);

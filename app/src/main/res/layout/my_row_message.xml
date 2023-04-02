@@ -92,7 +92,31 @@
             android:fontFamily="@font/poppinsmedium"
             android:text="09:15"
             android:textSize="9dp"
+            android:drawableEnd="@drawable/svg_seen"
+            android:drawableTint="@color/jerry_blue"
             />
+        <LinearLayout
+            android:id="@+id/chat_seen_LinearView"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:layout_margin="3dp">
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                android:backgroundTint="@color/jerry_grey_opacity"
+                app:cardUseCompatPadding="true">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/chat_seen_recyclerView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </androidx.recyclerview.widget.RecyclerView>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
         <LinearLayout
             android:id="@+id/chat_photo_LinearView"
             android:orientation="vertical"

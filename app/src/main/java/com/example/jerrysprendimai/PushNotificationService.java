@@ -75,10 +75,17 @@ public class PushNotificationService extends FirebaseMessagingService {
             String objId = data.get("objectId");
             String icon = data.get("icon");
             String sound = data.get("sound");
+            String type  = data.get("type");
             int img = getResources().getIdentifier(icon, "drawable", getPackageName());
 
             //String[] str = message.getNotification().getTitle().split("#");
+            try {
+                if (type.equals("image")) {
+                    body = "img";
+                }
+            }catch (Exception e){
 
+            }
 
             Intent resultIntent = new Intent().setClass(this, ActivityMain.class);
             resultIntent.putExtra("title", title);
