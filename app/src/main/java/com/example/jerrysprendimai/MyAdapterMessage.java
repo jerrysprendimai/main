@@ -205,6 +205,7 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
         }
 
         holder.image.setOnClickListener(v->{
+            ((ActivityChat)context).lockView();
             Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
             intent.putParcelableArrayListExtra("myPictureList", ((ActivityChat)context).getMyPictureList());//myPictureList);
             intent.putExtra("myUser", myUser);

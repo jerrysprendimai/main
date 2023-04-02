@@ -81,11 +81,15 @@ public class MyAdapterMessageSeen extends RecyclerView.Adapter<MyAdapterMessageS
                 }
             }
         }
-        holder.firstName.setText(firstName);
-        if(userSeen.equals("false")){
-            holder.seenIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_dark_grey));
-        }else{
-            holder.seenIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_blue));
+        try {
+            holder.firstName.setText(firstName);
+            if (userSeen.equals("false")) {
+                holder.seenIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_dark_grey));
+            } else {
+                holder.seenIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_blue));
+            }
+        }catch (Exception e){
+
         }
     }
 

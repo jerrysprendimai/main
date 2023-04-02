@@ -87,6 +87,7 @@ public class ActivityChat extends AppCompatActivity{
 
     //private ArrayList<ObjectObject> myObjectListOriginal;
     public ArrayList<MyAdapterMessage.MessageHolder> toBeDeleted;
+
     private ArrayList<String> myDisplayDates;
     public String currentDate, mCurrentPhotoPath, dateToDisplay;
     private LinearLayout participantsButton, objectNameButton, objectIconButton, toolsLayout;
@@ -383,6 +384,11 @@ public class ActivityChat extends AppCompatActivity{
     }
 
     public void lockView(){
+        for(ObjectMessage objectMessage : messages){
+            try{
+                objectMessage.getHolder().image.setEnabled(false);
+            }catch(Exception e){}
+        }
         participantsButton.setEnabled(false);
         attachmentButton.setEnabled(false);
         cameraButton.setEnabled(false);
@@ -392,6 +398,11 @@ public class ActivityChat extends AppCompatActivity{
         editMessageInput.setEnabled(false);
     }
     public void unlockView(){
+        for(ObjectMessage objectMessage : messages){
+            try{
+                objectMessage.getHolder().image.setEnabled(true);
+            }catch(Exception e){}
+        }
         participantsButton.setEnabled(true);
         attachmentButton.setEnabled(true);
         cameraButton.setEnabled(true);
@@ -806,12 +817,12 @@ public class ActivityChat extends AppCompatActivity{
                                 messagesUnseenToSeen.add(message);
                             }
                         }
-                        if(!message.getPicUri().isEmpty()){
+                        if((!message.getPicUri().isEmpty())&&(!message.isDeleted())){
                             message.setPicturePosition(getMyPictureList().size());
                             ObjectObjPic objectObjPic = new ObjectObjPic();
                             objectObjPic.setPicUri(message.getPicUri());
                             getMyPictureList().add(objectObjPic);
-                        }else if(!message.getPicUrl().isEmpty()){
+                        }else if((!message.getPicUrl().isEmpty())&&(!message.isDeleted())){
                             message.setPicturePosition(getMyPictureList().size());
                             ObjectObjPic objectObjPic = new ObjectObjPic();
                             objectObjPic.setPicUrl(message.getPicUrl());
