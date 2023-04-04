@@ -64,7 +64,7 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
     private MyAdapterObjectEditPicture myAdapterObjectEditPicture;
     private ObjectObject object;
     private int backgroundJobs = 1;
-    private boolean longClick;
+    private boolean imageLongClick;
 
     public MyAdapterMessage(ArrayList<ObjectMessage> messages, Context context, ObjectUser myUser, ObjectObject obj, ArrayList<ObjectUser> employeeList, ArrayList<ObjectUser>ownerList, ArrayList<ObjectObjUser> objectUserArrayList) {
         this.messages = messages;
@@ -204,18 +204,6 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             holder.photoLinearLayout.setVisibility(View.GONE);
         }
 
-        holder.image.setOnClickListener(v->{
-            ((ActivityChat)context).lockView();
-            Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
-            intent.putParcelableArrayListExtra("myPictureList", ((ActivityChat)context).getMyPictureList());//myPictureList);
-            intent.putExtra("myUser", myUser);
-            intent.putExtra("myPosition", objectMessage.getPicturePosition());//holder.getPicturePosition());
-            context.startActivity(intent);
-        });
-        holder.image.setOnLongClickListener(v->{
-            return false;
-        });
-
         if(objectMessage.getUserLv().equals(owner)){
             holder.profImage.setColorFilter(context.getResources().getColor(R.color.jerry_blue));
         }else if(objectMessage.getUserLv().equals(admin)){
@@ -332,6 +320,30 @@ public class MyAdapterMessage extends RecyclerView.Adapter<MyAdapterMessage.Mess
             //constraintLayout.setSoundEffectsEnabled(false);
             //constraintLayout.setSoundEffectsEnabled(true);
             }
+            return false;
+        });
+        holder.image.setOnClickListener(v->{
+            if(imageLongClick == true){
+                imageLongClick = false;
+            }
+            if (((ActivityChat) context).isDeletionMode()) {
+                constraintLayout.setSoundEffectsEnabled(false);
+                constraintLayout.performClick();
+                constraintLayout.setSoundEffectsEnabled(true);
+            }else{
+                ((ActivityChat)context).lockView();
+                Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
+                intent.putParcelableArrayListExtra("myPictureList", ((ActivityChat)context).getMyPictureList());//myPictureList);
+                intent.putExtra("myUser", myUser);
+                intent.putExtra("myPosition", objectMessage.getPicturePosition());//holder.getPicturePosition());
+                context.startActivity(intent);
+            }
+        });
+        holder.image.setOnLongClickListener(v->{
+            constraintLayout.setSoundEffectsEnabled(false);
+            imageLongClick = true;
+            constraintLayout.performLongClick();
+            constraintLayout.setSoundEffectsEnabled(true);
             return false;
         });
 

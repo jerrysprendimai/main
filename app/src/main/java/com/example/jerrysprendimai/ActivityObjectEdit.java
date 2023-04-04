@@ -339,6 +339,11 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             context.startActivity(intent);
         });
 
+        //-----------------Object Locked message
+        if((!objectObject.getLockedByUserId().equals("0"))&&(!objectObject.getLockedByUserId().equals(String.valueOf(myUser.getId())))){
+            Toast.makeText(context, context.getResources().getString(R.string.locked) + ". " + context.getResources().getString(R.string.locked_by) + " '" + objectObject.getLockedUname() + "'", Toast.LENGTH_SHORT).show();
+        }
+
         //-----------------Save-Cancel Menu Hide/Show depending on the Keyboard----------------
         KeyboardVisibilityEvent.setEventListener(this, this);
         this.bottomNavigationView = findViewById(R.id.save_cancel_buttons);
@@ -348,31 +353,7 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
 
         //---- user mode handling
         handleUserMode();
-        /*
-        if(this.myUser.getUser_lv().equals(user)){
-            this.userMode = true;
-            //setSaveCancelVisibility(false);
-            //oSavedStatusIndicator.setVisibility(View.GONE);
-            oAddJob.setVisibility(View.GONE);
-            oDate.setEnabled(false);
-            oDate.setTextColor(getResources().getColor(R.color.jerry_grey));
-            oName.setEnabled(false);
-            oCustomer.setEnabled(false);
-            oAddress.setEnabled(false);
-            retractableButton.setSoundEffectsEnabled(false);
-            retractableButton.performClick();
-            retractableButton.setSoundEffectsEnabled(true);
-        }else{
-            this.userMode = false;
-            setSaveCancelVisibility(true);
-            oSavedStatusIndicator.setVisibility(View.VISIBLE);
-            oAddJob.setVisibility(View.VISIBLE);
-            oDate.setEnabled(true);
-            oName.setEnabled(true);
-            oCustomer.setEnabled(true);
-            oAddress.setEnabled(true);
-        }
-        */
+
 
     }
 

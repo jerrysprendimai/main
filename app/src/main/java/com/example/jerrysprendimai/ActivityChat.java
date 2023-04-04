@@ -831,10 +831,11 @@ public class ActivityChat extends AppCompatActivity{
                         }
 
                         messages.add(message);
-
-                        if(message.getUsers().get(myUser.getId().toString()).equals("false")){
-                            if(!messagesUnseenToSeen.contains(message)){
-                                messagesUnseenToSeen.add(message);
+                        if(message.getUsers().containsKey(myUser.getId().toString())){
+                            if(message.getUsers().get(myUser.getId().toString()).equals("false")){
+                                if(!messagesUnseenToSeen.contains(message)){
+                                    messagesUnseenToSeen.add(message);
+                                }
                             }
                         }
                         if((!message.getPicUri().isEmpty())&&(!message.isDeleted())){

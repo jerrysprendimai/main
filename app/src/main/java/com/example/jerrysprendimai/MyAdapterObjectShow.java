@@ -572,7 +572,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     bottomSheetView.findViewById(R.id.bottomsheet_add_user_button).setEnabled(false);
                     ((CardView) bottomSheetView.findViewById(R.id.bottomsheet_add_user_button_cardView)).setEnabled(false);
 
-                    Toast.makeText(context, context.getResources().getString(R.string.locked_by) +" '" + clickObject.getLockedUname()+"'", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, context.getResources().getString(R.string.locked_by) +" '" + clickObject.getLockedUname()+"'", Toast.LENGTH_SHORT).show();
                 }
 
                 //---- Edit Button click
