@@ -108,12 +108,12 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         this.objectUserArrayList     = getIntent().getParcelableArrayListExtra("listUser");
         this.objectPicturesArrayList = getIntent().getParcelableArrayListExtra("listPictures");
 
-        if(getIntent().getParcelableArrayListExtra("employeeList") != null){
+        //if(getIntent().getParcelableArrayListExtra("employeeList") != null){
             this.employeeArrayList = getIntent().getParcelableArrayListExtra("employeeList");
-        }
-        if(getIntent().getParcelableArrayListExtra("ownerList") != null){
+        //}
+        //if(getIntent().getParcelableArrayListExtra("ownerList") != null){
             this.ownerArrayList = getIntent().getParcelableArrayListExtra("ownerList");
-        }
+        //}
 
 
         //-----------------BackButton press counter

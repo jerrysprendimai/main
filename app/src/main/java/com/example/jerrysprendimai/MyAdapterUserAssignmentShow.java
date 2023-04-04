@@ -18,17 +18,23 @@ import java.util.List;
 public class MyAdapterUserAssignmentShow extends RecyclerView.Adapter<MyAdapterUserAssignmentShow.MyViewHolder> {
     Context context;
 
+    final String USER = "user";
+    final String ADMIN = "admin";
+    final String OWNER = "owner";
+
     ArrayList<ObjectUser> myUserList;
     ArrayList<ObjectUser> myUserListFull;
     ArrayList<ObjectObjUser> myAssignedUser;
     ObjectObject clickObject;
+    ObjectUser myUser;
 
-    public MyAdapterUserAssignmentShow(Context context, ArrayList<ObjectUser> userList, ObjectObject obj, ArrayList<ObjectObjUser> objUserArrayList){
+    public MyAdapterUserAssignmentShow(Context context, ArrayList<ObjectUser> userList, ObjectObject obj, ArrayList<ObjectObjUser> objUserArrayList, ObjectUser myUser){
         this.context = context;
         this.myUserList = userList;
         this.myUserListFull  = new ArrayList<>(this.myUserList);
         this.myAssignedUser = objUserArrayList;
         this.clickObject = obj;
+        this.myUser = myUser;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
@@ -72,16 +78,23 @@ public class MyAdapterUserAssignmentShow extends RecyclerView.Adapter<MyAdapterU
                 objectUser.setChecked(false);
             }
         });
-        holder.myRow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if ( objectUser.getChecked() == true){
-                    holder.checkBox.setChecked(false);
-                }else{
-                    holder.checkBox.setChecked(true);
+
+        if((myUser.getUser_lv().equals(ADMIN)) || (myUser.getUser_lv().equals(OWNER))){
+            holder.myRow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if ( objectUser.getChecked() == true){
+                        holder.checkBox.setChecked(false);
+                    }else{
+                        holder.checkBox.setChecked(true);
+                    }
                 }
-            }
-        });
+            });
+        }else if(myUser.getUser_lv().equals(USER)){
+            holder.checkBox.setEnabled(false);
+            holder.myRow.setEnabled(false);
+        }
+
     }
 
     @Override

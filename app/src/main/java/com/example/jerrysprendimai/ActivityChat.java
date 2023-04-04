@@ -334,38 +334,58 @@ public class ActivityChat extends AppCompatActivity{
         };
         objectNameButton.setOnClickListener(toProjectListener);
         objectIconButton.setOnClickListener(toProjectListener);
-        if((myUser.getUser_lv().equals(admin)) || (myUser.getUser_lv().equals(owner))){
-            participantsButton.setOnClickListener(v ->{
-                lockView();
-                View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_object_user_assignment, findViewById(R.id.chat_main_containerView), false);
-                MyAdapterUserAssignmentShow myAdapterUserAssignmentShow = new MyAdapterUserAssignmentShow(this, employeeList, myObject, objectUserArrayList);
-                RecyclerView dialogRecyclerView = dialogView.findViewById(R.id.my_recycle_view_user);
-                dialogRecyclerView.setAdapter(myAdapterUserAssignmentShow);
-                dialogRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
-                builder.setView(dialogView);
-                builder.setPositiveButton("Ok", (dialog, which) -> {
-                    ArrayList assignedUserIdList = new ArrayList();
-                    //----changes to DB
-                    for(int i = 0; i < employeeList.size(); i++ ){
-                        ObjectUser objUsr = employeeList.get(i);
-                        if(objUsr.getChecked().equals(true)){
-                            assignedUserIdList.add(objUsr.getId());
+            participantsButton.setOnClickListener(v ->{
+            lockView();
+            View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_object_user_assignment, findViewById(R.id.chat_main_containerView), false);
+            MyAdapterUserAssignmentShow myAdapterUserAssignmentShow = null;
+            if((myUser.getUser_lv().equals(admin)) || (myUser.getUser_lv().equals(owner))){
+              myAdapterUserAssignmentShow = new MyAdapterUserAssignmentShow(this, employeeList, myObject, objectUserArrayList, myUser);
+            }else if(myUser.getUser_lv().equals(user)){
+                ArrayList<ObjectUser> selectedEmployees = new ArrayList<>();
+                for(ObjectUser employee: employeeList){
+                    for(ObjectObjUser assignedEmpl: objectUserArrayList){
+                        if(assignedEmpl.getUserId().equals(employee.getId())){
+                            selectedEmployees.add(employee);
+                            break;
                         }
                     }
+                }
+                myAdapterUserAssignmentShow = new MyAdapterUserAssignmentShow(this, selectedEmployees, myObject, objectUserArrayList, myUser);
+            }
+
+            RecyclerView dialogRecyclerView = dialogView.findViewById(R.id.my_recycle_view_user);
+            dialogRecyclerView.setAdapter(myAdapterUserAssignmentShow);
+            dialogRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+            builder.setView(dialogView);
+
+            if((myUser.getUser_lv().equals(admin)) || (myUser.getUser_lv().equals(owner))){
+                builder.setPositiveButton("Ok", (dialog, which) -> {
+                ArrayList assignedUserIdList = new ArrayList();
+                //----changes to DB
+                for(int i = 0; i < employeeList.size(); i++ ){
+                   ObjectUser objUsr = employeeList.get(i);
+                   if(objUsr.getChecked().equals(true)){
+                      assignedUserIdList.add(objUsr.getId());
+                   }
+                    }
                     new HttpsRequestSetObjectUser(this, myObject, assignedUserIdList).execute();
-                });
-                builder.setNegativeButton("Cancel", (dialog, which)->{
-                    unlockView();
-                });
+                    });
+                    builder.setNegativeButton("Cancel", (dialog, which)->{
+                        unlockView();
+                    });
+
+                }
+
                 builder.setOnDismissListener(dialog -> {
                     unlockView();
                 });
                 builder.create();
                 builder.show();
             });
-        }
+
 
         myAdapterMessage = new MyAdapterMessage(messages, this, myUser, myObject, employeeList, ownerList, objectUserArrayList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

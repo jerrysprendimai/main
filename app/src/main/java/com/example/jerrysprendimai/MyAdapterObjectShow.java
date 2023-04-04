@@ -529,7 +529,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                 LinearLayout addUser = bottomSheetView.findViewById(R.id.bottomsheet_add_user_button);
                 addUser.setOnClickListener(v -> {
                     View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_object_user_assignment, parentView, false);
-                    MyAdapterUserAssignmentShow myAdapterUserAssignmentShow = new MyAdapterUserAssignmentShow(context, employeeArrayList, clickObject, objUserArrayList);
+                    MyAdapterUserAssignmentShow myAdapterUserAssignmentShow = new MyAdapterUserAssignmentShow(context, employeeArrayList, clickObject, objUserArrayList, myUser);
                     RecyclerView dialogRecyclerView = dialogView.findViewById(R.id.my_recycle_view_user);
                     dialogRecyclerView.setAdapter(myAdapterUserAssignmentShow);
                     dialogRecyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -585,6 +585,8 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
                     intent.putParcelableArrayListExtra("listDetails", getObjectDetailsArrayList());
                     intent.putParcelableArrayListExtra("listUser", getObjectUserArrayList());
                     intent.putParcelableArrayListExtra("listPictures", getObjectPicturesArrayList());
+                    intent.putParcelableArrayListExtra("employeeList", employeeArrayList);
+                    intent.putParcelableArrayListExtra("ownerList", ownerArrayList);
                     context.startActivity(intent);
                 });
                 //---- Chat Button click

@@ -106,6 +106,7 @@ public class ActivityCalendar extends AppCompatActivity {
             public void onDayClick(Date dateClicked) {
                 setDisplayDate(dateClicked);
                 calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(dateClicked.getTime()));
+                calendarCaption.setText(DateFormat.getDateInstance(DateFormat.MEDIUM).format(dateClicked.getTime()));
                 getMyEventList().removeAll(getMyEventList());
                 getMyEventList().addAll(sqLiteCalendarHelper.getDayEvents(dateClicked));
                 //getMyEventList().addAll(jerryCalenderHelper.getDayEvents(dateClicked));
@@ -171,6 +172,7 @@ public class ActivityCalendar extends AppCompatActivity {
         setDisplayDate(date);
         myAdapterCalendarEvents.notifyDataSetChanged();
         calendarDayCaption.setText(DateFormat.getDateInstance(DateFormat.FULL).format(today.getTime()));
+        calendarCaption.setText(DateFormat.getDateInstance(DateFormat.MEDIUM).format(today.getTime()));
 
         setViewEnabled(true);
 
