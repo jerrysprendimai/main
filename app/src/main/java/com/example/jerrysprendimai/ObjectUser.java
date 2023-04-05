@@ -14,7 +14,7 @@ public class ObjectUser implements Parcelable {
     private String email, uname, type, locked, first_name, last_name, passwd, reg_date, last_login, user_lv, sessionId, last_action, token;
     private MyAdapterUserShow.MyViewHolder myViewHolderUserShow;
 
-    private Boolean checked;
+    private Boolean checked, passwdDecoded;
 
     protected ObjectUser(Parcel in) {
         if (in.readByte() == 0) {
@@ -37,6 +37,8 @@ public class ObjectUser implements Parcelable {
         token = in.readString();
         byte tmpChecked = in.readByte();
         checked = tmpChecked == 0 ? null : tmpChecked == 1;
+        byte tmpPasswdDecoded = in.readByte();
+        passwdDecoded = tmpPasswdDecoded == 0 ? null : tmpPasswdDecoded == 1;
     }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -60,6 +62,7 @@ public class ObjectUser implements Parcelable {
         dest.writeString(last_action);
         dest.writeString(token);
         dest.writeByte((byte) (checked == null ? 0 : checked ? 1 : 2));
+        dest.writeByte((byte) (passwdDecoded == null ? 0 : passwdDecoded ? 1 : 2));
     }
     @Override
     public int describeContents() {
@@ -92,6 +95,7 @@ public class ObjectUser implements Parcelable {
         this.checked     = false;
         this.last_action = "";
         this.token       = "";
+        this.passwdDecoded = false;
     }
 
     public ObjectUser(JSONObject obj){
@@ -118,6 +122,7 @@ public class ObjectUser implements Parcelable {
             }catch (Exception e){}
             try { this.checked     = false;
             }catch (Exception e){}
+            this.passwdDecoded = false;
         }catch (Exception e){
             try{
                 try {this.id          = Integer.parseInt(obj.getString("id"));
@@ -149,6 +154,7 @@ public class ObjectUser implements Parcelable {
                 try { this.token       = obj.getString("Token");
                 }catch (Exception ee){}
                 this.checked    = false;
+                this.passwdDecoded = false;
             }catch (Exception ee) {
                 ee.printStackTrace();
             }
@@ -246,9 +252,7 @@ public class ObjectUser implements Parcelable {
     public void setLast_name(String last_name) {
         this.last_name = last_name;
     }
-    public String getPasswd() {
-        return passwd;
-    }
+    public String getPasswd() {        return passwd;    }
     public void setPasswd(String passwd) {
         this.passwd = passwd;
     }
@@ -288,4 +292,7 @@ public class ObjectUser implements Parcelable {
     public void setToken(String token) {        this.token = token;    }
     public MyAdapterUserShow.MyViewHolder getMyViewHolderUserShow() {        return myViewHolderUserShow;    }
     public void setMyViewHolderUserShow(MyAdapterUserShow.MyViewHolder myViewHolderUserShow) {        this.myViewHolderUserShow = myViewHolderUserShow;    }
+    public Boolean isPasswdDecoded() {        return passwdDecoded;    }
+    public void setPasswdDecoded(Boolean passwdDecoded) {        this.passwdDecoded = passwdDecoded;    }
+
 }

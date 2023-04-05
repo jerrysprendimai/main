@@ -139,12 +139,14 @@ public class ActivityMenu extends AppCompatActivity {
                 Intent intent = new Intent(context, ActivityUserEdit.class);
 
                 ObjectUser objectUser = myUser;
-                try {
-                    String value = new String(Base64.decode(objectUser.getPasswd(), 0));
-                    objectUser.setPasswd(value);
-                }catch (Exception e){
 
-                }
+                try {
+                    if(!objectUser.isPasswdDecoded()) {
+                        String value = new String(Base64.decode(objectUser.getPasswd(), 0));
+                        objectUser.setPasswd(value);
+                        objectUser.setPasswdDecoded(true);
+                    }
+                }catch (IllegalArgumentException e){ }
                 intent.putExtra("myUserEdit", objectUser);
                 intent.putExtra("myUser", myUser);
                 context.startActivity(intent);
@@ -162,11 +164,12 @@ public class ActivityMenu extends AppCompatActivity {
 
                 ObjectUser objectUser = myUser;
                 try {
-                    String value = new String(Base64.decode(objectUser.getPasswd(), 0));
-                    objectUser.setPasswd(value);
-                }catch (Exception e){
-
-                }
+                    if(!objectUser.isPasswdDecoded()) {
+                        String value = new String(Base64.decode(objectUser.getPasswd(), 0));
+                        objectUser.setPasswd(value);
+                        objectUser.setPasswdDecoded(true);
+                    }
+                }catch (IllegalArgumentException e){ }
                 intent.putExtra("myUserEdit", objectUser);
                 intent.putExtra("myUser", myUser);
                 context.startActivity(intent);

@@ -244,6 +244,11 @@ public class ActivityMain extends AppCompatActivity {
                         ObjectUser myUser = new ObjectUser(myObj);
 
                         Intent intent = new Intent(this.context, ActivityMenu.class);
+                        /*try {
+                            String value = new String(Base64.decode(myUser.getPasswd(), 0));
+                            myUser.setPasswd(value);
+                        }catch (Exception e){ }*/
+
                         intent.putExtra("myUser", myUser);
                         //----Notification click handling
                         if(extras != null){

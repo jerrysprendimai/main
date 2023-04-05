@@ -44,6 +44,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
     TextInputEditText uFirstName, uLastName, uUser, uPasswd, uRegDate, uLastLogin;
 
     boolean needSave;
+    boolean backPressed, backgroudnRunning;
     BottomNavigationView bottomNavigationView;
     ProgressBar progressBar;
 
@@ -64,6 +65,8 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
         //-----------------BackButton press counter
         this.backButtonCount = 0;
         this.needSave = false;
+        this.backPressed = false;
+        this.backgroudnRunning = false;
 
         //-----------------View element binding----------------
         this.uytpeIndicator             = findViewById(R.id.user_edit_utypeIndicator);
@@ -288,14 +291,36 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                 }
                 //--save to DB
                 if(needSave == true) {
+                    setBackgroudnRunning(true);
                     new HttpsRequestSaveUser(this).execute();
                 }
                 break;
             case R.id.item_cancel:
-                //--todo cancel changes
+                onBackPressed();
                 break;
         }
         return false;
+    }
+
+    public Integer getBackButtonCount() {        return backButtonCount;    }
+    public void setBackButtonCount(Integer backButtonCount) {        this.backButtonCount = backButtonCount;    }
+    public boolean isBackPressed() {        return backPressed;    }
+    public void setBackPressed(boolean backPressed) {        this.backPressed = backPressed;    }
+    public boolean isBackgroudnRunning() {        return backgroudnRunning;    }
+    public void setBackgroudnRunning(boolean backgroudnRunning) {        this.backgroudnRunning = backgroudnRunning;    }
+
+    @Override
+    public void onBackPressed() {
+        setBackPressed(true);
+        if(!isBackgroudnRunning()) {
+            if ((backButtonCount.equals(0)) && (isNeedSave())) {
+                Toast.makeText(this, getResources().getString(R.string.not_saved), Toast.LENGTH_SHORT).show();
+                backButtonCount++;
+            } else {
+                setBackButtonCount(0);
+                super.onBackPressed();
+            }
+        }
     }
 
     @Override
@@ -309,6 +334,7 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onResume() {
+        setBackgroudnRunning(true);
         new HttpsRequestCheckSessionAlive(this).execute();
         super.onResume();
     }
@@ -357,6 +383,11 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+            }
+            setBackgroudnRunning(false);
+            if(isBackPressed()){
+                setBackPressed(false);
+                finish();
             }
             super.onPostExecute(inputStream);
         }
@@ -431,6 +462,11 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                     context.startActivity(intent);
                 }*/
 
+                setBackgroudnRunning(false);
+                if(isBackPressed()){
+                    setBackPressed(false);
+                    finish();
+                }
 
             }catch (Exception e){
                 e.printStackTrace();
