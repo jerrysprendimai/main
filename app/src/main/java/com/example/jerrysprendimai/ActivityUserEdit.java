@@ -438,19 +438,18 @@ public class ActivityUserEdit extends AppCompatActivity implements View.OnClickL
                         myUser.setLast_name(objectUser.getLast_name());
                         myUser.setUname(objectUser.getUname());
                         myUser.setPasswd(objectUser.getPasswd());
-                        myUser.setPasswd(Base64.encodeToString(objectUser.getPasswd().getBytes(),  Base64.DEFAULT));
+                        myUser.setPasswdDecoded(false);
+                        //myUser.setPasswd(Base64.encodeToString(objectUser.getPasswd().getBytes(),  Base64.DEFAULT));
                         ActivityMenu.setMyUser(myUser);
 
                         //----check if single-sign-on needs to be updated
                         SQLiteSSO.compare(context, myUser);
                     }
-
-
-
-
+                    setNeedSave(false);
                     Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
                 }else if(saveStatus.equals("2")){
                     ((ActivityUserEdit) context).uSavedStatusIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_green));
+                    setNeedSave(false);
                     Toast.makeText(context, getResources().getString(R.string.saved), Toast.LENGTH_SHORT).show();
                 }else if(saveStatus.equals("9")){
                     Toast.makeText(context, getResources().getString(R.string.user)+" '"+

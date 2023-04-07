@@ -21,6 +21,7 @@ import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -112,6 +113,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         boolean myHoldIndicator, isChanged;
         MyAdapterObjectEditPicture myAdapterObjectEditPicture;
         ArrayList<ObjectObjPic> filteredPics;
+        TextWatcher myTextWatcher;
 
 
         public MyViewHolder(@NonNull View itemView){
@@ -149,6 +151,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             addButtonsLayout                   = itemView.findViewById(R.id.objectDetails_add_picture_button_layoutButtons);
             deleteButtonsLayout                = itemView.findViewById(R.id.objectDetails_delete_picture_button_layoutButtons);
             filteredPics = new ArrayList<>();
+            myTextWatcher = null;
         }
         public void setPos(int position){
             pos = position;
@@ -237,7 +240,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         //TransitionManager.beginDelayedTransition(holder.layoutExtended, new AutoTransition());
         //TransitionManager.beginDelayedTransition(holder.layoutSummary, new AutoTransition());
 
-        TextWatcher myTextWatcher = new TextWatcher() {
+        holder.myTextWatcher  = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {}
             @Override
@@ -258,6 +261,7 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 }
             }
         };
+
         CompoundButton.OnCheckedChangeListener myOnCheckedChangeListener = (buttonView, isChecked) -> {
             ((ActivityObjectEdit)context).setBackButtonCount(0);
             if((isChecked)&&(!myObjectList.get(holder.getAdapterPosition()).getCompleted().equals("X"))){
@@ -306,8 +310,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                     holder.layoutSummary.setVisibility(View.GONE);
                     holder.retractableButtonLayout.setVisibility(View.GONE);
 
-                    holder.oDJobNameExtended.addTextChangedListener(myTextWatcher);
-                    holder.oDJobDescriptionExtended.addTextChangedListener(myTextWatcher);
+                    holder.oDJobNameExtended.addTextChangedListener(holder.myTextWatcher);
+                    holder.oDJobDescriptionExtended.addTextChangedListener(holder.myTextWatcher);
 
                     ((ActivityObjectEdit)context).scrollToPosition();
                 }
@@ -345,8 +349,8 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 holder.layoutSummary.setVisibility(View.VISIBLE);
                 holder.retractableButtonLayout.setVisibility(View.VISIBLE);
 
-                holder.oDJobNameExtended.removeTextChangedListener(myTextWatcher);
-                holder.oDJobDescriptionExtended.removeTextChangedListener(myTextWatcher);
+                holder.oDJobNameExtended.removeTextChangedListener(holder.myTextWatcher);
+                holder.oDJobDescriptionExtended.removeTextChangedListener(holder.myTextWatcher);
                 //holder.oDCompleteJob.setOnCheckedChangeListener(emptyStateListener);
 
                 holder.oDfocusHolder.setInputType(InputType.TYPE_NULL);
@@ -501,7 +505,10 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         if (((ActivityObjectEdit) context).isUserMode()){
             holder.oDJobName.setEnabled(false);
             holder.oDJobNameExtended.setEnabled(false);
-            holder.oDJobDescriptionExtended.setEnabled(false);
+            //holder.oDJobDescriptionExtended.clearFocus();
+            //holder.oDJobDescriptionExtended.setEnabled(false);
+            holder.oDJobDescriptionExtended.setFocusableInTouchMode(false);
+            holder.oDJobDescriptionExtended.setVerticalScrollBarEnabled(true);
 
             //if (((ActivityObjectEdit) context).isNeedSave()){
             //    holder.oDUserModeSaveDetail.setEnabled(true);
@@ -539,8 +546,13 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
             });
             */
         }else{
+            holder.oDJobDescriptionExtended.setVerticalScrollBarEnabled(true);
             //holder.oDUserModeSaveDetail.setVisibility(View.GONE);
         }
+        holder.oDJobDescriptionExtended.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
 
         //---- locked object handling
         //---check if object is loked

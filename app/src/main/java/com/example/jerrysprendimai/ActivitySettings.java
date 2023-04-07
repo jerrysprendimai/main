@@ -189,9 +189,15 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
                 break;
             case R.id.item_cancel:
                 findViewById(R.id.progressBar).setVisibility(View.GONE);
+                onBackPressed();
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {

@@ -129,60 +129,38 @@ public class ObjectObjDetails implements Parcelable {
     public Integer getId() {
         return id;
     }
-
     public void setId(Integer id) {
         this.id = id;
     }
-
     public String getCompleted() {
         return completed;
     }
-
     public void setCompleted(String completed) {
         this.completed = completed;
     }
-
     public Integer getObjectId() {
         return objectId;
     }
-
     public void setObjectId(Integer objectId) {
         this.objectId = objectId;
     }
-
     public Integer getPosNr() {
         return posNr;
     }
-
     public void setPosNr(Integer posNr) {
         this.posNr = posNr;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
+    public String getDescription() {        return description;    }
+    public void setDescription(String description) {        this.description = description;    }
     public Integer getLockedByUserId() {
         return lockedByUserId;
     }
-
     public void setLockedByUserId(Integer lockedByUserId) {
         this.lockedByUserId = lockedByUserId;
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    public String getName() {        return name;    }
+    public void setName(String name) {        this.name = name;    }
     public MyAdapterObjectEdit.MyViewHolder getHolder() {        return holder;    }
-
     public void setHolder(MyAdapterObjectEdit.MyViewHolder holder) {        this.holder = holder;    }
+
 }

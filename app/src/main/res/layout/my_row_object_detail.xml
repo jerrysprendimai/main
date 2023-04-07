@@ -8,6 +8,31 @@
     android:layout_margin="5dp"
     android:orientation="vertical">
 
+    <!--<ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:scrollbarTrackVertical="@drawable/vertical_scrollview_track"
+        android:scrollbarThumbVertical="@drawable/vertical_scrollview_thumb"
+        android:scrollbarStyle="insideInset"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:fadeScrollbars="false"
+        android:scrollbars="vertical">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:maxLines="5"
+            android:scrollbarTrackVertical="@drawable/vertical_scrollview_track"
+            android:scrollbarThumbVertical="@drawable/vertical_scrollview_thumb"
+            android:scrollbarStyle="insideInset"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:fadeScrollbars="false"
+            android:scrollbars="vertical"
+            >
+        </EditText>
+    </ScrollView>-->
+
     <androidx.cardview.widget.CardView
         android:id="@+id/objectDetails_summary_cardView"
         android:layout_width="match_parent"
@@ -157,8 +182,6 @@
             android:id="@+id/objectDetails_summary_expanded"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
             android:orientation="vertical">
 
             <LinearLayout
@@ -282,28 +305,36 @@
                                 android:focusedByDefault="false"
                                 android:textSize="12sp" />
                         </com.google.android.material.textfield.TextInputLayout>
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/recycleView_Item_Text"
-                            android:layout_gravity="left"
-                            android:layout_width="wrap_content"
-                            android:paddingTop="5dp">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/objectDetail_jobDescription_extended"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:backgroundTint="@color/jerry_blue"
-                                android:ems="12"
-                                android:fontFamily="@font/poppinsmedium"
-                                android:text="t-e-s-t    d-e-s-c-r-i-p-t-i-o-n"
-                                android:hint="@string/object_jobDescription"
-                                android:inputType="textMultiLine"
-                                android:minLines="3"
-                                android:maxLines="5"
-                                android:textColor="@color/black"
-                                android:textColorHint="@color/black"
-                                android:focusedByDefault="false"
-                                android:textSize="12sp" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/recycleView_Item_Text"
+                                android:layout_gravity="left"
+                                android:layout_width="wrap_content"
+                                android:paddingTop="5dp">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/objectDetail_jobDescription_extended"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:backgroundTint="@color/jerry_blue"
+                                    android:focusedByDefault="false"
+                                    android:ems="12"
+                                    android:scrollbarTrackVertical="@drawable/vertical_scrollview_track"
+                                    android:scrollbarThumbVertical="@drawable/vertical_scrollview_thumb"
+                                    android:scrollbarStyle="insideInset"
+                                    android:scrollbarAlwaysDrawVerticalTrack="true"
+                                    android:fadeScrollbars="false"
+                                    android:scrollbars="vertical"
+                                    android:fontFamily="@font/poppinsmedium"
+                                    android:text="t-e-s-t    d-e-s-c-r-i-p-t-i-o-n"
+                                    android:hint="@string/object_jobDescription"
+                                    android:inputType="textMultiLine"
+                                    android:minLines="3"
+                                    android:maxLines="5"
+                                    android:textColor="@color/black"
+                                    android:textColorHint="@color/black"
+                                    android:textSize="12sp" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
                          <LinearLayout
                             android:id="@+id/objectDetails_retractable_button_layout_extended"

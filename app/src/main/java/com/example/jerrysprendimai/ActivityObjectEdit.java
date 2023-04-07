@@ -294,6 +294,11 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
             this.setDeleteButtonVisibility(false);
             this.toBeDeletedList = new ArrayList<Integer>();
 
+            for(ObjectObjDetails objectObjDetails: objectDetailsArrayList){
+                objectObjDetails.getHolder().oDJobNameExtended.removeTextChangedListener(objectObjDetails.getHolder().myTextWatcher);
+                objectObjDetails.getHolder().oDJobDescriptionExtended.removeTextChangedListener(objectObjDetails.getHolder().myTextWatcher);
+            }
+
             ObjectObjDetails newObjectObjDetails = new ObjectObjDetails();
             //newObjectObjDetails.setObjectId(objectObject.getId());
             objectDetailsArrayList.add(0, newObjectObjDetails);

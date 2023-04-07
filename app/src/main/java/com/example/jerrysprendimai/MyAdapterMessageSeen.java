@@ -55,7 +55,13 @@ public class MyAdapterMessageSeen extends RecyclerView.Adapter<MyAdapterMessageS
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
         Integer displayId = seenList.get(holder.getAdapterPosition());
-        String userSeen = users.get(displayId.toString());
+        String userSeen = "";
+        try {
+            userSeen = users.get(displayId.toString());
+        }catch (Exception e){
+            userSeen = "false";
+        }
+
 
         /*int counter = 0;
         for(Map.Entry<String, String> entry : users.entrySet()){
@@ -85,7 +91,7 @@ public class MyAdapterMessageSeen extends RecyclerView.Adapter<MyAdapterMessageS
             holder.firstName.setText(firstName);
             if (userSeen.equals("false")) {
                 holder.seenIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_dark_grey));
-            } else {
+            } else if (userSeen.equals("true")){
                 holder.seenIndicator.setColorFilter(ContextCompat.getColor(context, R.color.jerry_blue));
             }
         }catch (Exception e){
