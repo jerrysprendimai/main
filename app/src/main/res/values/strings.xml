@@ -65,4 +65,10 @@
     <string name="participant_count">Darbuotojų skaičius</string>
     <string name="my_profile">Mano Profilis</string>
     <string name="profile">Profilis</string>
+    <string name="dealer_email">E-Mail: </string>
+    <string name="orders">Užsakymai</string>
+    <string name="order">Užsakyti</string>
+    <string name="dealer">Tiekėjas</string>
+    <string name="proceed">Toliau</string>
+    <string name="back">Atgal</string>
 </resources>

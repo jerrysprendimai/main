@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/my_top_level">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:layout_margin="2dp"
+        app:cardElevation="0dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="6dp"
+            app:cardElevation="1dp"
+            android:layout_margin="4dp">
+
+            <LinearLayout
+                android:id="@+id/dealer_row"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="horizontal">
+
+             <androidx.cardview.widget.CardView
+                 android:layout_width="60dp"
+                 android:layout_height="match_parent"
+                 android:layout_margin="1dp"
+                 app:cardCornerRadius="6dp"
+                 app:cardElevation="0dp"
+                 app:cardBackgroundColor="@color/jerry_grey_light">
+
+                 <LinearLayout
+                    android:id="@+id/dealer_img_container"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="center"
+                     android:clickable="false"
+                     app:cardElevation="0dp"
+                     android:orientation="horizontal">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/transparent"
+                        android:layout_margin="0dp"
+                        app:cardElevation="0dp">
+                         <androidx.cardview.widget.CardView
+                             android:layout_width="50dp"
+                             android:layout_height="50dp"
+                             android:layout_margin="5dp"
+                             app:cardElevation="1dp"
+                             app:cardCornerRadius="15dp">
+                            <ImageView
+                                android:id="@+id/dealer_img"
+                                android:src="@drawable/ic_dealer_object_white"
+                                android:layout_width="35dp"
+                                android:layout_height="35dp"
+                                android:layout_gravity="center"
+                                android:layout_margin="0dp"
+                                android:adjustViewBounds="false"
+                                app:tint="@color/jerry_blue" />
+                         </androidx.cardview.widget.CardView>
+                    </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_margin="5dp"
+                 android:layout_gravity="center"
+                 android:orientation="horizontal">
+
+                 <androidx.cardview.widget.CardView
+                     android:id="@+id/dealer_icon_indicator"
+                     android:visibility="gone"
+                     android:layout_width="50dp"
+                     android:layout_height="50dp"
+                     android:layout_margin="1dp"
+                     android:layout_gravity="center"
+                     app:cardCornerRadius="6dp"
+                     app:cardBackgroundColor="@color/white"
+                     app:cardElevation="0dp">
+                     <LinearLayout
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="center"
+                         android:clickable="false"
+                         app:cardElevation="0dp"
+                         android:orientation="horizontal">
+
+                         <androidx.cardview.widget.CardView
+                             android:layout_width="50dp"
+                             android:layout_height="50dp"
+                             android:background="@android:color/transparent"
+                             app:cardCornerRadius="0dp"
+                             app:cardElevation="1dp">
+                             <LinearLayout
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_gravity="center">
+                                 <ImageView
+                                     android:id="@+id/dealer_icon"
+                                     android:layout_width="40dp"
+                                     android:layout_height="40dp"
+                                     android:layout_gravity="center"
+                                     android:layout_margin="0dp"
+                                     android:adjustViewBounds="false"
+                                     android:background="@android:color/transparent"
+                                     android:src="@drawable/ic_object_white"
+                                     app:tint="@color/jerry_blue"/>
+                             </LinearLayout>
+                         </androidx.cardview.widget.CardView>
+                     </LinearLayout>
+                 </androidx.cardview.widget.CardView>
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:orientation="vertical"
+                     android:layout_gravity="center">
+
+                    <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginLeft="5dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        style="@style/recycleView_Item_Text"
+                        android:textStyle="bold"
+                        android:layout_gravity="start"
+                        android:ems="0"/>
+                    <TextView
+                        android:id="@+id/dealer_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/recycleView_Item_Text"
+                        android:includeFontPadding="false"
+                        android:layout_gravity="start"
+                        android:hint="d-e-a-l-e-r---n-a-m-e"
+                        />
+                </LinearLayout>
+                    <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginLeft="5dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        style="@style/recycleView_Item_Text"
+                        android:textStyle="bold"
+                        android:layout_gravity="start"
+                        android:ems="0"/>
+                    <TextView
+                        android:id="@+id/dealer_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/recycleView_Item_Text"
+                        android:includeFontPadding="false"
+                        android:layout_gravity="start"
+                        android:textColorHint="@color/jerry_light_blue"
+                        android:textColor="@color/jerry_light_blue"
+                        android:hint="d-e-a-l-e-r---e-m-a-i-l"/>
+                </LinearLayout>
+                 </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

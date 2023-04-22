@@ -220,11 +220,31 @@ public class ActivityMenu extends AppCompatActivity {
         });
 
         //-----------Supplier
-        CardView supplierCard = (CardView) findViewById(R.id.CardView_dealers);
-        supplierCard.setVisibility(View.GONE);
+        //CardView supplierCard = (CardView) findViewById(R.id.CardView_dealers);
+        //supplierCard.setVisibility(View.GONE);
         LinearLayout supplierLayout = (LinearLayout) findViewById(R.id.main_menu_dealers);
-        supplierLayout.setVisibility(View.GONE);
+        supplierLayout.setOnClickListener(v->{
+            this.backButtonCount = 0;
+            disableWholeView(gridLayout);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, ActivityDealerShow.class);
+            intent.putExtra("myUser", myUser);
+            context.startActivity(intent);
+            removeMessageListeners();
+        });
+        //supplierLayout.setVisibility(View.GONE);
 
+        //-----------Order
+        LinearLayout orderLayout = (LinearLayout) findViewById(R.id.main_menu_order);
+        orderLayout.setOnClickListener(v->{
+            this.backButtonCount = 0;
+            disableWholeView(gridLayout);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, ActivityOrder1.class);
+            intent.putExtra("myUser", myUser);
+            context.startActivity(intent);
+            removeMessageListeners();
+        });
 
     }
 

@@ -295,9 +295,13 @@ public class ActivitySettings extends AppCompatActivity implements KeyboardVisib
             connector.decodeResponse();
 
             //------------------------Hide Keyboard-----------------------------
-            View view = ((ActivitySettings)context).getCurrentFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            try {
+                View view = ((ActivitySettings)context).getCurrentFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
             switch (action_type){
                 case getConfig_url:
