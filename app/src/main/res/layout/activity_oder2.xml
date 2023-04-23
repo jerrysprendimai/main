@@ -14,6 +14,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <EditText android:id="@+id/order_invisibleFocusHolder"
+                  style="@style/InvisibleFocusHolder"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -103,38 +106,42 @@
                 android:layout_marginLeft="40dp"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/recycleView_Item_Text"
-                    android:layout_gravity="left"
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
-                    android:background="@color/white"
-                    app:boxCornerRadiusTopStart="8dp"
-                    android:paddingTop="5dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/oder_p2_textInput"
+                    android:layout_height="match_parent"
+                    app:cardCornerRadius="3dp">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/recycleView_Item_Text"
+                        android:layout_gravity="left"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:backgroundTint="@color/jerry_blue"
-                        android:focusedByDefault="false"
-                        android:ems="12"
-                        android:scrollbarTrackVertical="@drawable/vertical_scrollview_track"
-                        android:scrollbarThumbVertical="@drawable/vertical_scrollview_thumb"
-                        android:scrollbarStyle="insideInset"
-                        android:scrollbarAlwaysDrawVerticalTrack="true"
-                        android:fadeScrollbars="false"
-                        android:scrollbars="vertical"
-                        android:fontFamily="@font/poppinsmedium"
-                        android:text=""
-                        android:hint="@string/object_jobDescription"
-                        android:inputType="textMultiLine"
-                        android:minLines="8"
-                        android:maxLines="10"
-                        android:textColor="@color/black"
-                        android:textColorHint="@color/black"
-                        android:textSize="12sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:background="@color/white"
+                        app:boxCornerRadiusTopStart="8dp"
+                        android:paddingTop="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/oder_p2_textInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="@color/jerry_blue"
+                            android:focusedByDefault="false"
+                            android:ems="12"
+                            android:scrollbarTrackVertical="@drawable/vertical_scrollview_track"
+                            android:scrollbarThumbVertical="@drawable/vertical_scrollview_thumb"
+                            android:scrollbarStyle="insideInset"
+                            android:scrollbarAlwaysDrawVerticalTrack="true"
+                            android:fadeScrollbars="false"
+                            android:scrollbars="vertical"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:text=""
+                            android:hint="@string/object_jobDescription"
+                            android:inputType="textMultiLine"
+                            android:minLines="5"
+                            android:maxLines="10"
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/black"
+                            android:textSize="12sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
         </LinearLayout>
 
@@ -145,19 +152,104 @@
             android:layout_margin="5dp"
             android:orientation="vertical">
             <LinearLayout
-                android:layout_width="200dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_marginRight="40dp"
+                android:layout_marginLeft="40dp"
                 android:orientation="horizontal">
+                <GridLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:alignmentMode="alignBounds"
+                    android:columnCount="3"
+                    android:layout_weight="1"
+                    android:columnOrderPreserved="false"
+                    android:layout_margin="5dp"
+                    android:orientation="horizontal">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/order_photo_recycleView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                    </androidx.recyclerview.widget.RecyclerView>
+                </GridLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginRight="40dp"
+                android:layout_marginLeft="40dp"
+                android:layout_gravity="right"
+                android:gravity="right">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
                     <LinearLayout
+                        android:id="@+id/order_p2_add_photo_buttons_linear_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_gravity="right"
                         android:gravity="right">
 
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/oder_p2_add_photo_cardView"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_margin="10dp"
+                            android:layout_gravity="center_vertical"
+                            android:backgroundTint="@color/fab_color"
+                            app:cardCornerRadius="20dp">
+                            <LinearLayout
+                                android:id="@+id/oder_p2_add_photo_linearLayout"
+                                style="@style/Menu_Item_LinearLayout"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:clickable="true"
+                                android:orientation="horizontal">
+                                <ImageView
+                                    android:layout_width="25dp"
+                                    android:layout_height="25dp"
+                                    android:src="@drawable/ic_attachment_white">
+                                </ImageView>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/oder_p2_take_photo_cardView"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_margin="10dp"
+                            android:layout_gravity="center_vertical"
+                            android:backgroundTint="@color/fab_color"
+                            app:cardCornerRadius="20dp">
+                            <LinearLayout
+                                android:id="@+id/oder_p2_take_photo_linearLayout"
+                                style="@style/Menu_Item_LinearLayout"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:clickable="true"
+                                android:orientation="horizontal">
+                                <ImageView
+                                    android:layout_width="25dp"
+                                    android:layout_height="25dp"
+                                    android:src="@drawable/ic_camera_white">
+                                </ImageView>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/order_p2_delete_photo_buttons_linear_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/cardView_oder_p2_add_photo"
+                        android:id="@+id/order_p2_delete_photo_cardView"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_margin="10dp"
@@ -165,7 +257,7 @@
                         android:backgroundTint="@color/fab_color"
                         app:cardCornerRadius="20dp">
                         <LinearLayout
-                            android:id="@+id/linearLayout_oder_p2_add_photo"
+                            android:id="@+id/order_p2_delete_photo_linearLayout"
                             style="@style/Menu_Item_LinearLayout"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -174,12 +266,12 @@
                             <ImageView
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
-                                android:src="@drawable/ic_attachment_white">
+                                android:src="@drawable/ic_delete_white">
                             </ImageView>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/objectDetails_take_picture_cardView"
+                        android:id="@+id/order_p2_cancel_cardView"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_margin="10dp"
@@ -187,7 +279,7 @@
                         android:backgroundTint="@color/fab_color"
                         app:cardCornerRadius="20dp">
                         <LinearLayout
-                            android:id="@+id/linearLayout_oder_p2_take_photo"
+                            android:id="@+id/order_p2_cancel_linearLayout"
                             style="@style/Menu_Item_LinearLayout"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -196,12 +288,13 @@
                             <ImageView
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
-                                android:src="@drawable/ic_camera_white">
+                                android:src="@drawable/ic_back_white">
                             </ImageView>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>
             </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -222,7 +315,7 @@
                     android:id="@+id/button_order_p2_back"
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="35dp"
                     android:layout_gravity="start"
                     android:gravity="left"
                     android:background="@drawable/round_button"
@@ -247,7 +340,7 @@
                     android:id="@+id/button_order_p2_continue"
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="35dp"
                     android:layout_gravity="right"
                     android:background="@drawable/round_button"
                     android:clickable="true"

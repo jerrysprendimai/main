@@ -15,8 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 
 public class ActivityOrder1 extends AppCompatActivity {
 
+    private static ObjectOrder staticMyorder;
     Button proceedButton;
     LinearLayout addDealerButton, addObjectButton;
 
@@ -56,10 +59,13 @@ public class ActivityOrder1 extends AppCompatActivity {
         cardViewDealer     = findViewById(R.id.cardView_oder_p1_dealer);
         cardViewObject     = findViewById(R.id.cardView_oder_p1_object);
 
-        //---------------Read myUser object----------------------
+        //---------------Read references from Intent----------------------
         this.myUser = getIntent().getParcelableExtra("myUser");
-
-        this.myOrder = new ObjectOrder();
+        //this.myOrder = getIntent().getParcelableExtra("myOrder");
+        if(myOrder == null){
+          this.myOrder = new ObjectOrder();
+          ActivityOrder1.setStaticOrder(myOrder);
+        }
 
         proceedButton.setText(proceedButton.getText() + "   1 / 3");
         proceedButton.setEnabled(false);
@@ -99,9 +105,10 @@ public class ActivityOrder1 extends AppCompatActivity {
         addObjectButton.setOnClickListener(objectOnClickListener);
 
         proceedButton.setOnClickListener(v->{
-            //--Todo implement check if dealer and object are not empty
+            ActivityOrder1.setStaticOrder(myOrder);
             Intent intent = new Intent(this, ActivityOrder2.class);
             intent.putExtra("myUser", myUser);
+            intent.putExtra("myOrder", myOrder);
             startActivity(intent);
         });
     }
@@ -142,15 +149,83 @@ public class ActivityOrder1 extends AppCompatActivity {
 
         }
     }
+    public static void setStaticOrder(ObjectOrder myOrder){
+        ActivityOrder1.staticMyorder = myOrder;
+    }
+    public static ObjectOrder getStaticOrder(){
+        return ActivityOrder1.staticMyorder;
+    }
+
+    @Override
+    public void onBackPressed() {
+        ActivityOrder1.setStaticOrder(null);
+        super.onBackPressed();
+    }
 
     @Override
     protected void onResume() {
+        new HttpsRequestCheckSessionAlive(this).execute();
         super.onResume();
-        //---------------Read myUser object----------------------
-        if(this.myUser == null){
-            this.myUser = getIntent().getParcelableExtra("myUser");
+    }
+
+    public ObjectOrder getMyOrder() {        return myOrder;    }
+    public void setMyOrder(ObjectOrder myOrder) {        this.myOrder = myOrder;    }
+
+
+    class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {
+        private static final String check_session_alive_url = "check_session_alive.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestCheckSessionAlive(Context ctx){
+            context = ctx;
         }
-        new HttpsRequestGetDealerList(this).execute();
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, check_session_alive_url);
+            connector.addPostParameter("user_id", MCrypt2.encodeToString(myUser.getId().toString()));
+            connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            connector.decodeResponse();
+
+            JSONObject object = null;
+            try {
+                object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                String status  = object.getString("status");
+                String msg     = object.getString("msg");
+                //String control = object.getString("control");
+                if (status.equals("1")) {
+                    //---------------Read myUser object----------------------
+                    if(myUser == null){
+                        myUser = getIntent().getParcelableExtra("myUser");
+                    }
+                    if(ActivityOrder1.getStaticOrder() != null){
+                        myOrder = ActivityOrder1.getStaticOrder();
+                    }
+                    new HttpsRequestGetDealerList(context).execute();
+                }else{
+                    //session and last activity deleted in DB, app will log-out
+                    Toast.makeText(context, context.getResources().getString(R.string.session_expired), Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            super.onPostExecute(inputStream);
+        }
     }
 
     class HttpsRequestGetDealerList extends AsyncTask<String, Void, InputStream> {

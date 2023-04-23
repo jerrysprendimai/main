@@ -222,7 +222,7 @@
             android:id="@+id/button_order_p1_continue"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:layout_gravity="right"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
