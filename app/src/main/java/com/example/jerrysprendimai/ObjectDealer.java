@@ -71,6 +71,19 @@ public class ObjectDealer implements Parcelable {
         }
     };
 
+    public String toJson(){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            jsonObject.put("id",       this.getId().toString());
+            jsonObject.put("name",     this.getName());
+            jsonObject.put("email",    this.getEmail());
+            jsonObject.put("regDate",  this.getRegDate());
+            jsonObject.put("icon",     this.getIcon());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
 
     public String getIcon() {        return icon;    }
     public void setIcon(String icon) {        this.icon = icon;    }

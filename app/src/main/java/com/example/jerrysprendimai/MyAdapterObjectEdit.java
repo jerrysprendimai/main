@@ -454,52 +454,45 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         });
         //----------add picture handler
         MyAdapterObjectEdit thisInstance = this;
-        holder.oDAddFotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ActivityObjectEdit)context).setBackButtonCount(0);
-                ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "addFoto");
-                //check permission
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                    if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                        //permission not granted, request it
-                        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                        //show popup for runtime permission
-                        ((ActivityObjectEdit)context).requestPermissions(permissions, PERMISSION_CODE);
-                    }else{
-                        //permission already granted
-                        pickImageFromGallery();
-                    }
+        holder.oDAddFotoButton.setOnClickListener(v -> {
+            ((ActivityObjectEdit)context).setBackButtonCount(0);
+            ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "addFoto");
+            //check permission
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                if(context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                    //permission not granted, request it
+                    String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                    //show popup for runtime permission
+                    ((ActivityObjectEdit)context).requestPermissions(permissions, PERMISSION_CODE);
                 }else{
-                    //system os is less that marshmallow
+                    //permission already granted
                     pickImageFromGallery();
                 }
-
+            }else{
+                //system os is less that marshmallow
+                pickImageFromGallery();
             }
 
         });
         //----------take photo handler
-        holder.oDTakeFotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ActivityObjectEdit)context).setBackButtonCount(0);
-                ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "takeFoto");
-                //check permission camera
-               if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-                        ((ActivityObjectEdit)context).requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        holder.oDTakeFotoButton.setOnClickListener(v -> {
+            ((ActivityObjectEdit)context).setBackButtonCount(0);
+            ((ActivityObjectEdit)context).setCallbackAdapterReference(thisInstance, holder, "takeFoto");
+            //check permission camera
+           if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+                    ((ActivityObjectEdit)context).requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+                } else {
+                    //check permission external storage
+                    if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        ((ActivityObjectEdit)context).requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_WRITE_EXTERNAL_STORAGE);
                     } else {
-                        //check permission external storage
-                        if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                            ((ActivityObjectEdit)context).requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_WRITE_EXTERNAL_STORAGE);
-                        } else {
-                            takeNewPhoto();
-                        }
+                        takeNewPhoto();
                     }
-                }else{
-                   takeNewPhoto();
-               }
-            }
+                }
+            }else{
+               takeNewPhoto();
+           }
         });
 
         if (((ActivityObjectEdit) context).isUserMode()){

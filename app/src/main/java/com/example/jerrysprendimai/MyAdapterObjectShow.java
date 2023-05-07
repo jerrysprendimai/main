@@ -62,6 +62,7 @@ public class MyAdapterObjectShow extends RecyclerView.Adapter<MyAdapterObjectSho
         this.myObjectListFull = new ArrayList<>(this.myObjectList);
         this.parentView = parentView;
         this.myUser = user;
+
     }
 
     @NonNull

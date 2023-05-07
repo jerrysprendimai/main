@@ -61,6 +61,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-inappmessaging-display'
     implementation 'com.google.firebase:firebase-analytics'
 
+    //-----------StateProgressBar
+    implementation 'com.kofigyan.stateprogressbar:stateprogressbar:1.0.0'
+
     //-----------Calendar View
     implementation 'com.github.sundeepk:compact-calendar-view:3.0.0'
 

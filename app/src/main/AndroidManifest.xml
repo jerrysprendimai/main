@@ -34,13 +34,7 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
         <activity
-            android:name=".ActivityOrder2"
-            android:exported="false" />
-        <activity
             android:name=".ActivityOrder1"
-            android:exported="false" />
-        <activity
-            android:name=".ActivityOrdedrP1"
             android:exported="false" />
         <activity
             android:name=".ActivityDealerEdit"

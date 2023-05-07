@@ -359,7 +359,6 @@ public class ActivityObjectEdit extends AppCompatActivity implements View.OnClic
         //---- user mode handling
         handleUserMode();
 
-
     }
 
     public ArrayList<ObjectUser> getEmployeeArrayList() {        return employeeArrayList;    }

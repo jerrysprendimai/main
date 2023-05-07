@@ -33,23 +33,24 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPicture.MyViewHolder>{
+    private final String objectShowP1 = "pictureShowP1";
+    private final String objectShowP3 = "pictureShowP3";
 
     Context context;
     ArrayList<ObjectObjPic> myPictureList;
     ArrayList<ObjectObjPic> myPictureListFull;
     ObjectUser myUser;
+    String type;
     //ViewGroup parentView;
     //MyAdapterObjectEdit parentAdapterObjectEdit;
     //MyAdapterObjectEdit.MyViewHolder parentHolder;
 
-    public MyAdapterOrderPicture(Context context, ArrayList<ObjectObjPic> pictureList, ObjectUser user){
+    public MyAdapterOrderPicture(Context context, ArrayList<ObjectObjPic> pictureList, ObjectUser user, String type){
         this.context             = context;
         this.myPictureList       = pictureList;
         this.myPictureListFull   = new ArrayList<>(this.myPictureList);
-        //this.parentAdapterObjectEdit = myAdapterObjectEdit;
-        //this.parentHolder        = myHolder;
-        //this.parentView          = parentView;
         this.myUser              = user;
+        this.type                = type;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
@@ -102,6 +103,7 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
         String url = "";
 
         ObjectObjPic objectObjPic = myPictureList.get(holder.getAdapterPosition());
+        objectObjPic.setOrderPicHolder(holder);
         //objectObjPic.setHolder(holder);
 
         holder.myImageUplLock.setVisibility(View.GONE);
@@ -176,7 +178,7 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
         //-----image click handling
         holder.myImage.setOnClickListener(v -> {
             //((ActivityObjectEdit)context).setBackButtonCount(0);
-            if(!((ActivityOrder2)context).isDeletionMode()){
+            if(!((ActivityOrder1)context).isDeletionMode()){
                 /*if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
                     if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
                         for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
@@ -215,17 +217,17 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
                     if (holder.isBacgroundMarked()) {
                         holder.setBacgroundMarked(false);
                         holder.myContainer.setBackgroundColor(Color.TRANSPARENT);
-                        ((ActivityOrder2)context).getToBeDeletedList().remove(objectObjPic);
+                        ((ActivityOrder1)context).getToBeDeletedList().remove(objectObjPic);
                         //parentAdapterObjectEdit.removeToBeDeleted(parentHolder, objectObjPic);
-                        if(((ActivityOrder2)context).getToBeDeletedList().size() == 0){
-                            ((ActivityOrder2)context).setDeletionMode(false);
-                            ((ActivityOrder2)context).deletionModeButtons.setVisibility(View.GONE);
-                            ((ActivityOrder2)context).addModeButtons.setVisibility(View.VISIBLE);
+                        if(((ActivityOrder1)context).getToBeDeletedList().size() == 0){
+                            ((ActivityOrder1)context).setDeletionMode(false);
+                            ((ActivityOrder1)context).fragmentOrderPart2.deletionModeButtons.setVisibility(View.GONE);
+                            ((ActivityOrder1)context).fragmentOrderPart2.addModeButtons.setVisibility(View.VISIBLE);
                         }
                     } else {
                         holder.setBacgroundMarked(true);
                         holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow_opacity));
-                        ((ActivityOrder2)context).getToBeDeletedList().add(objectObjPic);
+                        ((ActivityOrder1)context).getToBeDeletedList().add(objectObjPic);
                     }
                 }else{
                     holder.setMyHoldIndicator(false);
@@ -236,71 +238,26 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
         //holder.myPictureUname.setHint(objectObjPic.getFirstName());
         //holder.myPictureUname.setHintTextColor(context.getResources().getColor(R.color.teal_700));
 
-        //---- user mode handling
 
-            //----admin has an option to delete all pictures
-            //parentAdapterObjectEdit.setDeletionModeViewHolder(holder);
-            holder.myImage.setOnLongClickListener(v -> {
-                holder.myImage.setSoundEffectsEnabled(false);
-                holder.setMyHoldIndicator(true);
-                ((ActivityOrder2)context).setDeletionMode(true);
-                ((ActivityOrder2)context).deletionModeButtons.setVisibility(View.VISIBLE);
-                ((ActivityOrder2)context).addModeButtons.setVisibility(View.GONE);
-
-                ((ActivityOrder2)context).setDeletionMode(true);
-                ((ActivityOrder2)context).deletionModeButtons.setVisibility(View.VISIBLE);
-                ((ActivityOrder2)context).addModeButtons.setVisibility(View.GONE);
-                ((ActivityOrder2)context).toBeDeletedList.add(objectObjPic);
-                holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
-                holder.setBacgroundMarked(true);
-                holder.myImage.setSoundEffectsEnabled(true);
-                return false;
-            });
-
-        /*else{
-            if(!objectObjPic.getUserId().equals(myUser.getId())){
-              holder.myPictureUname.setHintTextColor(context.getResources().getColor(R.color.jerry_grey));
-              holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.jerry_grey));
-            }else{
-              holder.myPictureUname.setTextColor(context.getResources().getColor(R.color.teal_700));
-            }
-            //----user can delete only own pictures
-            holder.myImage.setOnLongClickListener(v -> {
-                //---- locked object handling
-                if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals("0")){
-                    if(!((ActivityObjectEdit)context).getObjectObject().getLockedByUserId().equals(myUser.getId().toString())){
-                    Toast.makeText(context, context.getResources().getString(R.string.locked_by) + " "
-                            + ((ActivityObjectEdit)context).getObjectObject().getLockedUname(), Toast.LENGTH_SHORT).show();
-                    return false;
-                    }
-                }
-                if(objectObjPic.getUserId().equals(myUser.getId())){
-                    if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
-                        if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
-                            for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
-                                parentAdapterObjectEdit.toBeDeletedList.get(i).getHolder().myContainer.setBackgroundColor(Color.TRANSPARENT);
-                            }
-                            parentAdapterObjectEdit.toBeDeletedList.removeAll(parentAdapterObjectEdit.toBeDeletedList);
-                            ((ActivityObjectEdit)context).getDeletePictureViewHolder().setDeletionModeButtons(false);
-                            ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
-                            parentAdapterObjectEdit.setDeletionMode(false);
-                            //parentAdapterObjectEdit.setDeletionModeViewHolder(parentAdapterObjectEdit);
-                        }
-                    }
+            if(!type.equals(objectShowP3)){
+                holder.myImage.setOnLongClickListener(v -> {
                     holder.myImage.setSoundEffectsEnabled(false);
                     holder.setMyHoldIndicator(true);
-                    parentAdapterObjectEdit.setDeletionMode(true);
-                    parentAdapterObjectEdit.addToBeDeleted(objectObjPic);
-                    parentHolder.setDeletionModeButtons(true);
-                    ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
+                    ((ActivityOrder1)context).setDeletionMode(true);
+                    ((ActivityOrder1)context).fragmentOrderPart2.deletionModeButtons.setVisibility(View.VISIBLE);
+                    ((ActivityOrder1)context).fragmentOrderPart2.addModeButtons.setVisibility(View.GONE);
+
+                    ((ActivityOrder1)context).setDeletionMode(true);
+                    ((ActivityOrder1)context).fragmentOrderPart2.deletionModeButtons.setVisibility(View.VISIBLE);
+                    ((ActivityOrder1)context).fragmentOrderPart2.addModeButtons.setVisibility(View.GONE);
+                    ((ActivityOrder1)context).toBeDeletedList.add(objectObjPic);
                     holder.myContainer.setBackgroundColor(context.getResources().getColor(R.color.jerry_yellow));
                     holder.setBacgroundMarked(true);
                     holder.myImage.setSoundEffectsEnabled(true);
-                }
-                return false;
-            });
+                    return false;
+                });
+            }
 
-        }*/
     }
     @Override
     public int getItemCount() {

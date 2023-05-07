@@ -10,12 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerShow.MyViewHolder>{
     private final String dealerShow = "dealerShow";
     private final String dealerShowDialogP1 = "dealerShowDialogP1";
     private final String dealerShowP1 = "dealerShowP1";
+    private final String dealerShowP3 = "dealerShowP3";
+
     Context context;
 
     List<ObjectDealer> myDealerList;
@@ -23,6 +26,8 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
     ViewGroup parentView;
     String type;
     View.OnClickListener onClickListener;
+    ArrayList<MyViewHolder> myViewHolderArrayList;
+
 
     public MyAdapterDealerShow(Context context, List<ObjectDealer> myDealerList, List<ObjectDealer> myDealerListFull, String type, View.OnClickListener onClickListener) {
         this.context = context;
@@ -31,6 +36,7 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
         this.parentView = parentView;
         this.type = type;
         this.onClickListener = onClickListener;
+        this.myViewHolderArrayList = new ArrayList<>();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
@@ -58,6 +64,10 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
     public void onBindViewHolder(@NonNull MyAdapterDealerShow.MyViewHolder holder, int position) {
         ObjectDealer objectDealer = myDealerList.get(holder.getAdapterPosition());
 
+        if(!myViewHolderArrayList.contains(holder)){
+            myViewHolderArrayList.add(holder);
+        }
+
         View.OnClickListener onRowClickListener = null;
         if(type.equals(dealerShow)){
             onRowClickListener = v-> {
@@ -73,7 +83,14 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
 
         holder.dealerName.setText(objectDealer.getName());
         holder.dealerEmail.setText(objectDealer.getEmail());
-        holder.myRow.setOnClickListener(onRowClickListener);
+        if(!type.equals(dealerShowP3)){
+            holder.myRow.setOnClickListener(onRowClickListener);
+        }else{
+            holder.myRow.setClickable(false);
+            holder.myRow.setEnabled(false);
+            holder.myRow.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey_light));
+        }
+
     }
 
     @Override

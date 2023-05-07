@@ -41,6 +41,9 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectShowP1.MyViewHolder>{
+    private final String objectShowP1 = "objectShowP1";
+    private final String objectShowP3 = "objectShowP3";
+
     Context context;
 
     List<ObjectObject> myObjectList;
@@ -50,6 +53,7 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
     final String OWNER = "owner";
     final String ADMIN = "admin";
 
+    String type;
     ObjectObject clickObject;
     ObjectUser myUser;
     ViewGroup parentView;
@@ -57,13 +61,14 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
     View bottomSheetView;
     View.OnClickListener onClickListener;
 
-    public MyAdapterObjectShowP1(Context context, ViewGroup parentView, List<ObjectObject> objectList, ObjectUser user, View.OnClickListener onClickListener) {
+    public MyAdapterObjectShowP1(Context context, ViewGroup parentView, List<ObjectObject> objectList, ObjectUser user, View.OnClickListener onClickListener, String type) {
         this.context = context;
         this.myObjectList = objectList;
         this.myObjectListFull = new ArrayList<>(this.myObjectList);
         this.parentView = parentView;
         this.myUser = user;
         this.onClickListener = onClickListener;
+        this.type = type;
     }
 
     @NonNull
@@ -134,30 +139,9 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         holder.objectDate.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);
         holder.objectDateLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);
 
-        //holder.progressBar.setProgress(Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
-        //holder.progressBarLabel.setText(myObjectObject.getCompleteness()+"%");
         holder.objectIcon.setImageResource(context.getResources().getIdentifier(myObjectObject.getIcon(), "drawable", context.getApplicationInfo().packageName));
 
         holder.objectCompletnessProgress.setVisibility(View.GONE);
-
-        //holder.objectIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_shower));
-        //holder.objectIcon.setImageDrawable(R.mipmap.ic_air_cinditioner);
-
-        /*if(!((ActivityObjectShow)context).isAnimationShowed()){
-            ObjectAnimator objectAnimator = ObjectAnimator.ofInt(holder.progressBar, "progress", 0,Integer.parseInt(String.valueOf(Math.round(Double.valueOf(myObjectObject.getCompleteness())))));
-            objectAnimator.setDuration(400);
-            objectAnimator.start();
-
-            if(position == this.myObjectList.size() - 1){
-              ((ActivityObjectShow)context).setAnimationShowed(true);
-            }
-        }
-
-        if(myObjectObject.getCompleteness().equals("100.0")){
-            holder.progressBarLabel.setTextColor(((ActivityOrder1)context).getResources().getColor(R.color.jerry_green));
-        }else{
-            holder.progressBarLabel.setTextColor(((ActivityOrder1)context).getResources().getColor(R.color.jerry_blue));
-        }*/
 
         //---clear hints
         holder.objectName.setHint("");
@@ -172,7 +156,14 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
             clickListener = this.onClickListener;
         }
         //-----card click listener
-        holder.myRow.setOnClickListener(clickListener);
+        if(!type.equals(objectShowP3)){
+            holder.myRow.setOnClickListener(clickListener);
+        }else{
+            holder.myRow.setClickable(false);
+            holder.myRow.setEnabled(false);
+            holder.myRow.setBackgroundColor(context.getResources().getColor(R.color.jerry_grey_light));
+        }
+
     }
 
     @Override

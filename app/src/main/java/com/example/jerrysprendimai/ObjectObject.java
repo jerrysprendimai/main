@@ -49,6 +49,22 @@ public class ObjectObject implements Parcelable {
             return new ObjectObject[size];
         }
     };
+    protected ObjectObject(Parcel in) {
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readInt();
+        }
+        date = in.readString();
+        objectName = in.readString();
+        objectAddress = in.readString();
+        customerName = in.readString();
+        completeness = in.readString();
+        lockedByUserId = in.readString();
+        lockedUname = in.readString();
+        icon = in.readString();
+        notViewed = in.readString();
+    }
 
     public ObjectObject(){
 
@@ -98,22 +114,7 @@ public class ObjectObject implements Parcelable {
     }
 
 
-    protected ObjectObject(Parcel in) {
-        if (in.readByte() == 0) {
-            id = null;
-        } else {
-            id = in.readInt();
-        }
-        date = in.readString();
-        objectName = in.readString();
-        objectAddress = in.readString();
-        customerName = in.readString();
-        completeness = in.readString();
-        lockedByUserId = in.readString();
-        lockedUname = in.readString();
-        icon = in.readString();
-        notViewed = in.readString();
-    }
+
 
     public String toJson(){
         JSONObject jsonObject = new JSONObject();

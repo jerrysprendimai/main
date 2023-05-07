@@ -20,6 +20,7 @@ public class ObjectObjPic implements Parcelable{
     String picUri;
     Bitmap imageResource;
     MyAdapterObjectEditPicture.MyViewHolder holder;
+    MyAdapterOrderPicture.MyViewHolder orderPicHolder;
 
     protected ObjectObjPic(Parcel in) {
         if (in.readByte() == 0) {
@@ -48,6 +49,21 @@ public class ObjectObjPic implements Parcelable{
         firstName = in.readString();
         picUri = in.readString();
         imageResource = in.readParcelable(Bitmap.class.getClassLoader());
+    }
+    public static final Creator<ObjectObjPic> CREATOR = new Creator<ObjectObjPic>() {
+        @Override
+        public ObjectObjPic createFromParcel(Parcel in) {
+            return new ObjectObjPic(in);
+        }
+
+        @Override
+        public ObjectObjPic[] newArray(int size) {
+            return new ObjectObjPic[size];
+        }
+    };
+    @Override
+    public int describeContents() {
+        return 0;
     }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -82,21 +98,6 @@ public class ObjectObjPic implements Parcelable{
         dest.writeString(picUri);
         dest.writeParcelable(imageResource, flags);
     }
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-    public static final Creator<ObjectObjPic> CREATOR = new Creator<ObjectObjPic>() {
-        @Override
-        public ObjectObjPic createFromParcel(Parcel in) {
-            return new ObjectObjPic(in);
-        }
-
-        @Override
-        public ObjectObjPic[] newArray(int size) {
-            return new ObjectObjPic[size];
-        }
-    };
 
     public ObjectObjPic(){
         this.id           = -1;
@@ -182,6 +183,47 @@ public class ObjectObjPic implements Parcelable{
         }
         return str_img;
     }
+
+    public String orderPicImgSource(Context context){
+        String str_img = "";
+        try {
+            if(this.getId().equals(-1)){
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Uri imageUri = Uri.parse(this.getPicUri());
+                Bitmap bitmap = null;
+
+                bitmap = ((BitmapDrawable)orderPicHolder.myImage.getDrawable()).getBitmap();
+                //bitmap = holder.myImage.getDrawingCache();
+
+                //bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArray= baos.toByteArray();
+                str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
+            }else{
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Bitmap bitmap = null;
+                bitmap = ((BitmapDrawable)orderPicHolder.myImage.getDrawable()).getBitmap();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArray= baos.toByteArray();
+                str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
+            }
+        } catch (Exception e) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                Uri imageUri = Uri.parse(this.getPicUri());
+                Bitmap bitmap = null;
+                bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArray= baos.toByteArray();
+                str_img = android.util.Base64.encodeToString(byteArray, Base64.DEFAULT);
+            }catch (Exception ee){
+                ee.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        return str_img;
+    }
+
     public Integer getId() {         return id;    }
     public void setId(Integer id) {        this.id = id;    }
     public Integer getObjectId() {        return objectId;    }
@@ -204,4 +246,8 @@ public class ObjectObjPic implements Parcelable{
     public void setUserId(Integer userId) {        this.userId = userId;    }
     public String getFirstName() {        return firstName;    }
     public void setFirstName(String firstName) {        this.firstName = firstName;    }
+    public MyAdapterOrderPicture.MyViewHolder getOrderPicHolder() {        return orderPicHolder;    }
+    public void setOrderPicHolder(MyAdapterOrderPicture.MyViewHolder orderPicHolder) {        this.orderPicHolder = orderPicHolder;    }
+
+
 }
