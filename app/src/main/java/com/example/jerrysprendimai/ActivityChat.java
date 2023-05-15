@@ -878,57 +878,7 @@ public class ActivityChat extends AppCompatActivity{
             }
         };
         FirebaseDatabase.getInstance().getReference("objects/" + myChatRoomId).addValueEventListener(valueEventListener);
-        /*FirebaseDatabase.getInstance().getReference("objects/" + myChatRoomId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                messages.clear();
-                messagesUnseenToSeen.clear();
-                //HashMap fldObj;
-
-                for(DataSnapshot dataSnapshot:snapshot.getChildren()){
-                    Map<String, String> map = (Map)dataSnapshot.getValue();
-                    Object fieldsObj = new Object();
-                    //ObjectMessage objectMessage = new ObjectMessage(map);
-                    try{
-                        fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
-                        ObjectMessage message = new ObjectMessage(fieldsObj);
-                        message.setKey(dataSnapshot.getKey());
-                        messages.add(message);
-
-                        if(message.getUsers().get(myUser.getId().toString()).equals("false")){
-                            if(!messagesUnseenToSeen.contains(message)){
-                                messagesUnseenToSeen.add(message);
-                            }
-                        }
-
-                    }catch (Exception e){
-                        continue;
-                    }
-
-                }
-                setCurrentDate("");
-                setDateToDisplay("");
-
-
-                    myAdapterMessage.notifyDataSetChanged();
-                    recyclerView.scrollToPosition(messages.size() - 1);
-                    recyclerView.setVisibility(View.VISIBLE);
-                    if(getThreadStartedCount() == 0){
-                      progressBar.setVisibility(View.GONE);
-                    }
-
-                    if(messagesUnseenToSeen.size() > 0){
-                        updateSeenMessages(myChatRoomId);
-                    }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });*/
     }
 
     public void updateSeenMessages(String chatRoom) {

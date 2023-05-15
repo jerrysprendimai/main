@@ -196,10 +196,12 @@ public class ActivityOrder1 extends AppCompatActivity {
         viewPager.setCurrentItem(sateNr);
     }
     public void sendButtonCallabck(){
+        myOrder.setType("out");
         retutnThreadCount = 0;
         newPicCount = myOrder.getMyPictureList().size();
         for(ObjectObjPic objectObjPic: myOrder.getMyPictureList()){
             //newPicCount += 1;
+
             Thread thread = new Thread(new RunnableTask(this, objectObjPic));
             thread.start();
             //}

@@ -1,5 +1,6 @@
 package com.example.jerrysprendimai;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -55,6 +56,21 @@ public class HelperDate {
       }
       return result;
   }
+    public static String get_date_display_short(String date){
+        SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        //SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat mysqlDateFormat   = new SimpleDateFormat("yyyy-MM-dd");
+        Date dateObj;
+        String result = "";
+        try {
+            dateObj = mysqlDateFormat.parse(date);
+            result = displayDateFormat.format(dateObj);
+            result = DateFormat.getDateInstance(DateFormat.SHORT).format(dateObj);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
   public static String get_date_display(String date){
         SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         //SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy");

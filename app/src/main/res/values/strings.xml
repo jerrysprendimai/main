@@ -77,4 +77,11 @@
     <string name="message">Žinutė</string>
     <string name="place_order">Užsakyti</string>
     <string name="send">Siųsti</string>
+    <string name="inquiry">Užklausa</string>
+    <string name="email">e-Paštas</string>
+    <string name="email_mailbox_label">mailbox</string>
+    <string name="inbox">inbox</string>
+    <string name="sent">sent</string>
+    <string name="mailbox">Paštas</string>
+    <string name="email_show_all">Rodyti visus</string>
 </resources>

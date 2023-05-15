@@ -58,6 +58,8 @@ public class ActivityMenu extends AppCompatActivity {
 
     ArrayList<ObjectObject> myObjectList;
     ArrayList<ObjectObject> myObjectListOriginal;
+    ArrayList<ObjectOrder> myEmailList;
+    ArrayList<ObjectOrder> myEmailListOriginal;
     public ValueEventListener valueEventListener;
     ArrayList<ValueEventListener> valueEventListeners;
 
@@ -219,6 +221,21 @@ public class ActivityMenu extends AppCompatActivity {
             removeMessageListeners();
         });
 
+        //-----------Email
+        ((TextView) findViewById(R.id.menu_caption_email)).setVisibility(View.GONE);
+        LinearLayout emailLayout = (LinearLayout) findViewById(R.id.main_menu_email);
+        emailLayout.setOnClickListener(v->{
+            this.backButtonCount = 0;
+            disableWholeView(gridLayout);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, ActivityEmailShow.class);
+            intent.putExtra("myUser", myUser);
+            //intent.putParcelableArrayListExtra("myEmailList", myEmailList);
+            //intent.putParcelableArrayListExtra("myObjectList", myObjectList);
+            context.startActivity(intent);
+            removeMessageListeners();
+        });
+
         //-----------Supplier
         //CardView supplierCard = (CardView) findViewById(R.id.CardView_dealers);
         //supplierCard.setVisibility(View.GONE);
@@ -368,62 +385,6 @@ public class ActivityMenu extends AppCompatActivity {
         };
         FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).addValueEventListener(this.valueEventListener);
         this.valueEventListeners.add(this.valueEventListener);
-
-        /*FirebaseDatabase.getInstance().getReference("objects/" + chatRoomId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean contains = false;
-                for(DataSnapshot dataSnapshot:snapshot.getChildren()){
-                    Map<String, String> map = (Map)dataSnapshot.getValue();
-                    Object fieldsObj = new Object();
-                    try{
-                        fieldsObj = (HashMap)dataSnapshot.getValue(fieldsObj.getClass());
-                        ObjectMessage message = new ObjectMessage(fieldsObj);
-                        message.setKey(dataSnapshot.getKey());
-
-                        if (message.getUsers().get(myUser.getId().toString()).equals("false")){
-                            if(!getUnseenChat().containsKey(chatRoomId)){
-                                getUnseenChat().put(chatRoomId, 1);
-                            }
-                            contains = true;
-                            break;
-                        }
-
-                    }catch (Exception e){
-                        continue;
-                    }
-                }
-                if((!contains)&&(getUnseenChat().containsKey(chatRoomId))){
-                    getUnseenChat().remove(chatRoomId);
-                }
-
-                TextView captionChat = findViewById(R.id.menu_caption_chat);                
-
-                if(getUnseenChat().size() > 0){
-                    if(captionChat.getVisibility() == View.GONE){
-                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
-                        captionChat.setAnimation(slideIn);
-                    }else{
-                        captionChat.clearAnimation();
-                    }
-                    ((TextView) findViewById(R.id.menu_caption_chat)).setVisibility(View.VISIBLE);
-                }else{
-                    if(captionChat.getVisibility() == View.VISIBLE){
-                        Animation slideIn = AnimationUtils.loadAnimation(context, R.anim.fadeout);
-                        captionChat.setAnimation(slideIn);
-                    }else{
-                        captionChat.clearAnimation();
-                    }
-                    ((TextView) findViewById(R.id.menu_caption_chat)).setVisibility(View.GONE);
-                }
-                ((TextView) findViewById(R.id.menu_caption_chat)).setText(String.valueOf(getUnseenChat().size()));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });*/
     }
 
     public HashMap<String, Integer> getUnseenChat() {       return unseenChat;    }
@@ -568,7 +529,7 @@ public class ActivityMenu extends AppCompatActivity {
             int newCount = 0;
             for(int i = 0; i < objectArryList.size(); i++){
                 if(objectArryList.get(i).getNotViewed().equals("X")){
-                  newCount ++;
+                    newCount ++;
                 }
             }
             if( newCount > 0){
@@ -584,21 +545,21 @@ public class ActivityMenu extends AppCompatActivity {
 
             //if( permissionOk && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED){
 
-                SQLiteCalendarDB sqLiteCalendarHelper = new SQLiteCalendarDB(context);
-                sqLiteCalendarHelper.syncCalendarEvents(myObjectList);
+            SQLiteCalendarDB sqLiteCalendarHelper = new SQLiteCalendarDB(context);
+            sqLiteCalendarHelper.syncCalendarEvents(myObjectList);
 
-                //sqLiteCalendarHelper.getWritableDatabase().execSQL("DROP TABLE calendarEvents");
+            //sqLiteCalendarHelper.getWritableDatabase().execSQL("DROP TABLE calendarEvents");
 
-                //HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
-                //jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
+            //HelperCalendar jerryCalenderHelper = new HelperCalendar(context);
+            //jerryCalenderHelper.syncJerryCalenderEvents(myObjectList);
 
-              //----calendar caption handling
-                if( newCount > 0){
-                    ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.VISIBLE);
-                }else{
-                    ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.GONE);
-                }
-                ((TextView) findViewById(R.id.menu_caption_calendar)).setText(String.valueOf(newCount));
+            //----calendar caption handling
+            if( newCount > 0){
+                ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.VISIBLE);
+            }else{
+                ((TextView) findViewById(R.id.menu_caption_calendar)).setVisibility(View.GONE);
+            }
+            ((TextView) findViewById(R.id.menu_caption_calendar)).setText(String.valueOf(newCount));
             //}
 
             findViewById(R.id.progressBar).setVisibility(View.GONE);
@@ -618,9 +579,9 @@ public class ActivityMenu extends AppCompatActivity {
                         break;
                     }
                 }
-               if(obj != null){
-                   new HttpsRequestGetObjectDetails(context, obj).execute();
-               }
+                if(obj != null){
+                    new HttpsRequestGetObjectDetails(context, obj).execute();
+                }
             }
 
             super.onPostExecute(inputStream);
@@ -634,6 +595,78 @@ public class ActivityMenu extends AppCompatActivity {
                 for (int i = 0; i < responseObjects.length(); i++) {
                     objectObject = new ObjectObject((JSONObject) responseObjects.get(i));
                     objectArrayList.add(objectObject);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            return objectArrayList;
+        }
+    }
+
+    class HttpsRequestGetEmailList extends AsyncTask<String, Void, InputStream> {
+        private static final String get_email_list_url = "get_email_list.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestGetEmailList(Context ctx){
+            context = ctx;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, get_email_list_url);
+            connector.addPostParameter("user_type",  Base64.encodeToString(MCrypt.encrypt(myUser.getType().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_uname", Base64.encodeToString(MCrypt.encrypt(myUser.getUname().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_id",    Base64.encodeToString(MCrypt.encrypt(myUser.getId().toString().getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            connector.decodeResponse();
+
+            ArrayList<ObjectOrder> objectEmailList = getEmailList(connector);
+
+            ((ActivityMenu)context).myEmailList = new ArrayList<>();
+            ((ActivityMenu)context).myEmailListOriginal = new ArrayList<>();
+            ((ActivityMenu)context).myEmailList.addAll(objectEmailList);
+            ((ActivityMenu)context).myEmailListOriginal.addAll(((ActivityMenu)context).myEmailList);
+
+            //----Email Caption handling
+            int notSeen = 0;
+            for(int i = 0; i < objectEmailList.size(); i++){
+                if(objectEmailList.get(i).isNotViewed()){
+                    notSeen ++;
+                }
+            }
+            if( notSeen > 0){
+                ((TextView) findViewById(R.id.menu_caption_email)).setVisibility(View.VISIBLE);
+            }else{
+                ((TextView) findViewById(R.id.menu_caption_email)).setVisibility(View.GONE);
+            }
+            ((TextView) findViewById(R.id.menu_caption_email)).setText(String.valueOf(notSeen));
+
+
+            new HttpsRequestGetObjectList(context).execute();
+
+            super.onPostExecute(inputStream);
+        }
+
+        private ArrayList<ObjectOrder>getEmailList(Connector conn){
+            ArrayList<ObjectOrder> objectArrayList = new ArrayList<>();
+            try {
+                ObjectOrder objectOrder;
+                JSONArray responseObjects = (JSONArray) conn.getResultJsonArray();
+                for (int i = 0; i < responseObjects.length(); i++) {
+                    objectOrder = new ObjectOrder((JSONObject) responseObjects.get(i));
+                    objectArrayList.add(objectOrder);
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -681,9 +714,9 @@ public class ActivityMenu extends AppCompatActivity {
                 if (status.equals("1")) {
 
                     //----get object list for calender events sync.
-                    new HttpsRequestGetObjectList(context).execute();
-                    //findViewById(R.id.progressBar).setVisibility(View.GONE);
-                    //enableWholeView(gridLayout);
+                    new HttpsRequestGetEmailList(context).execute();
+                    //new HttpsRequestGetObjectList(context).execute();
+
                 }else{
                     //session and last activity deleted in DB, app will log-out
                     Toast.makeText(context, context.getResources().getString(R.string.session_expired), Toast.LENGTH_SHORT).show();

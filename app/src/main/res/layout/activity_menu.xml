@@ -262,7 +262,7 @@
                                         android:src="@drawable/ic_shopping_cart_white" />
                                     <TextView
                                         style="@style/Menu_Item_EditText"
-                                        android:text="@string/order" />
+                                        android:text="@string/inquiry" />
                                 </LinearLayout>
                             </androidx.cardview.widget.CardView>
                         </androidx.cardview.widget.CardView>
@@ -335,6 +335,44 @@
                                     <TextView
                                         style="@style/Menu_Item_EditText"
                                         android:text="@string/settings" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/CardView_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="@android:color/transparent"
+                            android:layout_margin="0dp"
+                            app:cardElevation="0dp">
+                            <TextView
+                                android:id="@+id/menu_caption_email"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3"
+                                android:elevation="2dp"
+                                android:gravity="center"
+                                android:textStyle="italic|bold"
+                                android:textSize="11sp"
+                                android:background="@drawable/circle_view"
+                                android:textColor="@color/white"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="5dp"
+                                android:layout_gravity="right">
+                            </TextView>
+                            <androidx.cardview.widget.CardView
+                                style="@style/Menu_Item_CardView"
+                                android:id="@+id/CardView_main_menu_email">
+                                <LinearLayout
+                                    style="@style/Menu_Item_LinearLayout"
+                                    android:id="@+id/main_menu_email">
+                                    <ImageView
+                                        style="@style/Menu_Item_ImageView"
+                                        android:src="@drawable/ic_email_white" />
+                                    <TextView
+                                        style="@style/Menu_Item_EditText"
+                                        android:text="@string/email" />
                                 </LinearLayout>
                             </androidx.cardview.widget.CardView>
                         </androidx.cardview.widget.CardView>
