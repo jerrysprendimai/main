@@ -84,4 +84,10 @@
     <string name="sent">sent</string>
     <string name="mailbox">Paštas</string>
     <string name="email_show_all">Rodyti visus</string>
+    <string name="all_email">All</string>
+    <string name="from">From</string>
+    <string name="email_from">From</string>
+    <string name="email_to">To</string>
+    <string name="email_subject">Subject</string>
+    <string name="attachment">Priedai</string>
 </resources>

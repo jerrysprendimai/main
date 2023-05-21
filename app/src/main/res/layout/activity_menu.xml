@@ -347,7 +347,7 @@
                             android:layout_margin="0dp"
                             app:cardElevation="0dp">
                             <TextView
-                                android:id="@+id/menu_caption_email"
+                                android:id="@+id/menu_caption_emailIn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="3"
@@ -360,6 +360,22 @@
                                 android:layout_marginTop="2dp"
                                 android:layout_marginRight="5dp"
                                 android:layout_gravity="right">
+                            </TextView>
+                            <TextView
+                                android:id="@+id/menu_caption_emailOut"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3"
+                                android:elevation="2dp"
+                                android:gravity="center"
+                                android:textStyle="italic|bold"
+                                android:textSize="11sp"
+                                android:background="@drawable/circle_view2"
+                                android:textColor="@color/white"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginLeft="4dp"
+
+                                android:layout_gravity="left">
                             </TextView>
                             <androidx.cardview.widget.CardView
                                 style="@style/Menu_Item_CardView"

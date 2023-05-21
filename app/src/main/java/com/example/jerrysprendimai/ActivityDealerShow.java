@@ -77,7 +77,7 @@ public class ActivityDealerShow extends AppCompatActivity implements SwipeRefres
     private void buildRecyclerView() {
         //---------------------Recycle View---------------------
         this.recyclerView = findViewById(R.id.my_recycle_view);
-        this.myAdapterDealerShow = new MyAdapterDealerShow(this, this.myDealerList, this.myDealerListOriginal, "dealerShow", null);
+        this.myAdapterDealerShow = new MyAdapterDealerShow(this, this.myDealerList, this.myDealerListOriginal, "dealerShow", null, false);
         this.recyclerView.setAdapter(myAdapterDealerShow);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }

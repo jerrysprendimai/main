@@ -18,6 +18,7 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
     private final String dealerShowDialogP1 = "dealerShowDialogP1";
     private final String dealerShowP1 = "dealerShowP1";
     private final String dealerShowP3 = "dealerShowP3";
+    private final String dealerShowEmailFilter = "dealerShowEmailFilter";
 
     Context context;
 
@@ -27,9 +28,10 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
     String type;
     View.OnClickListener onClickListener;
     ArrayList<MyViewHolder> myViewHolderArrayList;
+    Boolean infalteSmall;
 
 
-    public MyAdapterDealerShow(Context context, List<ObjectDealer> myDealerList, List<ObjectDealer> myDealerListFull, String type, View.OnClickListener onClickListener) {
+    public MyAdapterDealerShow(Context context, List<ObjectDealer> myDealerList, List<ObjectDealer> myDealerListFull, String type, View.OnClickListener onClickListener, Boolean infalteSmall) {
         this.context = context;
         this.myDealerList = myDealerList;
         this.myDealerListFull = myDealerListFull;
@@ -37,6 +39,7 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
         this.type = type;
         this.onClickListener = onClickListener;
         this.myViewHolderArrayList = new ArrayList<>();
+        this.infalteSmall = infalteSmall;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
@@ -56,7 +59,14 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
     @Override
     public MyAdapterDealerShow.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.my_row_dealer, parent, false);
+
+        View view = null;
+        if(!infalteSmall){
+          view = inflater.inflate(R.layout.my_row_dealer, parent, false);
+        }else{
+          view = inflater.inflate(R.layout.my_row_dealer_small, parent, false);
+        }
+
         return new MyAdapterDealerShow.MyViewHolder(view);
     }
 
@@ -79,6 +89,10 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
             };
         }else if(type.equals(dealerShowP1)){
             onRowClickListener = onClickListener;
+        }else if(type.equals(dealerShowEmailFilter)){
+            onRowClickListener = v-> {
+                ((ActivityEmailShow)context).dealerSelectedCallback(holder.getAdapterPosition());
+            };
         }
 
         holder.dealerName.setText(objectDealer.getName());

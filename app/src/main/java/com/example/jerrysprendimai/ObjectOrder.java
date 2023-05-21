@@ -14,10 +14,9 @@ public class ObjectOrder implements Parcelable {
     ObjectObject myObject;
     ObjectDealer myDealer;
     ArrayList<ObjectObjPic> myPictureList;
-    String myText, creationDate,firstName, from, to, type, sentDate, messageId, inReplyTo;
+    String myText, creationDate,firstName, from, to, type, sentDate, sentTime, messageId, inReplyTo, myHtml;
     boolean emailSent, notViewed, hasAttachments;
     Integer userId, objectID, dealerId;
-
 
     protected ObjectOrder(Parcel in) {
         if (in.readByte() == 0) {
@@ -35,8 +34,10 @@ public class ObjectOrder implements Parcelable {
         to = in.readString();
         type = in.readString();
         sentDate = in.readString();
+        sentTime = in.readString();
         messageId = in.readString();
         inReplyTo = in.readString();
+        myHtml = in.readString();
         emailSent = in.readByte() != 0;
         notViewed = in.readByte() != 0;
         hasAttachments = in.readByte() != 0;
@@ -56,21 +57,6 @@ public class ObjectOrder implements Parcelable {
             dealerId = in.readInt();
         }
     }
-    public static final Creator<ObjectOrder> CREATOR = new Creator<ObjectOrder>() {
-        @Override
-        public ObjectOrder createFromParcel(Parcel in) {
-            return new ObjectOrder(in);
-        }
-
-        @Override
-        public ObjectOrder[] newArray(int size) {
-            return new ObjectOrder[size];
-        }
-    };
-    @Override
-    public int describeContents() {
-        return 0;
-    }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         if (id == null) {
@@ -89,8 +75,10 @@ public class ObjectOrder implements Parcelable {
         dest.writeString(to);
         dest.writeString(type);
         dest.writeString(sentDate);
+        dest.writeString(sentTime);
         dest.writeString(messageId);
         dest.writeString(inReplyTo);
+        dest.writeString(myHtml);
         dest.writeByte((byte) (emailSent ? 1 : 0));
         dest.writeByte((byte) (notViewed ? 1 : 0));
         dest.writeByte((byte) (hasAttachments ? 1 : 0));
@@ -113,7 +101,21 @@ public class ObjectOrder implements Parcelable {
             dest.writeInt(dealerId);
         }
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    public static final Creator<ObjectOrder> CREATOR = new Creator<ObjectOrder>() {
+        @Override
+        public ObjectOrder createFromParcel(Parcel in) {
+            return new ObjectOrder(in);
+        }
 
+        @Override
+        public ObjectOrder[] newArray(int size) {
+            return new ObjectOrder[size];
+        }
+    };
 
     public ObjectOrder() {
         this.id            = -1;
@@ -133,6 +135,9 @@ public class ObjectOrder implements Parcelable {
         this.messageId     = "";
         this.inReplyTo     = "";
         this.notViewed     = false;
+        this.sentDate      = "";
+        this.sentTime      = "";
+        this.myHtml        = "";
     }
 
     public ObjectOrder(JSONObject obj) {
@@ -159,6 +164,7 @@ public class ObjectOrder implements Parcelable {
             }
             String[] timeStamp = MCrypt.decryptSingle(obj.getString("Sent_date")).split(" ");
             this.sentDate      = HelperDate.get_date_display_short(timeStamp[0]);
+            this.sentTime      = timeStamp[1];
             this.messageId     = MCrypt.decryptSingle(obj.getString("Message_id"));
             this.inReplyTo     = MCrypt.decryptSingle(obj.getString("In_reply_to"));
             if (String.valueOf(MCrypt.decryptSingle(obj.getString("Not_viewed"))).equals("X")){
@@ -239,5 +245,9 @@ public class ObjectOrder implements Parcelable {
     public void setNotViewed(boolean notViewed) {        this.notViewed = notViewed;    }
     public boolean isHasAttachments() {        return hasAttachments;    }
     public void setHasAttachments(boolean hasAttachments) {        this.hasAttachments = hasAttachments;    }
+    public String getSentTime() {        return sentTime;    }
+    public void setSentTime(String sentTime) {        this.sentTime = sentTime;    }
+    public String getMyHtml() {        return myHtml;    }
+    public void setMyHtml(String myHtml) {        this.myHtml = myHtml;    }
 
 }

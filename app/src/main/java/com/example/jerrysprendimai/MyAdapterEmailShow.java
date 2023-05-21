@@ -1,17 +1,28 @@
 package com.example.jerrysprendimai;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.text.Html;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,16 +33,18 @@ public class MyAdapterEmailShow extends RecyclerView.Adapter<MyAdapterEmailShow.
     List<ObjectOrder> myEmailList;
     List<ObjectOrder> myEmailListFull;
     ViewGroup parentView;
+    ObjectUser myUser;
 
     final String USER = "user";
     final String OWNER = "owner";
     final String ADMIN = "admin";
 
-    public MyAdapterEmailShow(Context context, List<ObjectOrder> myEmailList) {
+    public MyAdapterEmailShow(Context context, List<ObjectOrder> myEmailList, ObjectUser myUser) {
         this.context = context;
         //this.parentView = parentView;
         this.myEmailList = myEmailList;
         this.myEmailListFull = new ArrayList<>(this.myEmailList);
+        this.myUser = myUser;
     }
 
     @NonNull
@@ -91,7 +104,11 @@ public class MyAdapterEmailShow extends RecyclerView.Adapter<MyAdapterEmailShow.
         }
 
         holder.myRow.setOnClickListener(v->{
-
+            //new HttpsEmailDetails(context,myOrder).execute();
+            Intent intent = new Intent(context, ActivityEmailRead.class);
+            intent.putExtra("myUser", myUser);
+            intent.putExtra("myEmail", myOrder);
+            context.startActivity(intent);
         });
     }
 
@@ -117,4 +134,184 @@ public class MyAdapterEmailShow extends RecyclerView.Adapter<MyAdapterEmailShow.
 
         }
     }
+    /*
+    class HttpsEmailDetails extends AsyncTask<String, Void, InputStream> {
+        private static final String get_email_details_url = "get_email_details.php";
+
+        private Context context;
+        Connector connector;
+        ObjectOrder myOrder;
+
+        public HttpsEmailDetails(Context ctx, ObjectOrder myOrder){
+            this.context = ctx;
+            this.myOrder = myOrder;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, get_email_details_url);
+            connector.addPostParameter("user_type",  Base64.encodeToString(MCrypt.encrypt(myUser.getType().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_uname", Base64.encodeToString(MCrypt.encrypt(Base64.encodeToString(myUser.getUname().getBytes(), Base64.DEFAULT).getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_id",    Base64.encodeToString(MCrypt.encrypt(myUser.getId().toString().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("set_email_viewed", Base64.encodeToString(MCrypt.encrypt(String.valueOf("X").getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("message_id",    Base64.encodeToString(MCrypt.encrypt(myOrder.getMessageId().getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+
+
+            connector.decodeResponse();
+            try {
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                String html = MCrypt.decryptSingle(responseObject.getString("html"));
+                myOrder.setMyHtml(html);
+
+
+                //String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+            new HttpsRequestGetDealerList(context, myOrder).execute();
+            super.onPostExecute(inputStream);
+        }
+    }
+    class HttpsRequestGetDealerList extends AsyncTask<String, Void, InputStream> {
+        private static final String get_dealer_list_url = "get_dealer_list.php";
+
+        private Context context;
+        Connector connector;
+        ObjectOrder myOrder;
+
+        public HttpsRequestGetDealerList(Context ctx, ObjectOrder myOrder){
+            context = ctx;
+            this.myOrder = myOrder;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, get_dealer_list_url);
+            //connector.addPostParameter("user_type", MCrypt2.encodeToString(myUser.getType()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            connector.decodeResponse();
+
+            if(((ActivityEmailRead) context).myDealerList == null){
+                ((ActivityEmailRead) context).myDealerList = new ArrayList<>();
+                ((ActivityEmailRead) context).myDealerListOriginal = new ArrayList<>();
+            }
+
+            ArrayList<ObjectDealer> dealerArrayList = getDealerList(connector);
+            //((ActivityEmailRead) context).myDealerList.removeAll(((ActivityEmailRead) context).myDealerListOriginal);
+            //((ActivityEmailRead) context).myDealerList.addAll(dealerArrayList);
+            //((ActivityEmailRead) context).myDealerListOriginal = new ArrayList<ObjectDealer>();
+            //((ActivityEmailRead) context).myDealerListOriginal.addAll(((ActivityEmailRead) context).myDealerList);
+
+
+            new HttpsRequestGetObjectList(context, myOrder, dealerArrayList).execute();
+            super.onPostExecute(inputStream);
+        }
+
+        private ArrayList<ObjectDealer>getDealerList(Connector conn){
+            ArrayList<ObjectDealer> dealerArrayList = new ArrayList<>();
+            try{
+                ObjectDealer objectDealer;
+                JSONArray responseObjects1 = (JSONArray) conn.getResultJsonArray();
+                for (int i = 0; i < responseObjects1.length(); i++) {
+                    objectDealer = new ObjectDealer((JSONObject) responseObjects1.get(i));
+
+                    dealerArrayList.add(objectDealer);
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return dealerArrayList;
+        }
+    }
+    class HttpsRequestGetObjectList extends AsyncTask<String, Void, InputStream> {
+        private static final String get_object_list_url = "get_object_list.php";
+
+        private Context context;
+        Connector connector;
+        ObjectOrder myOrder;
+        ArrayList<ObjectDealer> dealerArrayList;
+
+        public HttpsRequestGetObjectList(Context ctx, ObjectOrder myOrder, ArrayList<ObjectDealer> dealerArrayList){
+            context = ctx;
+            this.myOrder = myOrder;
+            this.dealerArrayList = dealerArrayList;
+
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, get_object_list_url);
+            connector.addPostParameter("user_type",  Base64.encodeToString(MCrypt.encrypt(myUser.getType().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_uname", Base64.encodeToString(MCrypt.encrypt(Base64.encodeToString(myUser.getUname().getBytes(), Base64.DEFAULT).getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            if(((ActivityEmailRead) context).myObjectList == null){
+                ((ActivityEmailRead) context).myObjectList = new ArrayList<>();
+                ((ActivityEmailRead) context).myObjectListOriginal = new ArrayList<>();
+            }
+            connector.decodeResponse();
+            ArrayList<ObjectObject> objectArryList = getObjectList(connector);
+            //((ActivityEmailRead) context).myObjectList.removeAll(((ActivityEmailRead) context).myObjectListOriginal);
+            //((ActivityEmailRead) context).myObjectList.addAll(objectArryList);
+            //((ActivityEmailRead) context).myObjectListOriginal = new ArrayList<ObjectObject>();
+            //((ActivityEmailRead) context).myObjectListOriginal.addAll(((ActivityEmailRead) context).myObjectList);
+
+            Intent intent = new Intent(context, ActivityEmailRead.class);
+            intent.putExtra("myUser", myUser);
+            intent.putExtra("myEmail", myOrder);
+            intent.putExtra("myObjectList", objectArryList);
+            intent.putExtra("myDealerList", dealerArrayList);
+            context.startActivity(intent);
+
+            super.onPostExecute(inputStream);
+        }
+
+        private ArrayList<ObjectObject>getObjectList(Connector conn){
+            ArrayList<ObjectObject> objectArrayList = new ArrayList<>();
+            try {
+                ObjectObject objectObject;
+                JSONArray responseObjects = (JSONArray) conn.getResultJsonArray();
+                for (int i = 0; i < responseObjects.length(); i++) {
+                    objectObject = new ObjectObject((JSONObject) responseObjects.get(i));
+                    objectArrayList.add(objectObject);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            return objectArrayList;
+        }
+    }
+    */
 }

@@ -43,6 +43,8 @@ import java.util.List;
 public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectShowP1.MyViewHolder>{
     private final String objectShowP1 = "objectShowP1";
     private final String objectShowP3 = "objectShowP3";
+    private final String objectShowEmailFilter = "objectShowEmailFilter";
+
 
     Context context;
 
@@ -60,8 +62,9 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
     BottomSheetDialog bottomSheetDialog;
     View bottomSheetView;
     View.OnClickListener onClickListener;
+    Boolean inflateSmall;
 
-    public MyAdapterObjectShowP1(Context context, ViewGroup parentView, List<ObjectObject> objectList, ObjectUser user, View.OnClickListener onClickListener, String type) {
+    public MyAdapterObjectShowP1(Context context, ViewGroup parentView, List<ObjectObject> objectList, ObjectUser user, View.OnClickListener onClickListener, String type, Boolean inflateSmall) {
         this.context = context;
         this.myObjectList = objectList;
         this.myObjectListFull = new ArrayList<>(this.myObjectList);
@@ -69,19 +72,26 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         this.myUser = user;
         this.onClickListener = onClickListener;
         this.type = type;
+        this.inflateSmall = inflateSmall;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.my_row_object, parent, false);
+        View view = null;
+        if(inflateSmall){
+            view = inflater.inflate(R.layout.my_row_object_small, parent, false);
+        }else{
+           view = inflater.inflate(R.layout.my_row_object, parent, false);
+        }
+
         return new MyViewHolder(view);
         //return null;
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
-        LinearLayout objectLockLayout, myRow, bottomSheetContainer, objectCompletnessProgress;
+        LinearLayout objectLockLayout, myRow, bottomSheetContainer, objectCompletnessProgress, objectDatesLinearLayout;
         TextView objectName, objectCustomer, objectDate, objectNewIndicator;
         ProgressBar progressBar;
         TextView progressBarLabel, objectNameLabel, customerNameLabel, objectDateLabel;
@@ -102,6 +112,7 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
             bottomSheetContainer = itemView.findViewById(R.id.bottomSheetContainer);
             objectIcon           = itemView.findViewById(R.id.object_image_view);
             objectCompletnessProgress = itemView.findViewById(R.id.object_completness_progressBar_linearLayout);
+            objectDatesLinearLayout   = itemView.findViewById(R.id.object_dates_linearLayout);
             objectNameLabel      = itemView.findViewById(R.id.object_name_label);
             customerNameLabel    = itemView.findViewById(R.id.object_customer_label);
             objectDateLabel      = itemView.findViewById(R.id.object_date_label);
@@ -129,7 +140,7 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         }
 
         //------object values
-        holder.objectName.setText(myObjectObject.getObjectName());
+        /*holder.objectName.setText(myObjectObject.getObjectName());
         holder.objectName.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);
         holder.objectNameLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);
         holder.objectCustomer.setText(myObjectObject.getCustomerName());
@@ -137,11 +148,27 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         holder.customerNameLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);
         holder.objectDate.setText(myObjectObject.getDate());
         holder.objectDate.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);
-        holder.objectDateLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);
+        holder.objectDateLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,11);*/
+        int fontSize = 11;
+        if(inflateSmall){
+            fontSize = 10;
+        }else{
+            fontSize = 11;
+        }
+        holder.objectName.setText(myObjectObject.getObjectName());
+        holder.objectName.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
+        holder.objectNameLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
+        holder.objectCustomer.setText(myObjectObject.getCustomerName());
+        holder.objectCustomer.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
+        holder.customerNameLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
+        holder.objectDate.setText(myObjectObject.getDate());
+        holder.objectDate.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
+        holder.objectDateLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
 
         holder.objectIcon.setImageResource(context.getResources().getIdentifier(myObjectObject.getIcon(), "drawable", context.getApplicationInfo().packageName));
 
         holder.objectCompletnessProgress.setVisibility(View.GONE);
+        //holder.objectDatesLinearLayout.setVisibility(View.GONE);
 
         //---clear hints
         holder.objectName.setHint("");
@@ -149,9 +176,17 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
 
         View.OnClickListener clickListener = null;
         if(this.onClickListener == null){
-            clickListener = v->{
-              ((ActivityOrder1)context).objectSelectedCallback(holder.getAdapterPosition());
-            };
+
+            if(!type.equals(objectShowEmailFilter)) {
+                clickListener = v -> {
+                    ((ActivityOrder1) context).objectSelectedCallback(holder.getAdapterPosition());
+                };
+            }else{
+                clickListener = v -> {
+                    ((ActivityEmailShow) context).orderSelectedCallback(holder.getAdapterPosition());
+                };
+            }
+
         }else{
             clickListener = this.onClickListener;
         }

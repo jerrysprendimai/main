@@ -222,7 +222,8 @@ public class ActivityMenu extends AppCompatActivity {
         });
 
         //-----------Email
-        ((TextView) findViewById(R.id.menu_caption_email)).setVisibility(View.GONE);
+        ((TextView) findViewById(R.id.menu_caption_emailIn)).setVisibility(View.GONE);
+        ((TextView) findViewById(R.id.menu_caption_emailOut)).setVisibility(View.GONE);
         LinearLayout emailLayout = (LinearLayout) findViewById(R.id.main_menu_email);
         emailLayout.setOnClickListener(v->{
             this.backButtonCount = 0;
@@ -640,19 +641,29 @@ public class ActivityMenu extends AppCompatActivity {
             ((ActivityMenu)context).myEmailListOriginal.addAll(((ActivityMenu)context).myEmailList);
 
             //----Email Caption handling
-            int notSeen = 0;
+            int notSeenIn = 0;
+            int notSeenOut = 0;
             for(int i = 0; i < objectEmailList.size(); i++){
                 if(objectEmailList.get(i).isNotViewed()){
-                    notSeen ++;
+                    if (objectEmailList.get(i).getType().equals("in")){
+                        notSeenIn ++;
+                    }else if(objectEmailList.get(i).getType().equals("out")){
+                        notSeenOut ++;
+                    }
                 }
             }
-            if( notSeen > 0){
-                ((TextView) findViewById(R.id.menu_caption_email)).setVisibility(View.VISIBLE);
+            if( notSeenIn > 0){
+                ((TextView) findViewById(R.id.menu_caption_emailIn)).setVisibility(View.VISIBLE);
             }else{
-                ((TextView) findViewById(R.id.menu_caption_email)).setVisibility(View.GONE);
+                ((TextView) findViewById(R.id.menu_caption_emailIn)).setVisibility(View.GONE);
             }
-            ((TextView) findViewById(R.id.menu_caption_email)).setText(String.valueOf(notSeen));
-
+            ((TextView) findViewById(R.id.menu_caption_emailIn)).setText(String.valueOf(notSeenIn));
+            if( notSeenOut > 0){
+                ((TextView) findViewById(R.id.menu_caption_emailOut)).setVisibility(View.VISIBLE);
+            }else{
+                ((TextView) findViewById(R.id.menu_caption_emailOut)).setVisibility(View.GONE);
+            }
+            ((TextView) findViewById(R.id.menu_caption_emailOut)).setText(String.valueOf(notSeenOut));
 
             new HttpsRequestGetObjectList(context).execute();
 

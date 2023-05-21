@@ -73,13 +73,13 @@ public class FragmentOrderPart3 extends Fragment {
 
         cardViewDealer.setVisibility(View.GONE);
         recyclerViewDealer.setVisibility(View.VISIBLE);
-        myAdapterDealerShow = new MyAdapterDealerShow(context, ((ActivityOrder1)context).getMyDealer(), ((ActivityOrder1)context).getMyDealer(), "dealerShowP3", null);
+        myAdapterDealerShow = new MyAdapterDealerShow(context, ((ActivityOrder1)context).getMyDealer(), ((ActivityOrder1)context).getMyDealer(), "dealerShowP3", null, false);
         recyclerViewDealer.setAdapter(myAdapterDealerShow);
         recyclerViewDealer.setLayoutManager(new LinearLayoutManager(context));
 
         cardViewObject.setVisibility(View.GONE);
         recyclerViewObject.setVisibility(View.VISIBLE);
-        myAdapterObjectShow = new MyAdapterObjectShowP1(context, null, ((ActivityOrder1)context).getMyObject(), ((ActivityOrder1)context).getMyUser(), null, "objectShowP3");
+        myAdapterObjectShow = new MyAdapterObjectShowP1(context, null, ((ActivityOrder1)context).getMyObject(), ((ActivityOrder1)context).getMyUser(), null, "objectShowP3", false);
         recyclerViewObject.setAdapter(myAdapterObjectShow);
         recyclerViewObject.setLayoutManager(new LinearLayoutManager(context));
 

@@ -136,7 +136,7 @@ public class ActivityOrder1 extends AppCompatActivity {
 
         dealerOnClickListener = v-> {
             dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_with_recycler_view, findViewById(R.id.order_pt1_main_containerView), false);
-            MyAdapterDealerShow myAdapterDealerShow = new MyAdapterDealerShow(this, myDealerList, myDealerListOriginal, "dealerShowDialogP1", null);
+            MyAdapterDealerShow myAdapterDealerShow = new MyAdapterDealerShow(this, myDealerList, myDealerListOriginal, "dealerShowDialogP1", null, false);
             RecyclerView dialogRecyclerViewDealer = dialogView.findViewById(R.id.my_recycle_view_dialog);
             dialogRecyclerViewDealer.setAdapter(myAdapterDealerShow);
             dialogRecyclerViewDealer.setLayoutManager(new LinearLayoutManager(this));
@@ -149,7 +149,7 @@ public class ActivityOrder1 extends AppCompatActivity {
         };
         objectOnClickListener = v->{
             dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_with_recycler_view, findViewById(R.id.order_pt1_main_containerView), false);
-            MyAdapterObjectShowP1 myAdapterObjectShowP1 = new MyAdapterObjectShowP1(this, null, myObjectList, myUser, null, "objectShowP1");
+            MyAdapterObjectShowP1 myAdapterObjectShowP1 = new MyAdapterObjectShowP1(this, null, myObjectList, myUser, null, "objectShowP1", false);
             RecyclerView dialogRecyclerViewObject = dialogView.findViewById(R.id.my_recycle_view_dialog);
             dialogRecyclerViewObject.setAdapter(myAdapterObjectShowP1);
             dialogRecyclerViewObject.setLayoutManager(new LinearLayoutManager(this));
@@ -213,7 +213,7 @@ public class ActivityOrder1 extends AppCompatActivity {
         //recyclerViewDealer.setVisibility(View.VISIBLE);
         myDealer = new ArrayList<>();
         myDealer.add(myDealerList.get(adapterPosition));
-        myAdapterDealer = new MyAdapterDealerShow(this, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener);
+        myAdapterDealer = new MyAdapterDealerShow(this, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, false);
         //recyclerViewDealer.setAdapter(myAdapterDealer);
         //recyclerViewDealer.setLayoutManager(new LinearLayoutManager(this));
         dialog.dismiss();
@@ -230,7 +230,7 @@ public class ActivityOrder1 extends AppCompatActivity {
         //recyclerViewObject.setVisibility(View.VISIBLE);
         myObject = new ArrayList<>();
         myObject.add(myObjectList.get(adapterPosition));
-        myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1");
+        myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
         //recyclerViewObject.setAdapter(myAdapterObject);
         //recyclerViewObject.setLayoutManager(new LinearLayoutManager(this));
         dialog.dismiss();
