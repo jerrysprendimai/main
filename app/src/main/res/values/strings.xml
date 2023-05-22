@@ -90,4 +90,7 @@
     <string name="email_to">To</string>
     <string name="email_subject">Subject</string>
     <string name="attachment">Priedai</string>
+    <string name="reply">Atsakyti</string>
+    <string name="forward">Persiųsti</string>
+    <string name="delete">Ištrinti</string>
 </resources>

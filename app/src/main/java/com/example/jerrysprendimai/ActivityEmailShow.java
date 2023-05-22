@@ -278,6 +278,7 @@ public class ActivityEmailShow extends AppCompatActivity implements SwipeRefresh
     }
 
     public void refresh(){
+        swipeRefreshLayout.setRefreshing(true);
         new HttpsRequestGetEmailList(this).execute();
     }
 
@@ -288,8 +289,8 @@ public class ActivityEmailShow extends AppCompatActivity implements SwipeRefresh
 
     @Override
     protected void onResume() {
+        onRefresh();
         super.onResume();
-        refresh();
     }
 
     public ArrayList<ObjectOrder> applyFilter(ArrayList<ObjectOrder> myEmailListOriginal) {

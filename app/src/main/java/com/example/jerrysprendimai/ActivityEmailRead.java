@@ -1,10 +1,13 @@
 package com.example.jerrysprendimai;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +16,8 @@ import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Base64;
 import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -21,6 +26,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +46,7 @@ public class ActivityEmailRead extends AppCompatActivity {
     ArrayList<ObjectObject> myObjectList;
     ArrayList<ObjectObject> myObjectListOriginal;
     ArrayList<ObjectAttachment> myAttachments;
-
+    Boolean clickOk, clickCancel;
     ObjectUser myUser;
     ObjectOrder myOrder;
     ProgressBar emailProgressbar;
@@ -46,6 +56,8 @@ public class ActivityEmailRead extends AppCompatActivity {
     MyAdapterEmailAttachment myAdapterEmailAttachment;
     Button attachmentsRetractableButton;
     WebView webView;
+    BottomNavigationView bottomNavigationButtons;
+    LinearLayout bottomNaivgationButtonsLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +77,8 @@ public class ActivityEmailRead extends AppCompatActivity {
         attachmentRecyclerView  = findViewById(R.id.attachment_recycle_view);
         attachmentsRetractableButton = findViewById(R.id.email_read_attachments_retractable_button);
         attachmentsRetractableLayout = findViewById(R.id.email_read_attachments_retractableLayout);
+        bottomNavigationButtons = findViewById(R.id.email_navigation_buttons);
+        bottomNaivgationButtonsLayout = findViewById(R.id.email_navigation_layout);
 
         //----subject
         emailSubject.setText(myOrder.getMyText());
@@ -87,14 +101,125 @@ public class ActivityEmailRead extends AppCompatActivity {
                 attachmentsRetractableLayout.setVisibility(View.GONE);
             }
         });
+
+        //-----------------Email Navigation Keyboard----------------
+       // KeyboardVisibilityEvent.setEventListener(this, this);
+        this.bottomNaivgationButtonsLayout.setVisibility(View.GONE);
+        this.bottomNavigationButtons.setOnNavigationItemSelectedListener(this::emailNavigationHandling);
+
     }
 
+    private boolean emailNavigationHandling(MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.email_reply:
+                break;
+            case R.id.email_object_assign:
+                break;
+            case R.id.email_forward:
+                break;
+            case R.id.email_delete:
+                enableBottomNavigation(false);
+                emailProgressbar.setVisibility(View.VISIBLE);
+                View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_popup, null, false);
+                TextView text = dialogView.findViewById(R.id.popup_text);
+                text.setText(getResources().getString(R.string.delete) + " ?");
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+                builder.setView(dialogView);
+                this.clickOk = false;
+                this.clickCancel = false;
+                builder.setPositiveButton("Ok", (dialog, which) -> {
+                    clickOk = true;
+                    new HttpsRequestDeleteEmail(this).execute();
+                });
+                builder.setNegativeButton("Cancel", (dialog, which) -> {
+                    clickCancel = true;
+                    emailProgressbar.setVisibility(View.GONE);
+                    enableBottomNavigation(true);
+                });
+                builder.setOnDismissListener(dialog -> {
+                    if((!clickOk) && (!clickCancel)){
+                        emailProgressbar.setVisibility(View.GONE);
+                        enableBottomNavigation(true);
+                    }
+
+                });
+                builder.create();
+                builder.show();
+                break;
+        }
+        return false;
+    }
+    public void enableBottomNavigation(Boolean value){
+        findViewById(R.id.email_reply).setEnabled(value);
+        findViewById(R.id.email_object_assign).setEnabled(value);
+        findViewById(R.id.email_forward).setEnabled(value);
+        findViewById(R.id.email_delete).setEnabled(value);
+    }
     @Override
     protected void onResume() {
         emailProgressbar.setVisibility(View.VISIBLE);
         new HttpsRequestCheckSessionAlive(this).execute();
         super.onResume();
     }
+
+    class HttpsRequestDeleteEmail extends AsyncTask<String, Void, InputStream> {
+        private static final String delete_email_url = "delete_email.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestDeleteEmail(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, delete_email_url);
+            connector.addPostParameter("message_id", Base64.encodeToString(MCrypt.encrypt(myOrder.getMessageId().getBytes()), Base64.DEFAULT));
+            //connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            emailProgressbar.setVisibility(View.GONE);
+            enableBottomNavigation(true);
+            Toast.makeText(context, context.getResources().getString(R.string.deleted), Toast.LENGTH_SHORT).show();
+            finish();
+            /*connector.decodeResponse();
+
+            JSONObject object = null;
+            try {
+                object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                String status  = object.getString("status");
+                String msg     = object.getString("msg");
+                //String control = object.getString("control");
+                if (status.equals("1")) {
+                    //---------------Read myUser object----------------------
+                    if(myUser == null){
+                        myUser = getIntent().getParcelableExtra("myUser");
+                    }
+                    new HttpsEmailDetails(context).execute();
+                    //new HttpsRequestGetDealerList(context).execute();
+                }else{
+                    //session and last activity deleted in DB, app will log-out
+                    Toast.makeText(context, context.getResources().getString(R.string.session_expired), Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }*/
+            super.onPostExecute(inputStream);
+        }
+    }
+
     class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {
         private static final String check_session_alive_url = "check_session_alive.php";
 
@@ -228,13 +353,6 @@ public class ActivityEmailRead extends AppCompatActivity {
                         "utf-8",
                         "about:blank" );
 
-                //webView.loadData("<html><body>Hello</body></html>", "text/html", "utf-8");
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    emailHtml.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT));
-                } else {
-                    emailHtml.setText(Html.fromHtml(html));
-                }*/
-
                 //String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
             }catch (Exception e){
                 e.printStackTrace();
@@ -364,6 +482,7 @@ public class ActivityEmailRead extends AppCompatActivity {
             ((ActivityEmailRead) context).myObjectListOriginal.addAll(((ActivityEmailRead) context).myObjectList);
 
             emailProgressbar.setVisibility(View.GONE);
+            bottomNaivgationButtonsLayout.setVisibility(View.VISIBLE);
             super.onPostExecute(inputStream);
         }
 
