@@ -3,6 +3,7 @@ package com.example.jerrysprendimai;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -110,20 +111,54 @@ public class ActivityEmailRead extends AppCompatActivity {
     }
 
     private boolean emailNavigationHandling(MenuItem menuItem) {
+        View dialogView;
+        AlertDialog.Builder builder;
         switch (menuItem.getItemId()){
             case R.id.email_reply:
                 break;
             case R.id.email_object_assign:
+                enableBottomNavigation(false);
+                emailProgressbar.setVisibility(View.VISIBLE);
+                dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_with_recycler_view, null, false);
+                dialogView.findViewById(R.id.pupup_text_cardView).setVisibility(View.VISIBLE);
+                TextView pupupTitle = dialogView.findViewById(R.id.popup_text);
+                pupupTitle.setText(getResources().getString(R.string.assign_object));
+                RecyclerView dialogrecyclerView = dialogView.findViewById(R.id.my_recycle_view_dialog);
+                MyAdapterEmailObjectAssignment myAdapterEmailObjectAssignment = new MyAdapterEmailObjectAssignment(this,myUser,myOrder.getMyObject(),myObjectList);
+                dialogrecyclerView.setAdapter(myAdapterEmailObjectAssignment);
+                dialogrecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+                builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+                builder.setView(dialogView);
+                this.clickOk = false;
+                this.clickCancel = false;
+                builder.setPositiveButton("Ok", (dialog, which) -> {
+                    clickOk = true;
+                });
+                builder.setNegativeButton("Cancel", (dialog, which) -> {
+                    clickCancel = true;
+                    emailProgressbar.setVisibility(View.GONE);
+                    enableBottomNavigation(true);
+                });
+                builder.setOnDismissListener(dialog -> {
+                    if((!clickOk) && (!clickCancel)){
+                        emailProgressbar.setVisibility(View.GONE);
+                        enableBottomNavigation(true);
+                    }
+
+                });
+                builder.create();
+                builder.show();
                 break;
             case R.id.email_forward:
                 break;
             case R.id.email_delete:
                 enableBottomNavigation(false);
                 emailProgressbar.setVisibility(View.VISIBLE);
-                View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_popup, null, false);
+                dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_popup, null, false);
                 TextView text = dialogView.findViewById(R.id.popup_text);
                 text.setText(getResources().getString(R.string.delete) + " ?");
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+                builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
                 builder.setView(dialogView);
                 this.clickOk = false;
                 this.clickCancel = false;
