@@ -83,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         style="@style/recycleView_Item_Text"
-                        android:hint="@string/order"
+                        android:hint="@string/inquiry"
                         android:textStyle="bold"
                         android:textColorHint="@color/white"
                         android:textSize="22sp"
@@ -122,7 +122,14 @@
         android:paddingBottom="10dp"
         android:layout_margin="5dp"
         android:orientation="vertical">
-
+        <ProgressBar
+            android:layout_gravity="top|center"
+            android:id="@+id/order_progress_bar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/jerry_blue"
+            android:layout_margin="5dp"/>
         <androidx.viewpager.widget.ViewPager
             android:layout_width="match_parent"
             android:layout_height="match_parent"

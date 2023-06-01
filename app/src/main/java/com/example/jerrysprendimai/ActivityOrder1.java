@@ -32,12 +32,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.database.FirebaseDatabase;
@@ -79,6 +83,7 @@ public class ActivityOrder1 extends AppCompatActivity {
     AlertDialog.Builder builder;
     AlertDialog dialog ;
     ObjectUser myUser;
+    //String myHtml;
     CardView cardViewDealer, cardViewObject;
     RecyclerView recyclerViewDealer, recyclerViewObject;
     View.OnClickListener dealerOnClickListener, objectOnClickListener;
@@ -93,13 +98,14 @@ public class ActivityOrder1 extends AppCompatActivity {
     FragmentOrderPart1 fragmentOrderPart1;
     FragmentOrderPart2 fragmentOrderPart2;
     FragmentOrderPart3 fragmentOrderPart3;
-    ObjectOrder myOrder;
+    ObjectOrder myOrder, myPreviousEmail;
+    ProgressBar progressBar;
     ViewPager viewPager;
     StateProgressBar stateProgressBar;
     ArrayList<ObjectObjPic> toBeDeletedList;
     boolean deletionMode;
     private int backgroundJobs = 10, retutnThreadCount = 0, newPicCount = 0;
-    String mCurrentPhotoPath;
+    String mCurrentPhotoPath, myHtml;
     Uri mCurrentPhotoUri;
     File mPhotoFile;
     MyAdapterOrderPicture myAdapterOrderPicture;
@@ -119,6 +125,10 @@ public class ActivityOrder1 extends AppCompatActivity {
         //cardViewObject     = findViewById(R.id.cardView_oder_p1_object);
         viewPager          = findViewById(R.id.order_p1_viewPager);
         stateProgressBar   = findViewById(R.id.order_state_progress_bar);
+        progressBar        = findViewById(R.id.order_progress_bar);
+
+        progressBar.setVisibility(View.VISIBLE);
+        viewPager.setOnTouchListener((v, event) -> true);
 
         //---------------Read references from Intent----------------------
         this.myUser = getIntent().getParcelableExtra("myUser");
@@ -161,25 +171,40 @@ public class ActivityOrder1 extends AppCompatActivity {
             dialog.show();
         };
 
-        //cardViewDealer.setOnClickListener(dealerOnClickListener);
-        //addDealerButton.setOnClickListener(dealerOnClickListener);
-
-        //cardViewObject.setOnClickListener(objectOnClickListener);
-        //addObjectButton.setOnClickListener(objectOnClickListener);
-
-        /*proceedButton.setOnClickListener(v->{
-            ActivityOrder1.setStaticOrder(myOrder);
-            Intent intent = new Intent(this, ActivityOrder2.class);
-            intent.putExtra("myUser", myUser);
-            intent.putExtra("myOrder", myOrder);
-            startActivity(intent);
-        });*/
-
         myAdapterOrderPicture = new MyAdapterOrderPicture(this, myOrder.getMyPictureList(), myUser, "pictureShowP1");
 
         String[] stateLabels = {getResources().getString(R.string.to), getResources().getString(R.string.message), getResources().getString(R.string.place_order)};
         stateProgressBar.setStateDescriptionData(stateLabels);
 
+        /*myViewPagerAdapterOrder = new MyViewPagerAdapterOrder(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        fragmentOrderPart1 = FragmentOrderPart1.newInstance(this);
+        fragmentOrderPart2 = FragmentOrderPart2.newInstance(this, myAdapterOrderPicture);
+        fragmentOrderPart3 = FragmentOrderPart3.newInstance(this);
+        myViewPagerAdapterOrder.addFragment(fragmentOrderPart1, "");
+        myViewPagerAdapterOrder.addFragment(fragmentOrderPart2, "");
+        myViewPagerAdapterOrder.addFragment(fragmentOrderPart3, "");
+        viewPager.setAdapter(myViewPagerAdapterOrder);
+        viewPager.setCurrentItem(0);
+
+        //-----Handling email Forward request
+        if( getIntent().getParcelableExtra("myObject") != null ){
+            myObject = new ArrayList<>();
+            myObject.add(getIntent().getParcelableExtra("myObject"));
+            myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+            //myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+            this.myOrder.setMyObject(myObject.get(0));
+            //new HttpsEmailDetails(this).execute();
+
+            //ObjectOrder ord = getIntent().getParcelableExtra("myOrder");
+            //this.myOrder.setMyHtml(ord.getMyHtml());
+            //myHtml = getIntent().getParcelableExtra("myHtml");
+        }*/
+
+        new HttpsRequestCheckSessionAlive(this).execute();
+
+    }
+    public void callback(){
+        progressBar.setVisibility(View.GONE);
         myViewPagerAdapterOrder = new MyViewPagerAdapterOrder(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         fragmentOrderPart1 = FragmentOrderPart1.newInstance(this);
         fragmentOrderPart2 = FragmentOrderPart2.newInstance(this, myAdapterOrderPicture);
@@ -190,21 +215,41 @@ public class ActivityOrder1 extends AppCompatActivity {
         viewPager.setAdapter(myViewPagerAdapterOrder);
         viewPager.setCurrentItem(0);
 
+        //-----Handling email Forward request
+        if( getIntent().getParcelableExtra("myObject") != null ){
+            myObject = new ArrayList<>();
+            myObject.add(getIntent().getParcelableExtra("myObject"));
+            myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+            //myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+            this.myOrder.setMyObject(myObject.get(0));
+            fragmentOrderPart2.setWebView(true, getResources().getString(R.string.forwarding));
+            //new HttpsEmailDetails(this).execute();
+
+            //ObjectOrder ord = getIntent().getParcelableExtra("myOrder");
+            //this.myOrder.setMyHtml(ord.getMyHtml());
+            //myHtml = getIntent().getParcelableExtra("myHtml");
+        }
     }
     public void buttonClickCallback(StateProgressBar.StateNumber state, int sateNr){
         stateProgressBar.setCurrentStateNumber(state);
         viewPager.setCurrentItem(sateNr);
     }
     public void sendButtonCallabck(){
+
+
         myOrder.setType("out");
         retutnThreadCount = 0;
-        newPicCount = myOrder.getMyPictureList().size();
-        for(ObjectObjPic objectObjPic: myOrder.getMyPictureList()){
-            //newPicCount += 1;
+        if(myOrder.getMyPictureList().size() > 0){
+            newPicCount = myOrder.getMyPictureList().size();
+            for(ObjectObjPic objectObjPic: myOrder.getMyPictureList()){
+                //newPicCount += 1;
 
-            Thread thread = new Thread(new RunnableTask(this, objectObjPic));
-            thread.start();
-            //}
+                Thread thread = new Thread(new RunnableTask(this, objectObjPic));
+                thread.start();
+                //}
+            }
+        }else{
+            new HttpsRequestSendOrderMessage(this).execute();
         }
     }
 
@@ -500,7 +545,8 @@ public class ActivityOrder1 extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        new HttpsRequestCheckSessionAlive(this).execute();
+        //fragmentOrderPart1.setViewEnabled(false);
+        //new HttpsRequestCheckSessionAlive(this).execute();
         super.onResume();
     }
     public void checkProceedOrderSend(){
@@ -535,7 +581,8 @@ public class ActivityOrder1 extends AppCompatActivity {
     public void setMyDealer(ArrayList<ObjectDealer> myDealer) {        this.myDealer = myDealer;    }
     public ObjectUser getMyUser() {        return myUser;    }
     public void setMyUser(ObjectUser myUser) {        this.myUser = myUser;    }
-
+    public String getMyHtml() {        return myHtml;    }
+    public void setMyHtml(String myHtml) {        this.myHtml = myHtml;    }
 
 
     class RunnableTask implements Runnable{
@@ -689,6 +736,11 @@ public class ActivityOrder1 extends AppCompatActivity {
                     for(ObjectObjPic pictureObject: myOrder.getMyPictureList()){
                         pictureObject.setObjectId(myOrder.getId());
                     }
+                    Toast.makeText(context, context.getResources().getString(R.string.email_sent), Toast.LENGTH_SHORT).show();
+                    finish();
+                }else{
+                    Toast.makeText(context, context.getResources().getString(R.string.email_not_sent), Toast.LENGTH_SHORT).show();
+                    fragmentOrderPart3.setSendingStatus(false);
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -851,9 +903,18 @@ public class ActivityOrder1 extends AppCompatActivity {
             ((ActivityOrder1) context).myObjectList.addAll(objectArryList);
             ((ActivityOrder1) context).myObjectListOriginal = new ArrayList<ObjectObject>();
             ((ActivityOrder1) context).myObjectListOriginal.addAll(((ActivityOrder1) context).myObjectList);
-            //((ActivityObjectShow) context).myAdapterObjectShow.notifyDataSetChanged();
-            //((ActivityObjectShow) context).swipeRefreshLayout.setRefreshing(false);
-            //setAnimationShowed(true);
+
+            if( getIntent().getParcelableExtra("myObject") != null ){
+                myObject = new ArrayList<>();
+                myObject.add(getIntent().getParcelableExtra("myObject"));
+                myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+                //myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+                myOrder.setMyObject(myObject.get(0));
+                new HttpsEmailDetails(context).execute();
+                //ObjectOrder ord = getIntent().getParcelableExtra("myOrder");
+                //this.myOrder.setMyHtml(ord.getMyHtml());
+                //myHtml = getIntent().getParcelableExtra("myHtml");
+            }
             super.onPostExecute(inputStream);
         }
 
@@ -871,6 +932,57 @@ public class ActivityOrder1 extends AppCompatActivity {
             }
 
             return objectArrayList;
+        }
+    }
+
+    class HttpsEmailDetails extends AsyncTask<String, Void, InputStream> {
+        private static final String get_email_details_url = "get_email_details.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsEmailDetails(Context ctx){
+            context = ctx;
+        }
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, get_email_details_url);
+            connector.addPostParameter("user_type",  Base64.encodeToString(MCrypt.encrypt(myUser.getType().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_uname", Base64.encodeToString(MCrypt.encrypt(Base64.encodeToString(myUser.getUname().getBytes(), Base64.DEFAULT).getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("user_id",    Base64.encodeToString(MCrypt.encrypt(myUser.getId().toString().getBytes()), Base64.DEFAULT));
+            //connector.addPostParameter("set_email_viewed", Base64.encodeToString(MCrypt.encrypt(String.valueOf("X").getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("message_id",    Base64.encodeToString(MCrypt.encrypt(myPreviousEmail.getMessageId().getBytes()), Base64.DEFAULT));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+
+            connector.decodeResponse();
+            try {
+                JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
+                myHtml = MCrypt.decryptSingle(responseObject.getString("html"));
+
+                //fragmentOrderPart2.setMyHtml(myHtml);
+
+                myAdapterObject = new MyAdapterObjectShowP1(context, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+
+                //myOrder.setMyObject(myObject.get(0));
+                //myOrder.setMyHtml(myHtml);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            callback();
+            //fragmentOrderPart1.setViewEnabled(true);
+            super.onPostExecute(inputStream);
         }
     }
 }

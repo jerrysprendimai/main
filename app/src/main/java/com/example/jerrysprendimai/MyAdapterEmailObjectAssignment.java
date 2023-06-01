@@ -94,12 +94,20 @@ public class MyAdapterEmailObjectAssignment extends RecyclerView.Adapter<MyAdapt
         if(myObject != null){
            if(currentObject.getId().equals(myObject.getId())){
                holder.radioButton.setChecked(true);
+               ((ActivityEmailRead)context).setSelectedObjectId(currentObject.getId());
            }
         }
 
         holder.myRow.setOnClickListener(v->{
             //holder.radioButton.setChecked(true);
             checkRadioButton(holder.getAdapterPosition());
+            ((ActivityEmailRead)context).setSelectedObjectId(currentObject.getId());
+        });
+
+        holder.radioButton.setOnClickListener(v -> {
+            holder.myRow.setSoundEffectsEnabled(false);
+            holder.myRow.performClick();
+            holder.myRow.setSoundEffectsEnabled(true);
         });
 
     }

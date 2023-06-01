@@ -119,4 +119,21 @@ public class FragmentOrderPart1 extends Fragment {
 
         }
     }
+    public void setViewEnabled(Boolean value){
+        if(value){
+            addDealerButton.setEnabled(true);
+            addDealerButton.setBackground(getResources().getDrawable(R.drawable.round_button));
+            addObjectButton.setEnabled(true);
+            addObjectButton.setBackground(getResources().getDrawable(R.drawable.round_button));
+            cardViewDealer.setEnabled(true);
+            cardViewObject.setEnabled(true);
+        }else{
+            addDealerButton.setEnabled(false);
+            addDealerButton.setBackground(getResources().getDrawable(R.drawable.round_button_grey));
+            addObjectButton.setEnabled(false);
+            addObjectButton.setBackground(getResources().getDrawable(R.drawable.round_button_grey));
+            cardViewDealer.setEnabled(false);
+            cardViewObject.setEnabled(false);
+        }
+    }
 }

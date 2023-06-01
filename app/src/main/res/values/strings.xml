@@ -94,4 +94,8 @@
     <string name="forward">Persiųsti</string>
     <string name="delete">Ištrinti</string>
     <string name="assign_object">Priskirti Objektą</string>
+    <string name="email_sent">Laiškas išsiųstas</string>
+    <string name="email_not_sent">Išsiųsti nepavyko</string>
+    <string name="mail">E-Laiškas</string>
+    <string name="forwarding">Persiunčiama</string>
 </resources>

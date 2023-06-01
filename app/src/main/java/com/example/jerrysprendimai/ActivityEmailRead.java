@@ -9,9 +9,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Html;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
@@ -20,8 +23,10 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -59,6 +64,11 @@ public class ActivityEmailRead extends AppCompatActivity {
     WebView webView;
     BottomNavigationView bottomNavigationButtons;
     LinearLayout bottomNaivgationButtonsLayout;
+    Integer selectedObjectId;
+    TextView emailNotAssignedIndicator;
+    String myHtml;
+
+    Handler handlerForJavascriptInterface = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +90,7 @@ public class ActivityEmailRead extends AppCompatActivity {
         attachmentsRetractableLayout = findViewById(R.id.email_read_attachments_retractableLayout);
         bottomNavigationButtons = findViewById(R.id.email_navigation_buttons);
         bottomNaivgationButtonsLayout = findViewById(R.id.email_navigation_layout);
+        emailNotAssignedIndicator = findViewById(R.id.email_not_assigned_indicator);
 
         //----subject
         emailSubject.setText(myOrder.getMyText());
@@ -107,6 +118,14 @@ public class ActivityEmailRead extends AppCompatActivity {
        // KeyboardVisibilityEvent.setEventListener(this, this);
         this.bottomNaivgationButtonsLayout.setVisibility(View.GONE);
         this.bottomNavigationButtons.setOnNavigationItemSelectedListener(this::emailNavigationHandling);
+        if(!myOrder.getObjectID().equals(0)){
+            this.bottomNavigationButtons.getMenu().getItem(1).setIcon(getResources().getDrawable(R.drawable.ic_assign_object_white));
+            emailNotAssignedIndicator.setVisibility(View.GONE);
+        }else{
+            this.bottomNavigationButtons.getMenu().getItem(1).setIcon(getResources().getDrawable(R.drawable.ic_no_object_assigned_white));
+            emailNotAssignedIndicator.setVisibility(View.VISIBLE);
+        }
+
 
     }
 
@@ -119,6 +138,8 @@ public class ActivityEmailRead extends AppCompatActivity {
             case R.id.email_object_assign:
                 enableBottomNavigation(false);
                 emailProgressbar.setVisibility(View.VISIBLE);
+                setSelectedObjectId(0);
+
                 dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_with_recycler_view, null, false);
                 dialogView.findViewById(R.id.pupup_text_cardView).setVisibility(View.VISIBLE);
                 TextView pupupTitle = dialogView.findViewById(R.id.popup_text);
@@ -134,6 +155,9 @@ public class ActivityEmailRead extends AppCompatActivity {
                 this.clickCancel = false;
                 builder.setPositiveButton("Ok", (dialog, which) -> {
                     clickOk = true;
+                    if(!getSelectedObjectId().equals(0)){
+                        new HttpsRequestEmailObjectAssign(this).execute();
+                    }
                 });
                 builder.setNegativeButton("Cancel", (dialog, which) -> {
                     clickCancel = true;
@@ -151,6 +175,13 @@ public class ActivityEmailRead extends AppCompatActivity {
                 builder.show();
                 break;
             case R.id.email_forward:
+                enableBottomNavigation(false);
+                emailProgressbar.setVisibility(View.VISIBLE);
+                Intent intent = new Intent(this, ActivityOrder1.class);
+                intent.putExtra("myUser", myUser);
+                intent.putExtra("myObject", myOrder.getMyObject());
+                intent.putExtra("myOrder", myOrder);
+                this.startActivity(intent);
                 break;
             case R.id.email_delete:
                 enableBottomNavigation(false);
@@ -190,11 +221,65 @@ public class ActivityEmailRead extends AppCompatActivity {
         findViewById(R.id.email_forward).setEnabled(value);
         findViewById(R.id.email_delete).setEnabled(value);
     }
+
+    public Integer getSelectedObjectId() {        return selectedObjectId;    }
+    public void setSelectedObjectId(Integer selectedObjectId) {        this.selectedObjectId = selectedObjectId;    }
+
     @Override
     protected void onResume() {
         emailProgressbar.setVisibility(View.VISIBLE);
+        enableBottomNavigation(true);
         new HttpsRequestCheckSessionAlive(this).execute();
         super.onResume();
+    }
+
+    class HttpsRequestEmailObjectAssign extends AsyncTask<String, Void, InputStream> {
+        private static final String email_object_assign_url = "email_object_assign.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestEmailObjectAssign(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, email_object_assign_url);
+            connector.addPostParameter("message_id", Base64.encodeToString(MCrypt.encrypt(myOrder.getMessageId().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("object_id", Base64.encodeToString(MCrypt.encrypt(getSelectedObjectId().toString().getBytes()), Base64.DEFAULT));
+            //connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            if(!getSelectedObjectId().equals(0)){
+                myOrder.setObjectID(getSelectedObjectId());
+                for(ObjectObject objectObject: myObjectList){
+                 if(objectObject.getId().equals(getSelectedObjectId())){
+                     myOrder.setMyObject(objectObject);
+                     break;
+                 }
+                }
+                bottomNavigationButtons.getMenu().getItem(1).setIcon(getResources().getDrawable(R.drawable.ic_assign_object_white));
+                emailNotAssignedIndicator.setVisibility(View.GONE);
+            }
+            setSelectedObjectId(0);
+            emailProgressbar.setVisibility(View.GONE);
+            enableBottomNavigation(true);
+            //Toast.makeText(context, context.getResources().getString(R.string.deleted), Toast.LENGTH_SHORT).show();
+            //finish();
+
+            super.onPostExecute(inputStream);
+        }
     }
 
     class HttpsRequestDeleteEmail extends AsyncTask<String, Void, InputStream> {
@@ -345,7 +430,7 @@ public class ActivityEmailRead extends AppCompatActivity {
             connector.decodeResponse();
             try {
                 JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
-                String html = MCrypt.decryptSingle(responseObject.getString("html"));
+                myHtml = MCrypt.decryptSingle(responseObject.getString("html"));
 
                 JSONArray attachmentsJson    = new JSONArray();
                 ((ActivityEmailRead) context).myAttachments = new ArrayList<>();
@@ -364,30 +449,57 @@ public class ActivityEmailRead extends AppCompatActivity {
                 }
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    emailHtml.setText(Html.fromHtml(html,Html.FROM_HTML_MODE_LEGACY));
+                    emailHtml.setText(Html.fromHtml(myHtml,Html.FROM_HTML_MODE_LEGACY));
                 } else {
-                    emailHtml.setText(Html.fromHtml(html));
+                    emailHtml.setText(Html.fromHtml(myHtml));
                 }
 
                 Display display = getWindowManager().getDefaultDisplay();
                 int width = display.getWidth();
 
+                /*String javascript = "javascript:window.HtmlViewer.showHTML" +
+                        "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');";*/
                 String data = "<html><head><title>Example</title><meta name=\"viewport\"\"content=\"width="+width+", initial-scale=0.65 \" /></head>";
-                data = data + "<body><center>"+ html +"</center></body></html>";
 
-                String head = "<head> <style>img{display: inline;height: auto;max-width:   100%;}</style> <style>body {font-family: 'Roboto';  }</style></head>";
+                data = data + "<body><center>"+ myHtml +"</center></body></html>";
+
+                //myOrder.setMyHtml(myHtml);
+
+                //String head = "<head> <style>img{display: inline;height: auto;max-width:   100%;}</style> <style>body {font-family: 'Roboto';  }</style></head>";
+
                 webView.getSettings().setBuiltInZoomControls(true);
                 //webView.getSettings().setUseWideViewPort(true);
                 webView.getSettings().setJavaScriptEnabled(true);
+
                 //webView.getSettings().setLoadWithOverviewMode(true);
                 webView.setInitialScale(200);
                 //webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING);
+                /*webView.addJavascriptInterface(new MyJavaScriptInterface(context), "HtmlViewer");
+                webView.setWebViewClient(new WebViewClient(){
+
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+
+                        webView.loadUrl("javascript:window.HtmlViewer.showHTML" +
+                                "('&lt;html&gt;'+document.getElementsByTagName('html')[0].innerHTML+'&lt;/html&gt;');");
+                        super.onPageFinished(view, url);
+                    }
+
+                });*/
+                //webView.loadUrl(myHtml);
                 webView.loadDataWithBaseURL(null,
-                        html,
+                        myHtml,
                         "text/html",
                         "utf-8",
                         "about:blank" );
-
+                //webView.evaluateJavascript("(function(){return window.document.body.innerHTML})();",
+                /*webView.evaluateJavascript("(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
+                        new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                                String html = value;
+                            }
+                        });*/
                 //String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
             }catch (Exception e){
                 e.printStackTrace();
@@ -516,6 +628,15 @@ public class ActivityEmailRead extends AppCompatActivity {
             ((ActivityEmailRead) context).myObjectListOriginal = new ArrayList<ObjectObject>();
             ((ActivityEmailRead) context).myObjectListOriginal.addAll(((ActivityEmailRead) context).myObjectList);
 
+            if((myOrder.getMyObject() == null) &&(myOrder.getObjectID() != 0)){
+                for(ObjectObject objectObject: myObjectList){
+                    if(objectObject.getId().equals(myOrder.getObjectID())){
+                        myOrder.setMyObject(objectObject);
+                        break;
+                    }
+                }
+            }
+
             emailProgressbar.setVisibility(View.GONE);
             bottomNaivgationButtonsLayout.setVisibility(View.VISIBLE);
             super.onPostExecute(inputStream);
@@ -538,5 +659,27 @@ public class ActivityEmailRead extends AppCompatActivity {
         }
     }
 
+    class MyJavaScriptInterface
+    {
+        private Context ctx;
+        MyJavaScriptInterface(Context ctx)
+        {
+            this.ctx = ctx;
+        }
+        public void showHTML(String html)
+        {
+
+            handlerForJavascriptInterface.post(new Runnable()
+                                               {
+                                                   @Override
+                                                   public void run()
+                                                   {
+                                                       //Toast toast = Toast.makeText(this, "Page has been loaded in webview. html content :"+html, Toast.LENGTH_LONG);
+                                                       //toast.show();
+                                                   }
+                                               }
+            );
+        }
+    }
 
 }

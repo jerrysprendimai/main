@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.kofigyan.stateprogressbar.StateProgressBar;
@@ -30,6 +31,7 @@ public class FragmentOrderPart3 extends Fragment {
     MyAdapterObjectShowP1 myAdapterObjectShow;
     MyAdapterOrderPicture myAdapterOrderPicture;
     Button sendButton;
+    ProgressBar progressBar;
 
     public FragmentOrderPart3(Context context) {
         this.context = context;
@@ -61,6 +63,7 @@ public class FragmentOrderPart3 extends Fragment {
         cardViewObject     = fragmentView.findViewById(R.id.cardView_oder_p3_object);
         text               = fragmentView.findViewById(R.id.oder_p3_textInput);
         sendButton         = fragmentView.findViewById(R.id.button_order_p3_continue);
+        progressBar        = fragmentView.findViewById(R.id.progressBar);
 
         return fragmentView;
     }
@@ -68,6 +71,8 @@ public class FragmentOrderPart3 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        progressBar.setVisibility(View.GONE);
+
         String txt = ((ActivityOrder1)context).getMyOrder().getMyText();
         text.setText(((ActivityOrder1)context).getMyOrder().getMyText());
 
@@ -88,7 +93,20 @@ public class FragmentOrderPart3 extends Fragment {
         photoRecyclerView.setLayoutManager(new GridLayoutManager(context, 3));
 
         sendButton.setOnClickListener(v->{
+            setSendingStatus(true);
             ((ActivityOrder1)context).sendButtonCallabck();
         });
+    }
+
+    public void setSendingStatus(Boolean value){
+        if(value == true){
+            progressBar.setVisibility(View.VISIBLE);
+            sendButton.setEnabled(false);
+            sendButton.setBackground(getResources().getDrawable(R.drawable.round_button_grey));
+        }else{
+            progressBar.setVisibility(View.GONE);
+            sendButton.setEnabled(true);
+            sendButton.setBackground(getResources().getDrawable(R.drawable.round_button));
+        }
     }
 }
