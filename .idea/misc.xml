@@ -26,6 +26,7 @@
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/ic_jerry_background.xml" value="0.2345" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/ic_launcher_background.xml" value="0.196" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/ic_person_white.xml" value="0.197" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/ic_picture_placeholder_white.xml" value="0.2685" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/ic_shower_svg.xml" value="0.3225" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/message_input_background.xml" value="0.3225" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/drawable/progressbar_gradient_progress.xml" value="0.25" />
@@ -168,6 +169,7 @@
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object_assigned_user.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object_detail.xml" value="0.33" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object_email_assign.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object_p1.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_object_small.xml" value="0.5" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_picture.xml" value="0.67" />
         <entry key="..\:/Users/artur.DESKTOP-V599C29/AndroidStudioProjects/JerrySprendimai/app/src/main/res/layout/my_row_user.xml" value="0.5" />

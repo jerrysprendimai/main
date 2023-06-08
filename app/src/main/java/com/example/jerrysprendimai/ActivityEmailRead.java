@@ -132,8 +132,19 @@ public class ActivityEmailRead extends AppCompatActivity {
     private boolean emailNavigationHandling(MenuItem menuItem) {
         View dialogView;
         AlertDialog.Builder builder;
+        Intent intent;
         switch (menuItem.getItemId()){
             case R.id.email_reply:
+                enableBottomNavigation(false);
+                emailProgressbar.setVisibility(View.VISIBLE);
+                emailProgressbar.setVisibility(View.VISIBLE);
+                intent = new Intent(this, ActivityOrder1.class);
+                intent.putExtra("myUser", myUser);
+                intent.putExtra("myObject", myOrder.getMyObject());
+                intent.putExtra("myDealer", myOrder.getMyDealer());
+                intent.putExtra("myOrder", myOrder);
+                intent.putExtra("actionType", "reply");
+                this.startActivity(intent);
                 break;
             case R.id.email_object_assign:
                 enableBottomNavigation(false);
@@ -177,10 +188,11 @@ public class ActivityEmailRead extends AppCompatActivity {
             case R.id.email_forward:
                 enableBottomNavigation(false);
                 emailProgressbar.setVisibility(View.VISIBLE);
-                Intent intent = new Intent(this, ActivityOrder1.class);
+                intent = new Intent(this, ActivityOrder1.class);
                 intent.putExtra("myUser", myUser);
                 intent.putExtra("myObject", myOrder.getMyObject());
                 intent.putExtra("myOrder", myOrder);
+                intent.putExtra("actionType", "forward");
                 this.startActivity(intent);
                 break;
             case R.id.email_delete:
@@ -297,6 +309,7 @@ public class ActivityEmailRead extends AppCompatActivity {
 
             connector = new Connector(context, delete_email_url);
             connector.addPostParameter("message_id", Base64.encodeToString(MCrypt.encrypt(myOrder.getMessageId().getBytes()), Base64.DEFAULT));
+            connector.addPostParameter("type", Base64.encodeToString(MCrypt.encrypt(myOrder.getType().getBytes()), Base64.DEFAULT));
             //connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
             connector.send();
             connector.receive();

@@ -33,6 +33,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.Spanned;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Display;
@@ -105,10 +107,13 @@ public class ActivityOrder1 extends AppCompatActivity {
     ArrayList<ObjectObjPic> toBeDeletedList;
     boolean deletionMode;
     private int backgroundJobs = 10, retutnThreadCount = 0, newPicCount = 0;
-    String mCurrentPhotoPath, myHtml;
+    String mCurrentPhotoPath, myHtml, emailLabel;
     Uri mCurrentPhotoUri;
     File mPhotoFile;
     MyAdapterOrderPicture myAdapterOrderPicture;
+    Spannable spanable, spannableOriginalEmail;
+    Spanned spaned, spannedOriginalEmail;
+    String actionType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,9 +134,11 @@ public class ActivityOrder1 extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
         viewPager.setOnTouchListener((v, event) -> true);
-
+        emailLabel = "";
         //---------------Read references from Intent----------------------
+        this.myPreviousEmail = getIntent().getParcelableExtra("myOrder");
         this.myUser = getIntent().getParcelableExtra("myUser");
+        this.actionType = getIntent().getExtras().getString("actionType");
         //this.myOrder = getIntent().getParcelableExtra("myOrder");
         if(myOrder == null){
           this.myOrder = new ObjectOrder();
@@ -216,18 +223,31 @@ public class ActivityOrder1 extends AppCompatActivity {
         viewPager.setCurrentItem(0);
 
         //-----Handling email Forward request
-        if( getIntent().getParcelableExtra("myObject") != null ){
-            myObject = new ArrayList<>();
-            myObject.add(getIntent().getParcelableExtra("myObject"));
-            myPreviousEmail = getIntent().getParcelableExtra("myOrder");
-            //myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
-            this.myOrder.setMyObject(myObject.get(0));
-            fragmentOrderPart2.setWebView(true, getResources().getString(R.string.forwarding));
-            //new HttpsEmailDetails(this).execute();
+        if( getActionType() != null ){
+            if(getActionType().equals("forward")) {
+                myObject = new ArrayList<>();
+                myObject.add(getIntent().getParcelableExtra("myObject"));
+                myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+                //myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+                this.myOrder.setMyObject(myObject.get(0));
+                setEmailLabel(getResources().getString(R.string.forwarding));
+                fragmentOrderPart2.setWebView(true, getResources().getString(R.string.forwarding));
+                //new HttpsEmailDetails(this).execute();
+                //ObjectOrder ord = getIntent().getParcelableExtra("myOrder");
+                //this.myOrder.setMyHtml(ord.getMyHtml());
+                //myHtml = getIntent().getParcelableExtra("myHtml");
+            }else if(getActionType().equals("reply")){
+                myObject = new ArrayList<>();
+                myObject.add(getIntent().getParcelableExtra("myObject"));
+                this.myOrder.setMyObject(myObject.get(0));
 
-            //ObjectOrder ord = getIntent().getParcelableExtra("myOrder");
-            //this.myOrder.setMyHtml(ord.getMyHtml());
-            //myHtml = getIntent().getParcelableExtra("myHtml");
+                myDealer = new ArrayList<>();
+                myDealer.add(getIntent().getParcelableExtra("myDealer"));
+                myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+                this.myOrder.setMyDealer(myDealer.get(0));
+                setEmailLabel(getResources().getString(R.string.replying));
+                fragmentOrderPart2.setWebView(true, getResources().getString(R.string.replying));
+            }
         }
     }
     public void buttonClickCallback(StateProgressBar.StateNumber state, int sateNr){
@@ -235,7 +255,6 @@ public class ActivityOrder1 extends AppCompatActivity {
         viewPager.setCurrentItem(sateNr);
     }
     public void sendButtonCallabck(){
-
 
         myOrder.setType("out");
         retutnThreadCount = 0;
@@ -554,6 +573,34 @@ public class ActivityOrder1 extends AppCompatActivity {
             new HttpsRequestSendOrderMessage(this).execute();
         }
     }
+    public String generateHtml(){
+        String content = Html.toHtml(this.getSpanable());
+        return content;
+    }
+    public String generateOriginalEmailHtml(){
+        String adjusted = "";
+        String content = Html.toHtml(this.getSpannableOriginalEmail());
+        String[] tmp = content.split(",");
+        int count = 0;
+        for(String str: tmp){
+            if(count == 0){
+                count++;
+                adjusted = adjusted + str;
+                continue;
+            }
+            if(str.contains("\"></p>")){
+                String[] tmp2 = str.split("\"></p>");
+                String[] tmp3 = tmp2[0].split(" ");
+                String noSpace = "";
+                for(String strNoSpace: tmp3){
+                    noSpace = noSpace + strNoSpace;
+                }
+                adjusted = adjusted + "," + noSpace + "\"></p>" + tmp2[1];
+            }
+            count++;
+        }
+        return adjusted;
+    }
 
     public ObjectOrder getMyOrder() {        return myOrder;    }
     public void setMyOrder(ObjectOrder myOrder) {        this.myOrder = myOrder;    }
@@ -583,6 +630,20 @@ public class ActivityOrder1 extends AppCompatActivity {
     public void setMyUser(ObjectUser myUser) {        this.myUser = myUser;    }
     public String getMyHtml() {        return myHtml;    }
     public void setMyHtml(String myHtml) {        this.myHtml = myHtml;    }
+    public String getEmailLabel() {        return emailLabel;    }
+    public void setEmailLabel(String emailLabel) {        this.emailLabel = emailLabel;    }
+    public Spannable getSpanable() {        return spanable;    }
+    public void setSpanable(Spannable spanable) {        this.spanable = spanable;    }
+    public ObjectOrder getMyPreviousEmail() {        return myPreviousEmail;    }
+    public void setMyPreviousEmail(ObjectOrder myPreviousEmail) {        this.myPreviousEmail = myPreviousEmail;    }
+    public String getActionType() {        return actionType;    }
+    public void setActionType(String actionType) {        this.actionType = actionType;    }
+    public Spannable getSpannableOriginalEmail() {        return spannableOriginalEmail;    }
+    public void setSpannableOriginalEmail(Spannable spannableOriginalEmail) {        this.spannableOriginalEmail = spannableOriginalEmail;    }
+    public Spanned getSpaned() {        return spaned;    }
+    public void setSpaned(Spanned spaned) {        this.spaned = spaned;    }
+    public Spanned getSpannedOriginalEmail() {        return spannedOriginalEmail;    }
+    public void setSpannedOriginalEmail(Spanned spannedOriginalEmail) {        this.spannedOriginalEmail = spannedOriginalEmail;    }
 
 
     class RunnableTask implements Runnable{
@@ -700,7 +761,14 @@ public class ActivityOrder1 extends AppCompatActivity {
             connector.addPostParameter("order",  MCrypt2.encodeToString(myOrder.toJson()));
             connector.addPostParameter("dealer", MCrypt2.encodeToString(myOrder.getMyDealer().toJson()));
             connector.addPostParameter("object", MCrypt2.encodeToString(myOrder.getMyObject().toJson()));
-            connector.addPostParameter("pictureList",  getPicArrayListJson(myOrder.getMyPictureList()));
+            connector.addPostParameter("pictureList", getPicArrayListJson(myOrder.getMyPictureList()));
+            if(((ActivityOrder1)context).getActionType() != null){
+                connector.addPostParameter("actionType", MCrypt2.encodeToString(((ActivityOrder1)context).getActionType()));
+                connector.addPostParameter("originalEmailHtml", MCrypt2.encodeToString(((ActivityOrder1)context).getMyHtml()));
+                connector.addPostParameter("originalMessageId", MCrypt2.encodeToString(((ActivityOrder1)context).getMyPreviousEmail().getMessageId()));
+                //connector.addPostParameter("originalEmailHtml", MCrypt2.encodeToString(((ActivityOrder1)context).generateOriginalEmailHtml()));
+            }
+            connector.addPostParameter("messageHtml", MCrypt2.encodeToString(((ActivityOrder1)context).generateHtml()));
             //--to do pictures
             //connector.addPostParameter("control",  "not coded");
             //connector.addPostParameter("control2",  MCrypt2.encodeToString("coded"));
@@ -847,6 +915,32 @@ public class ActivityOrder1 extends AppCompatActivity {
             //((ActivityOrder1) context).myAdapterDealerShow.notifyDataSetChanged();
             //((ActivityOrder1) context).swipeRefreshLayout.setRefreshing(false);
 
+            if( getIntent().getParcelableExtra("myDealer") != null ){
+                myDealer = new ArrayList<>();
+                myDealer.add(getIntent().getParcelableExtra("myDealer"));
+                myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+
+                //myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+                myOrder.setMyDealer(myDealer.get(0));
+            }
+            if((myDealer == null)&&(myPreviousEmail != null)){
+                try {
+                    String[] from1 = myPreviousEmail.getFrom().split("<");
+                    String[] from2 = from1[1].split(">");
+                    String email = from2[0];
+                    for(ObjectDealer objectDealer: ((ActivityOrder1) context).myDealerList){
+                        if(objectDealer.getEmail().equals(email)){
+                            myDealer = new ArrayList<>();
+                            myDealer.add(objectDealer);
+                            myOrder.setMyDealer(myDealer.get(0));
+                            break;
+                        }
+                    }
+                }catch (Exception e){
+                }
+
+            }
+
             new HttpsRequestGetObjectList(context).execute();
             super.onPostExecute(inputStream);
         }
@@ -907,13 +1001,19 @@ public class ActivityOrder1 extends AppCompatActivity {
             if( getIntent().getParcelableExtra("myObject") != null ){
                 myObject = new ArrayList<>();
                 myObject.add(getIntent().getParcelableExtra("myObject"));
-                myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+                //myPreviousEmail = getIntent().getParcelableExtra("myOrder");
+
                 //myAdapterObject = new MyAdapterObjectShowP1(this, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
                 myOrder.setMyObject(myObject.get(0));
-                new HttpsEmailDetails(context).execute();
+
                 //ObjectOrder ord = getIntent().getParcelableExtra("myOrder");
                 //this.myOrder.setMyHtml(ord.getMyHtml());
                 //myHtml = getIntent().getParcelableExtra("myHtml");
+            }
+            if(getActionType() != null){
+                new HttpsEmailDetails(context).execute();
+            }else{
+                callback();
             }
             super.onPostExecute(inputStream);
         }
@@ -970,8 +1070,12 @@ public class ActivityOrder1 extends AppCompatActivity {
                 myHtml = MCrypt.decryptSingle(responseObject.getString("html"));
 
                 //fragmentOrderPart2.setMyHtml(myHtml);
-
-                myAdapterObject = new MyAdapterObjectShowP1(context, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+                if (myObject != null) {
+                    myAdapterObject = new MyAdapterObjectShowP1(context, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
+                }
+                if(myDealer != null) {
+                    myAdapterDealer = new MyAdapterDealerShow(context, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, false);
+                }
 
                 //myOrder.setMyObject(myObject.get(0));
                 //myOrder.setMyHtml(myHtml);

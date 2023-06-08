@@ -83,7 +83,8 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         if(inflateSmall){
             view = inflater.inflate(R.layout.my_row_object_small, parent, false);
         }else{
-           view = inflater.inflate(R.layout.my_row_object, parent, false);
+           view = inflater.inflate(R.layout.my_row_object_p1, parent, false);
+          //view = inflater.inflate(R.layout.my_row_object_email_assign, parent, false);
         }
 
         return new MyViewHolder(view);
@@ -91,7 +92,7 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
-        LinearLayout objectLockLayout, myRow, bottomSheetContainer, objectCompletnessProgress, objectDatesLinearLayout;
+        LinearLayout objectLockLayout, myRow, bottomSheetContainer, objectCompletnessProgress, objectDatesLinearLayout; //bottomBlock;
         TextView objectName, objectCustomer, objectDate, objectNewIndicator;
         ProgressBar progressBar;
         TextView progressBarLabel, objectNameLabel, customerNameLabel, objectDateLabel;
@@ -106,7 +107,7 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
             objectLockLayout     = itemView.findViewById(R.id.object_lock_layout);
             objectName           = itemView.findViewById(R.id.object_name);
             objectCustomer       = itemView.findViewById(R.id.object_customer);
-            objectDate           = itemView.findViewById(R.id.object_date);
+            //objectDate           = itemView.findViewById(R.id.object_date);
             progressBar          = itemView.findViewById(R.id.object_progess_bar);
             progressBarLabel     = itemView.findViewById(R.id.object_progess_bar_label);
             bottomSheetContainer = itemView.findViewById(R.id.bottomSheetContainer);
@@ -115,7 +116,8 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
             objectDatesLinearLayout   = itemView.findViewById(R.id.object_dates_linearLayout);
             objectNameLabel      = itemView.findViewById(R.id.object_name_label);
             customerNameLabel    = itemView.findViewById(R.id.object_customer_label);
-            objectDateLabel      = itemView.findViewById(R.id.object_date_label);
+            //objectDateLabel      = itemView.findViewById(R.id.object_date_label);
+            //bottomBlock          = itemView.findViewById(R.id.object_dates_bottomBlock_linearLayout);
 
             myRow = itemView.findViewById(R.id.my_container);
         }
@@ -126,10 +128,9 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         ObjectObject myObjectObject = this.myObjectList.get(position);
 
         //yObjectObject.setMyViewHolder(holder);
-        holder.objectCardView.setBackgroundResource(R.drawable.card_view_background);
+        //holder.objectCardView.setBackgroundResource(R.drawable.card_view_background);
 
-        //-------lock icon
-        holder.objectLockLayout.setVisibility(View.GONE);
+        //holder.bottomBlock.setVisibility(View.GONE);
 
 
         //-------new indicator
@@ -153,7 +154,7 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         if(inflateSmall){
             fontSize = 10;
         }else{
-            fontSize = 11;
+            fontSize = 12;
         }
         holder.objectName.setText(myObjectObject.getObjectName());
         holder.objectName.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
@@ -161,13 +162,13 @@ public class MyAdapterObjectShowP1 extends RecyclerView.Adapter<MyAdapterObjectS
         holder.objectCustomer.setText(myObjectObject.getCustomerName());
         holder.objectCustomer.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
         holder.customerNameLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
-        holder.objectDate.setText(myObjectObject.getDate());
-        holder.objectDate.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
-        holder.objectDateLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
+        //holder.objectDate.setText(myObjectObject.getDate());
+        //holder.objectDate.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
+        //holder.objectDateLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP,fontSize);
 
         holder.objectIcon.setImageResource(context.getResources().getIdentifier(myObjectObject.getIcon(), "drawable", context.getApplicationInfo().packageName));
 
-        holder.objectCompletnessProgress.setVisibility(View.GONE);
+        //holder.objectCompletnessProgress.setVisibility(View.GONE);
         //holder.objectDatesLinearLayout.setVisibility(View.GONE);
 
         //---clear hints

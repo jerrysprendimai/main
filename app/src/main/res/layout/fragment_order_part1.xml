@@ -57,14 +57,14 @@
             android:orientation="horizontal">
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView_oder_p1_dealer"
-                android:layout_width="260dp"
+                android:layout_width="295dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 app:cardCornerRadius="5dp">
             </androidx.cardview.widget.CardView>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/my_recycle_view_dealer"
-                android:layout_width="260dp"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:scrollbars="vertical">
@@ -115,7 +115,7 @@
             android:orientation="horizontal">
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView_oder_p1_object"
-                android:layout_width="260dp"
+                android:layout_width="295dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 app:cardCornerRadius="5dp">
@@ -123,7 +123,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/my_recycle_view_object"
                 android:visibility="gone"
-                android:layout_width="260dp"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:scrollbars="vertical">
             </androidx.recyclerview.widget.RecyclerView>
@@ -153,6 +153,12 @@
         </LinearLayout>
     </LinearLayout>
 
+    <ScrollView
+        android:background="#ffffff"
+        android:layout_above="@+id/controlBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
+    </ScrollView>
 
 </LinearLayout>

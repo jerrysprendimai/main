@@ -1,15 +1,14 @@
 package com.example.jerrysprendimai;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
+
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -20,7 +19,6 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spannable;
-import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -35,27 +33,26 @@ import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.kofigyan.stateprogressbar.StateProgressBar;
-import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.xml.sax.XMLReader;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
 
-public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
+public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter, Html.TagHandler {
 
     Context context;
-    Button proceedButton, backButton, emailRetractableButton;
+    Button proceedButton, backButton; //emailRetractableButton;
     TextInputEditText textInput;
-    TextView emailLabel;
+    EditText originalEmail;
+    //TextView emailLabel;
     EditText invisibleFocus;
     RecyclerView photoRecyclerView;
-    LinearLayout takePhoto, addPhoto, deletePhoto, cancelPhotoEdit,addModeButtons, deletionModeButtons, emailMainLayout, emailRetractableLayout;
+    LinearLayout takePhoto, addPhoto, deletePhoto, cancelPhotoEdit,addModeButtons, deletionModeButtons;  //emailMainLayout, emailRetractableLayout;
     MyAdapterOrderPicture myAdapterOrderPicture;
-    EditText perviousMessage;
+    //EditText perviousMessage;
     String myHtml;
     WebView webView;
 
@@ -100,21 +97,27 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
         cancelPhotoEdit     = fragmentView.findViewById(R.id.order_p2_cancel_linearLayout);
         addModeButtons      = fragmentView.findViewById(R.id.order_p2_add_photo_buttons_linear_layout);
         deletionModeButtons = fragmentView.findViewById(R.id.order_p2_delete_photo_buttons_linear_layout);
-        webView             = fragmentView.findViewById(R.id.order_pervious_email);
-        emailRetractableButton = fragmentView.findViewById(R.id.oder_p2_email_retractableButton);
-        emailLabel          = fragmentView.findViewById(R.id.order_p2_email_label);
-        emailMainLayout     = fragmentView.findViewById(R.id.order_p2_email_MainLayout);
-        emailRetractableLayout = fragmentView.findViewById(R.id.oder_p2_email_retractableLayout);
+        originalEmail       = fragmentView.findViewById(R.id.oder_p2_textInput2);
+        webView             = fragmentView.findViewById(R.id.oder_p2_htmlEmail);
+
+        //webView             = fragmentView.findViewById(R.id.order_pervious_email);
+        //emailRetractableButton = fragmentView.findViewById(R.id.oder_p2_email_retractableButton);
+        //emailLabel          = fragmentView.findViewById(R.id.order_p2_email_label);
+        //emailMainLayout     = fragmentView.findViewById(R.id.order_p2_email_MainLayout);
+        //emailRetractableLayout = fragmentView.findViewById(R.id.oder_p2_email_retractableLayout);
         //perviousMessage     = fragmentView.findViewById(R.id.order_pervious_message);
 
-        webView.setVisibility(View.GONE);
+        /*webView.setVisibility(View.GONE);
         emailRetractableButton.setVisibility(View.GONE);
         emailLabel.setVisibility(View.GONE);
         emailMainLayout.setVisibility(View.GONE);
-        emailRetractableLayout.setVisibility(View.GONE);
+        emailRetractableLayout.setVisibility(View.GONE);*/
 
         proceedButton.setText(proceedButton.getText() + "   2 / 3");
         textInput.setText(((ActivityOrder1)context).getMyOrder().getMyText());
+        ((ActivityOrder1) context).setSpanable((Spannable) textInput.getText());
+        ((ActivityOrder1) context).setSpaned(textInput.getText());
+
         backButton.setOnClickListener(v->{
             ((ActivityOrder1)context).buttonClickCallback(StateProgressBar.StateNumber.ONE, 0);
             //onBackPressed();
@@ -136,19 +139,53 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
         //-----invisible focus holder dandling
         this.invisibleFocus.setInputType(InputType.TYPE_NULL);
         this.invisibleFocus.requestFocus();
-
-        /*if( ((ActivityOrder1)context).getMyHtml() != null){
+        this.originalEmail.setVisibility(View.GONE);
+        this.webView.setVisibility(View.GONE);
+        if( ((ActivityOrder1)context).getMyHtml() != null){
+            //this.originalEmail.setVisibility(View.VISIBLE);
             Spannable html;
             String content = ((ActivityOrder1)context).getMyHtml(); //((ActivityOrder1)context).getMyOrder().getMyHtml();
+            //content = "" + content;
+            //ObjectOrder perviousEmail = ((ActivityOrder1)context).getMyPreviousEmail();
+            String to = ((ActivityOrder1)context).getMyPreviousEmail().getTo();
+            String[] tmp = to.split("<");
+            if(tmp.length > 1){
+                to = tmp[0] + "&nbsp;&nbsp;&#60;" + tmp[1];
+                tmp = to.split(">");
+                to = tmp[0] + "&#62;&nbsp;&nbsp;";
+            }
+            String from = ((ActivityOrder1)context).getMyPreviousEmail().getFrom();
+            tmp = from.split("<");
+            if(tmp.length > 1){
+                from = tmp[0] + "&nbsp;&nbsp;&#60;" + tmp[1];
+                tmp = from.split(">");
+                from = tmp[0] + "&#62;&nbsp;&nbsp;";
+            }
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                html = (Spannable) Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY, this, null);
+            content = "Subject: " + ((ActivityOrder1)context).getMyPreviousEmail().getMyText() + "<br>" + content;
+            content = "To: " + to + "<br>" + content;
+            content = "Date: " + ((ActivityOrder1)context).getMyPreviousEmail().getSentDate() +" " + ((ActivityOrder1)context).getMyPreviousEmail().getSentTime() + "<br>" + content;
+            content = "From: " + from + "<br>" + content;
+            content = "-------------Original Message-------------<br>" + content;
+            /*if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                html = (Spannable) Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY, this, this);
             } else {
                 html = (Spannable) Html.fromHtml(content, this, null);
-            }
-            textInput.setText(html);
-
-        }*/
+            }*/
+            /*((ActivityOrder1)context).setSpannableOriginalEmail(html);
+            ((ActivityOrder1)context).setSpannedOriginalEmail(html);
+            originalEmail.setText(html);*/
+            ((ActivityOrder1)context).setMyHtml(content);
+            this.webView.setVisibility(View.VISIBLE);
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.setInitialScale(200);
+            webView.loadDataWithBaseURL(null,
+                    content,
+                    "text/html",
+                    "utf-8",
+                    "about:blank" );
+        }
 
         textInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -156,12 +193,29 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if(!((ActivityOrder1)context).getMyOrder().getMyText().equals(textInput.getText().toString())){
+                    //String content = Html.toHtml(((ActivityOrder1)context).getMyOrder().getMyText());
+                    //String span = Html.toHtml(textInput.getText());
+                    ((ActivityOrder1)context).setSpanable((Spannable) textInput.getText());
+                    ((ActivityOrder1)context).setSpaned(textInput.getText());
                     ((ActivityOrder1)context).getMyOrder().setMyText(textInput.getText().toString());
                     checkAbleToProceed();
                 }
             }
             @Override
             public void afterTextChanged(Editable s) {        }
+        });
+        originalEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ((ActivityOrder1)context).setSpannableOriginalEmail((Spannable) originalEmail.getText());
+                ((ActivityOrder1)context).setSpannedOriginalEmail(originalEmail.getText());
+            }
+            @Override
+            public void afterTextChanged(Editable s) { }
         });
 
         takePhoto.setOnClickListener(v->{
@@ -196,14 +250,19 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
 
         return d;
     }
-    public void checkAbleToProceed(){
 
-        if((!((ActivityOrder1)context).getMyOrder().getMyText().isEmpty())||(((ActivityOrder1)context).getMyOrder().getMyPictureList().size() != 0)){
+    public void checkAbleToProceed(){
+        if(((ActivityOrder1)context).getMyHtml() == null){
+            if((!((ActivityOrder1)context).getMyOrder().getMyText().isEmpty())||(((ActivityOrder1)context).getMyOrder().getMyPictureList().size() != 0)){
+                proceedButton.setEnabled(true);
+                proceedButton.setBackground(getResources().getDrawable(R.drawable.round_button));
+            }else{
+                proceedButton.setEnabled(false);
+                proceedButton.setBackground(getResources().getDrawable(R.drawable.round_button_grey));
+            }
+        }else{
             proceedButton.setEnabled(true);
             proceedButton.setBackground(getResources().getDrawable(R.drawable.round_button));
-        }else{
-            proceedButton.setEnabled(false);
-            proceedButton.setBackground(getResources().getDrawable(R.drawable.round_button_grey));
         }
     }
 
@@ -216,7 +275,7 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
             proceedButton.setEnabled(true);
             proceedButton.setBackground(getResources().getDrawable(R.drawable.round_button));
 
-            webView.setVisibility(View.VISIBLE);
+            /*webView.setVisibility(View.VISIBLE);
             emailRetractableButton.setVisibility(View.VISIBLE);
             emailLabel.setVisibility(View.VISIBLE);
             emailMainLayout.setVisibility(View.VISIBLE);
@@ -239,14 +298,27 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
                     ((ActivityOrder1)context).getMyHtml(),
                     "text/html",
                     "utf-8",
-                    "about:blank" );
+                    "about:blank" );*/
         }else{
-            webView.setVisibility(View.GONE);
+            /*webView.setVisibility(View.GONE);
             emailRetractableButton.setVisibility(View.GONE);
             emailLabel.setVisibility(View.GONE);
             emailMainLayout.setVisibility(View.GONE);
-            emailRetractableLayout.setVisibility(View.GONE);
+            emailRetractableLayout.setVisibility(View.GONE);*/
         }
+    }
+
+    @Override
+    public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+        /*String tmp;
+        tmp = "ttt";
+        switch(tag){
+            case "Table":
+            case "table":
+            case "TABLE":
+                tmp = "ttt";
+                break;
+        }*/
     }
 
     /*private class ImageGetter implements Html.ImageGetter {
@@ -278,6 +350,7 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
 
         private Context context;
         private LevelListDrawable mDrawable;
+        Boolean isCidImage;
 
 
         public HttpsRequestLoadImage(Context ctx){
@@ -287,11 +360,20 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
         protected Bitmap doInBackground(Object... params) {
             String source = (String) params[0];
             mDrawable = (LevelListDrawable) params[1];
+            isCidImage = false;
             try{
               InputStream is = new URL(source).openStream();
               return BitmapFactory.decodeStream(is);
             }catch (Exception e){
-                e.printStackTrace();
+                try{
+                  isCidImage = true;
+                  String[] img = source.split(",");
+                  byte[] bytes = Base64.decode(img[1], Base64.NO_WRAP);
+                  return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                }catch(Exception ee){
+                  ee.printStackTrace();
+                }
+                //e.printStackTrace();
             }
            return null;
         }
@@ -299,12 +381,23 @@ public class FragmentOrderPart2 extends Fragment implements Html.ImageGetter {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if(bitmap != null){
+                //bitmap = Bitmap.createScaledBitmap(bitmap, 600, 600, false);
+                if(isCidImage ){
+                    int maxHeight = 700;
+                    int maxWidth = 1000;
+                    float scale = Math.min(((float)maxHeight / bitmap.getWidth()), ((float)maxWidth / bitmap.getHeight()));
+                    Matrix matrix = new Matrix();
+                    matrix.postScale(scale, scale);
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                }
                 BitmapDrawable d = new BitmapDrawable(bitmap);
                 mDrawable.addLevel(1,1,d);
                 mDrawable.setBounds(0,0,bitmap.getWidth(),bitmap.getHeight());
                 mDrawable.setLevel(1);
-                CharSequence t = textInput.getText();
-                textInput.setText(t);
+                CharSequence t = originalEmail.getText();
+                originalEmail.setText(t);
+                //CharSequence t = textInput.getText();
+                //textInput.setText(t);
             }
         }
     }

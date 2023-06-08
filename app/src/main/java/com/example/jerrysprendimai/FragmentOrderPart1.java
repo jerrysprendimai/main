@@ -18,6 +18,7 @@ import com.kofigyan.stateprogressbar.StateProgressBar;
 
 import java.util.ArrayList;
 
+
 public class FragmentOrderPart1 extends Fragment {
 
     Context context;
@@ -58,6 +59,7 @@ public class FragmentOrderPart1 extends Fragment {
         cardViewDealer     = fragmentView.findViewById(R.id.cardView_oder_p1_dealer);
         cardViewObject     = fragmentView.findViewById(R.id.cardView_oder_p1_object);
 
+
         proceedButton.setText(proceedButton.getText() + "   1 / 3");
         proceedButton.setEnabled(false);
         proceedButton.setBackground(getResources().getDrawable(R.drawable.round_button_grey));
@@ -71,6 +73,8 @@ public class FragmentOrderPart1 extends Fragment {
         proceedButton.setOnClickListener(v->{
             ((ActivityOrder1)context).buttonClickCallback(StateProgressBar.StateNumber.TWO, 1);
         });
+
+
 
         return  fragmentView;
     }

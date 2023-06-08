@@ -104,7 +104,7 @@
                                 style="@style/recycleView_Item_Text"
                                 android:hint="@string/object_name"
                                 android:textStyle="normal"
-                                android:textSize="10sp"
+                                android:textSize="11sp"
                                 android:layout_gravity="start|center"
                                 android:ems="4"/>
                             <TextView
@@ -133,7 +133,7 @@
                                 style="@style/recycleView_Item_Text"
                                 android:hint="@string/object_customer"
                                 android:textStyle="normal"
-                                android:textSize="10sp"
+                                android:textSize="11sp"
                                 android:layout_gravity="start|center"
                                 android:ems="4"/>
                             <TextView

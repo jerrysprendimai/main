@@ -75,7 +75,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="to">Tiekėjas/Obj.</string>
     <string name="message">Žinutė</string>
-    <string name="place_order">Užsakyti</string>
+    <string name="place_order">Siųsti</string>
     <string name="send">Siųsti</string>
     <string name="inquiry">Užklausa</string>
     <string name="email">e-Paštas</string>
@@ -98,4 +98,5 @@
     <string name="email_not_sent">Išsiųsti nepavyko</string>
     <string name="mail">E-Laiškas</string>
     <string name="forwarding">Persiunčiama</string>
+    <string name="replying">Atrašyti</string>
 </resources>

@@ -337,7 +337,6 @@
                         <WebView
                             android:id="@+id/email_read_webView"
                             android:layout_width="match_parent"
-
                             android:layout_height="match_parent">
                         </WebView>
                         <TextView
