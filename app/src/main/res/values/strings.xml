@@ -99,4 +99,6 @@
     <string name="mail">E-Laiškas</string>
     <string name="forwarding">Persiunčiama</string>
     <string name="replying">Atrašyti</string>
+    <string name="dealer_name">Tiekėjo Vardas/Pavadinimas</string>
+    <string name="error_email">klaida</string>
 </resources>

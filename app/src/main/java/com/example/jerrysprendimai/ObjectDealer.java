@@ -9,6 +9,7 @@ public class ObjectDealer implements Parcelable {
     private Integer id;
 
     private String name, email, regDate, icon;
+    private MyAdapterDealerShow.MyViewHolder myViewHolderUserShow;
 
     public ObjectDealer() {
         this.id         = -1;
@@ -95,5 +96,7 @@ public class ObjectDealer implements Parcelable {
     public void setEmail(String email) {        this.email = email;    }
     public String getRegDate() {        return regDate;    }
     public void setRegDate(String regDate) {        this.regDate = regDate;    }
+    public void setMyViewHolderUserShow(MyAdapterDealerShow.MyViewHolder holder) {  this.myViewHolderUserShow = holder;    }
+    public MyAdapterDealerShow.MyViewHolder getMyViewHolderUserShow() {   return myViewHolderUserShow;    }
 
 }

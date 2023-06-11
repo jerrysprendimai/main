@@ -66,28 +66,25 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
 
         //----------------Button Delete User
         buttonDeleteUser = findViewById(R.id.button_user_delete);
-        buttonDeleteUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                JSONArray jsonObjectArray = new JSONArray();
-                JSONObject jsonObjectWA = new JSONObject();
-                JSONObject jsonObjectToSend = new JSONObject();
-                for(int i=0; i<toBeDeletedList.size(); i++){
-                    jsonObjectWA = new JSONObject();
-                    try {
-                        jsonObjectWA.put("id", myUserList.get(Integer.parseInt(toBeDeletedList.get(i).toString())).getId().toString());
-                        jsonObjectArray.put(jsonObjectWA);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
+        buttonDeleteUser.setOnClickListener(v -> {
+            JSONArray jsonObjectArray = new JSONArray();
+            JSONObject jsonObjectWA = new JSONObject();
+            JSONObject jsonObjectToSend = new JSONObject();
+            for(int i=0; i<toBeDeletedList.size(); i++){
+                jsonObjectWA = new JSONObject();
                 try {
-                    jsonObjectToSend.put("toDelete", jsonObjectArray);
-                    ((ActivityUserShow) context).setJsonObjectToDelete(jsonObjectToSend);
-                    new ActivityUserShow.HttpsRequestDelete(context).execute();
+                    jsonObjectWA.put("id", myUserList.get(Integer.parseInt(toBeDeletedList.get(i).toString())).getId().toString());
+                    jsonObjectArray.put(jsonObjectWA);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+            try {
+                jsonObjectToSend.put("toDelete", jsonObjectArray);
+                ((ActivityUserShow) context).setJsonObjectToDelete(jsonObjectToSend);
+                new HttpsRequestDelete(context).execute();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         });
 
@@ -113,10 +110,7 @@ public class ActivityUserShow extends AppCompatActivity implements SwipeRefreshL
     public JSONObject getJsonObjectToDelete() {
         return jsonObjectToDelete;
     }
-
-    public void setJsonObjectToDelete(JSONObject jsonObjectToDelete) {
-        this.jsonObjectToDelete = jsonObjectToDelete;
-    }
+    public void setJsonObjectToDelete(JSONObject jsonObjectToDelete) {        this.jsonObjectToDelete = jsonObjectToDelete;    }
 
     public Boolean getDeletionMode() {
         return deletionMode;

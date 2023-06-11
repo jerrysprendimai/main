@@ -10,10 +10,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -34,6 +36,8 @@ public class ActivityDealerShow extends AppCompatActivity implements SwipeRefres
     SwipeRefreshLayout swipeRefreshLayout;
     FloatingActionButton buttonAddDealer;
     FloatingActionButton buttonDeleteDealer;
+
+    JSONObject jsonObjectToDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +65,25 @@ public class ActivityDealerShow extends AppCompatActivity implements SwipeRefres
         //----------------Button Delete Dealer
         buttonDeleteDealer = findViewById(R.id.button_dealer_delete);
         buttonDeleteDealer.setOnClickListener(v->{
-            //--Todo
+            JSONArray jsonObjectArray = new JSONArray();
+            JSONObject jsonObjectWA = new JSONObject();
+            JSONObject jsonObjectToSend = new JSONObject();
+            for(int i=0; i<toBeDeletedList.size(); i++){
+                jsonObjectWA = new JSONObject();
+                try {
+                    jsonObjectWA.put("id", myDealerList.get(Integer.parseInt(toBeDeletedList.get(i).toString())).getId().toString());
+                    jsonObjectArray.put(jsonObjectWA);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                jsonObjectToSend.put("toDelete", jsonObjectArray);
+                setJsonObjectToDelete(jsonObjectToSend);
+                new HttpsRequestDealerDelete(context).execute();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         });
 
         this.myUser = getIntent().getParcelableExtra("myUser");
@@ -71,20 +93,23 @@ public class ActivityDealerShow extends AppCompatActivity implements SwipeRefres
         //---------------------Recycle View-------------------------------
         buildRecyclerView();
 
-        new HttpsRequestGetDealerList(this).execute();
+        //new HttpsRequestGetDealerList(this).execute();
 
     }
     private void buildRecyclerView() {
         //---------------------Recycle View---------------------
         this.recyclerView = findViewById(R.id.my_recycle_view);
-        this.myAdapterDealerShow = new MyAdapterDealerShow(this, this.myDealerList, this.myDealerListOriginal, "dealerShow", null, false);
+        this.myAdapterDealerShow = new MyAdapterDealerShow(this, this.myDealerList, this.myDealerListOriginal, "dealerShow", null, false, myUser);
         this.recyclerView.setAdapter(myAdapterDealerShow);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
     public void onRefresh() {
-
+        this.swipeRefreshLayout.setRefreshing(false);
+        new HttpsRequestGetDealerList(this).execute();
+        this.setDeletionMode(false);
+        this.setButtonDeleteDealer(false);
     }
 
     @Override
@@ -94,10 +119,119 @@ public class ActivityDealerShow extends AppCompatActivity implements SwipeRefres
 
     @Override
     protected void onResume() {
-        this.swipeRefreshLayout.setRefreshing(false);
+        new HttpsRequestCheckSessionAlive(this).execute();
         super.onResume();
     }
+    public void setButtonDeleteDealer(boolean value) {
+        if(value){
+            buttonAddDealer.setVisibility(View.GONE);
+            buttonDeleteDealer.setVisibility(View.VISIBLE);
+        }else{
+            buttonAddDealer.setVisibility(View.VISIBLE);
+            buttonDeleteDealer.setVisibility(View.GONE);
+        }
+    }
+    public void lockView() {
+      for(ObjectDealer objectDealer: myDealerList){
+          try {
+              objectDealer.getMyViewHolderUserShow().myRow.setEnabled(false);
+          }catch (Exception e){
 
+          }
+      }
+    }
+    public void unlockView(){
+       for(ObjectDealer objectDealer: myDealerList){
+           try {
+               objectDealer.getMyViewHolderUserShow().myRow.setEnabled(true);
+           }catch (Exception e){
+
+           }
+       }
+    }
+
+    public void addToBeDeleted(int position) {
+        boolean found = false;
+        for(int i=0; i<this.toBeDeletedList.size(); i++){
+            if(this.toBeDeletedList.get(i).equals(position)){
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            this.toBeDeletedList.add(position);
+        }
+    }
+    public void removeToBeDeleted(int position){
+        for(int i=0; i<this.toBeDeletedList.size(); i++){
+            if(this.toBeDeletedList.get(i).equals(position)){
+                this.toBeDeletedList.remove(i);
+                break;
+            }
+        }
+        if(this.toBeDeletedList.size() == 0){
+            this.setDeletionMode(false);
+            this.setButtonDeleteDealer(false);
+            myAdapterDealerShow.notifyDataSetChanged();
+        }
+    }
+
+
+    public Boolean isDeletionMode() {        return deletionMode;    }
+    public void setDeletionMode(Boolean deletionMode) {        this.deletionMode = deletionMode;    }
+    public JSONObject getJsonObjectToDelete() {        return jsonObjectToDelete;    }
+    public void setJsonObjectToDelete(JSONObject jsonObjectToDelete) {   this.jsonObjectToDelete = jsonObjectToDelete;    }
+
+    class HttpsRequestCheckSessionAlive extends AsyncTask<String, Void, InputStream> {
+        private static final String check_session_alive_url = "check_session_alive.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestCheckSessionAlive(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+
+            connector = new Connector(context, check_session_alive_url);
+            connector.addPostParameter("user_id", MCrypt2.encodeToString(myUser.getId().toString()));
+            connector.addPostParameter("session", MCrypt2.encodeToString(myUser.getSessionId()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            connector.decodeResponse();
+
+            JSONObject object = null;
+            try {
+                object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                String status  = object.getString("status");
+                String msg     = object.getString("msg");
+                //String control = object.getString("control");
+                if (status.equals("1")) {
+                    //---here actions than should continue if session still valid
+                    onRefresh();
+                }else{
+                    //session and last activity deleted in DB, app will log-out
+                    Toast.makeText(context, context.getResources().getString(R.string.session_expired), Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            unlockView();
+            super.onPostExecute(inputStream);
+        }
+    }
     class HttpsRequestGetDealerList extends AsyncTask<String, Void, InputStream> {
         private static final String get_dealer_list_url = "get_dealer_list.php";
 
@@ -151,6 +285,47 @@ public class ActivityDealerShow extends AppCompatActivity implements SwipeRefres
                 e.printStackTrace();
             }
             return dealerArrayList;
+        }
+    }
+    class HttpsRequestDealerDelete extends AsyncTask<String, Void, InputStream> {
+        private static final String delete_dealer_url   = "delete_dealer.php";
+
+        private Context context;
+        Connector connector;
+
+        public HttpsRequestDealerDelete(Context ctx){
+            context = ctx;
+        }
+
+        @Override
+        protected InputStream doInBackground(String... strings) {
+            connector = new Connector(context, delete_dealer_url);
+            connector.addPostParameter("toDelete", MCrypt2.encodeToString(getJsonObjectToDelete().toString()));
+            connector.send();
+            connector.receive();
+            connector.disconnect();
+            String result = connector.getResult();
+            result = result;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            try{
+                connector.decodeResponse();
+                JSONObject object = MCrypt.decryptJSONObject((JSONObject) connector.getResultJsonArray().get(0));
+                String login_status = object.getString("status");
+                if (login_status.equals("1")) {
+                    Toast.makeText(this.context, getResources().getString(R.string.deleted), Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this.context, getResources().getString(R.string.issue), Toast.LENGTH_SHORT).show();
+                }
+                onRefresh();
+            }catch (Exception e){
+
+            }
+            super.onPostExecute(inputStream);
         }
     }
 }

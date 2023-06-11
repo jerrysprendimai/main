@@ -100,7 +100,7 @@ public class FragmentOrderPart3 extends Fragment implements Html.ImageGetter{
 
         cardViewDealer.setVisibility(View.GONE);
         recyclerViewDealer.setVisibility(View.VISIBLE);
-        myAdapterDealerShow = new MyAdapterDealerShow(context, ((ActivityOrder1)context).getMyDealer(), ((ActivityOrder1)context).getMyDealer(), "dealerShowP3", null, false);
+        myAdapterDealerShow = new MyAdapterDealerShow(context, ((ActivityOrder1)context).getMyDealer(), ((ActivityOrder1)context).getMyDealer(), "dealerShowP3", null, false, ((ActivityOrder1)context).getMyUser());
         recyclerViewDealer.setAdapter(myAdapterDealerShow);
         recyclerViewDealer.setLayoutManager(new LinearLayoutManager(context));
 

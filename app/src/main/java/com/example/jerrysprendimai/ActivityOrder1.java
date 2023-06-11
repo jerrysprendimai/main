@@ -153,7 +153,7 @@ public class ActivityOrder1 extends AppCompatActivity {
 
         dealerOnClickListener = v-> {
             dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_with_recycler_view, findViewById(R.id.order_pt1_main_containerView), false);
-            MyAdapterDealerShow myAdapterDealerShow = new MyAdapterDealerShow(this, myDealerList, myDealerListOriginal, "dealerShowDialogP1", null, false);
+            MyAdapterDealerShow myAdapterDealerShow = new MyAdapterDealerShow(this, myDealerList, myDealerListOriginal, "dealerShowDialogP1", null, false, myUser);
             RecyclerView dialogRecyclerViewDealer = dialogView.findViewById(R.id.my_recycle_view_dialog);
             dialogRecyclerViewDealer.setAdapter(myAdapterDealerShow);
             dialogRecyclerViewDealer.setLayoutManager(new LinearLayoutManager(this));
@@ -277,7 +277,7 @@ public class ActivityOrder1 extends AppCompatActivity {
         //recyclerViewDealer.setVisibility(View.VISIBLE);
         myDealer = new ArrayList<>();
         myDealer.add(myDealerList.get(adapterPosition));
-        myAdapterDealer = new MyAdapterDealerShow(this, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, false);
+        myAdapterDealer = new MyAdapterDealerShow(this, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, false, myUser);
         //recyclerViewDealer.setAdapter(myAdapterDealer);
         //recyclerViewDealer.setLayoutManager(new LinearLayoutManager(this));
         dialog.dismiss();
@@ -1074,7 +1074,7 @@ public class ActivityOrder1 extends AppCompatActivity {
                     myAdapterObject = new MyAdapterObjectShowP1(context, null, myObject, myUser, objectOnClickListener, "objectShowP1", false);
                 }
                 if(myDealer != null) {
-                    myAdapterDealer = new MyAdapterDealerShow(context, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, false);
+                    myAdapterDealer = new MyAdapterDealerShow(context, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, false, myUser);
                 }
 
                 //myOrder.setMyObject(myObject.get(0));

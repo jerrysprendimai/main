@@ -93,7 +93,7 @@ public class ActivityEmailShow extends AppCompatActivity implements SwipeRefresh
 
         dealerOnClickListener = v-> {
             dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_with_recycler_view, findViewById(R.id.email_show_main_container), false);
-            MyAdapterDealerShow myAdapterDealerShow = new MyAdapterDealerShow(this, myDealerList, myDealerListOriginal, "dealerShowEmailFilter", null, false);
+            MyAdapterDealerShow myAdapterDealerShow = new MyAdapterDealerShow(this, myDealerList, myDealerListOriginal, "dealerShowEmailFilter", null, false, myUser);
             RecyclerView dialogRecyclerViewDealer = dialogView.findViewById(R.id.my_recycle_view_dialog);
             dialogRecyclerViewDealer.setAdapter(myAdapterDealerShow);
             dialogRecyclerViewDealer.setLayoutManager(new LinearLayoutManager(this));
@@ -361,7 +361,7 @@ public class ActivityEmailShow extends AppCompatActivity implements SwipeRefresh
     public void dealerSelectedCallback(int adapterPosition) {
         myDealer = new ArrayList<>();
         myDealer.add(myDealerList.get(adapterPosition));
-        myAdapterDealer = new MyAdapterDealerShow(this, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, true);
+        myAdapterDealer = new MyAdapterDealerShow(this, myDealer, myDealerListOriginal, "dealerShowP1", dealerOnClickListener, true, myUser);
 
         dealerCardView.setVisibility(View.GONE);
         dealerFilterRecyclerView.setVisibility(View.VISIBLE);

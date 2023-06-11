@@ -1,9 +1,11 @@
 package com.example.jerrysprendimai;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,9 +31,10 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
     View.OnClickListener onClickListener;
     ArrayList<MyViewHolder> myViewHolderArrayList;
     Boolean infalteSmall;
+    ObjectUser myUser;
 
 
-    public MyAdapterDealerShow(Context context, List<ObjectDealer> myDealerList, List<ObjectDealer> myDealerListFull, String type, View.OnClickListener onClickListener, Boolean infalteSmall) {
+    public MyAdapterDealerShow(Context context, List<ObjectDealer> myDealerList, List<ObjectDealer> myDealerListFull, String type, View.OnClickListener onClickListener, Boolean infalteSmall, ObjectUser myUser) {
         this.context = context;
         this.myDealerList = myDealerList;
         this.myDealerListFull = myDealerListFull;
@@ -40,18 +43,26 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
         this.onClickListener = onClickListener;
         this.myViewHolderArrayList = new ArrayList<>();
         this.infalteSmall = infalteSmall;
+        this.myUser = myUser;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
         TextView dealerName, dealerEmail;
+        ImageView checkedImage;
         LinearLayout myRow;
+        boolean myHoldIndicator;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
             dealerName  = itemView.findViewById(R.id.dealer_name);
             dealerEmail = itemView.findViewById(R.id.dealer_email);
+            checkedImage = itemView.findViewById(R.id.dealer_img_delete);
             myRow = itemView.findViewById(R.id.dealer_row);
+        }
+        public void setMyHoldIndicator(boolean value) {  this.myHoldIndicator = value; }
+        public boolean isMyHoldIndicator() {
+            return myHoldIndicator;
         }
     }
 
@@ -73,16 +84,52 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
     @Override
     public void onBindViewHolder(@NonNull MyAdapterDealerShow.MyViewHolder holder, int position) {
         ObjectDealer objectDealer = myDealerList.get(holder.getAdapterPosition());
+        objectDealer.setMyViewHolderUserShow(holder);
+
+        //---------------hide delete indicator
+        if(!holder.isMyHoldIndicator()){
+            holder.checkedImage.setVisibility(View.GONE);
+        }
 
         if(!myViewHolderArrayList.contains(holder)){
             myViewHolderArrayList.add(holder);
         }
 
         View.OnClickListener onRowClickListener = null;
+        View.OnLongClickListener onLongClickListener = null;
         if(type.equals(dealerShow)){
             onRowClickListener = v-> {
-
+                if(((ActivityDealerShow)context).isDeletionMode()){
+                    if(!holder.isMyHoldIndicator()){
+                        if( holder.checkedImage.getVisibility() == View.GONE){
+                            holder.checkedImage.setVisibility(View.VISIBLE);
+                            ((ActivityDealerShow) context).addToBeDeleted(position);
+                        }else{
+                            holder.checkedImage.setVisibility(View.GONE);
+                            ((ActivityDealerShow) context).removeToBeDeleted(position);
+                        }
+                    }else{
+                        holder.setMyHoldIndicator(false);
+                    }
+                }else{
+                    ((ActivityDealerShow)context).lockView();
+                    Intent intent = new Intent(context, ActivityDealerEdit.class);
+                    intent.putExtra("myDealer", objectDealer);
+                    intent.putExtra("myUser", myUser);
+                    context.startActivity(intent);
+                }
             };
+            if((myUser.getUser_lv().equals("admin"))||(myUser.getUser_lv().equals("owner"))){
+                onLongClickListener = v -> {
+                    ((ActivityDealerShow)context).setDeletionMode(true);
+                    ((ActivityDealerShow) context).setButtonDeleteDealer(true);
+                    ((ActivityDealerShow) context).addToBeDeleted(position);
+                    holder.checkedImage.setVisibility(View.VISIBLE);
+                    holder.setMyHoldIndicator(true);
+                    return false;
+                };
+            }
+
         }else if(type.equals(dealerShowDialogP1)){
             onRowClickListener = v-> {
                 ((ActivityOrder1)context).dealerSelectedCallback(holder.getAdapterPosition());
@@ -99,6 +146,7 @@ public class MyAdapterDealerShow extends RecyclerView.Adapter<MyAdapterDealerSho
         holder.dealerEmail.setText(objectDealer.getEmail());
         if(!type.equals(dealerShowP3)){
             holder.myRow.setOnClickListener(onRowClickListener);
+            holder.myRow.setOnLongClickListener(onLongClickListener);
         }else{
             holder.myRow.setClickable(false);
             holder.myRow.setEnabled(false);

@@ -123,7 +123,7 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
         }*/
 
         holder.myRow.setOnClickListener(v -> {
-            ((ActivityUserShow)context).lockView();
+            //((ActivityUserShow)context).lockView();
             if (((ActivityUserShow) context).getDeletionMode().equals(true)){
                 if(objectUser.getUname().equals("admin")){
                     return;
@@ -140,6 +140,7 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
                     holder.setMyHoldIndicator(false);
                 }
             }else{
+            ((ActivityUserShow)context).lockView();
             //((UserShow) context).swipeRefreshCommit(true);
             parentView.findViewById(R.id.my_swipe_refresh);
             ObjectUser objectUser1 = myUserList.get(holder.getPosition());
@@ -160,16 +161,13 @@ public class MyAdapterUserShow extends RecyclerView.Adapter<MyAdapterUserShow.My
                 return false;
             }
         });*/
-        holder.myRow.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ((ActivityUserShow) context).setDeletionMode(true);
-                ((ActivityUserShow) context).setButtonDeleteUser();
-                ((ActivityUserShow) context).addToBeDeleted(position);
-                holder.myPersonCeckImg.setVisibility(View.VISIBLE);
-                holder.setMyHoldIndicator(true);
-                return false;
-            }
+        holder.myRow.setOnLongClickListener(v -> {
+            ((ActivityUserShow) context).setDeletionMode(true);
+            ((ActivityUserShow) context).setButtonDeleteUser();
+            ((ActivityUserShow) context).addToBeDeleted(position);
+            holder.myPersonCeckImg.setVisibility(View.VISIBLE);
+            holder.setMyHoldIndicator(true);
+            return false;
         });
     }
 
