@@ -91,6 +91,18 @@
         android:visibility="invisible"
         android:contentDescription="@string/object_jobName" />
     <TextView
+        android:id="@+id/objectDetailsPicture_name"
+        android:layout_marginTop="0dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppinsmedium"
+        android:gravity="center|top"
+        android:textStyle="bold"
+        android:textSize="8sp"
+        android:hint="picture_name sime addididsaidsadi"
+        />
+    <TextView
         android:id="@+id/objectDetailsPicture_uname"
         android:layout_marginTop="0dp"
         android:layout_width="match_parent"

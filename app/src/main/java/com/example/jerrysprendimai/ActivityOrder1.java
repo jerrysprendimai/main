@@ -17,6 +17,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.Html;
@@ -55,10 +57,13 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -363,8 +368,18 @@ public class ActivityOrder1 extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             try {
                 Intent intent = new Intent();
-                intent.setType("image/*");
+                //intent.setType("image/*");
+                intent.setType("*/*");
+                String[] mimetypes = {"image/*",
+                                      "application/pdf",
+                                      "application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .doc & .docx
+                                      "application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation", // .ppt & .pptx
+                                      "application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xls & .xlsx
+                                      "text/plain"
+                                     };
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 this.startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_MULTIPLE);
             }catch(Exception e){
@@ -466,6 +481,14 @@ public class ActivityOrder1 extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        String[] mimetypes = {"image/*",
+                "application/pdf",
+                "application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .doc & .docx
+                "application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation", // .ppt & .pptx
+                "application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xls & .xlsx
+                "text/plain"
+        };
+
         //-----take picture
         if(resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE ){
 
@@ -495,46 +518,263 @@ public class ActivityOrder1 extends AppCompatActivity {
         //-----add picture/add pictures
         if(resultCode == RESULT_OK && (requestCode == IMAGE_PICK_CODE || requestCode == PICK_IMAGE_MULTIPLE)){
             try {
+                ContentResolver cr = this.getContentResolver();
                 for (int i = 0; i < data.getClipData().getItemCount(); i++) {
-                    Uri filePath = data.getClipData().getItemAt(i).getUri();
-                    Cursor cursor = this.getContentResolver().query(filePath, null, null, null, null);
+                    Uri uri = data.getClipData().getItemAt(i).getUri();
+
+                    String mime = cr.getType(uri);
+                    if(!Arrays.asList(mimetypes).contains(mime)){
+                        if(!mime.contains("image/")) {
+                            Toast.makeText(this, getResources().getString(R.string.not_supported), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    Cursor cursor = this.getContentResolver().query(uri, null, null, null, null);
                     int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
 
                     cursor.moveToFirst();
                     String fileName = "order_" + myUser.getId().toString() + "_" + myOrder.getMyObject().getId().toString() + "_" + cursor.getString(nameIndex);
 
+                    String mimeType = getContentResolver().getType(uri);
+                    String filePath = "";
+                    if(!mimeType.contains("image/")){
+                        String filename = "";
+                        if (mimeType == null) {
+                            String path = getPath(this, uri);
+                            if (path == null) {
+                                //filename = FilenameUtils.getName(uri.toString());
+                            } else {
+                                File file = new File(path);
+                                filename = file.getName();
+                            }
+                        } else {
+                            Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
+                            int nameIndexx = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                            int sizeIndexx = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                            returnCursor.moveToFirst();
+                            filename = returnCursor.getString(nameIndexx);
+                            String size = Long.toString(returnCursor.getLong(sizeIndexx));
+                        }
+                        File fileSave = getExternalFilesDir(null);
+                        String sourcePath = getExternalFilesDir(null).toString();
+
+                        //File file1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/download/"+ cursor.getString(nameIndex));
+                        try {
+                            File file = new File(sourcePath +"/"+ filename);
+                            filePath = sourcePath +"/"+ filename;
+                            copyFileStream(file, uri,this);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
                     ObjectObjPic newPic = new ObjectObjPic();
+                    newPic.setMimeType(mimeType);
                     newPic.setPosNr(myOrder.getMyPictureList().size());
                     newPic.setUserId(myUser.getId());
                     newPic.setFirstName(myUser.getFirst_name());
-                    newPic.setPicUri(filePath.toString());
+                    newPic.setPicUri(uri.toString());
                     newPic.setObjectId(myOrder.getMyObject().getId());
                     newPic.setPicName(fileName);
+                    newPic.setFilePath(filePath);
+
                     myOrder.getMyPictureList().add(newPic);
+
                 }
             }catch (Exception e){
                 //set image to image view
-                Uri filePath = data.getData();
-                Cursor cursor = this.getContentResolver().query(filePath, null,null,null,null);
+                Uri uri = data.getData();
+                Cursor cursor = this.getContentResolver().query(uri, null, null, null, null);
+
+                ContentResolver cr = this.getContentResolver();
+                String mime = cr.getType(uri);
+
+                if(!Arrays.asList(mimetypes).contains(mime)){
+                    if(!mime.contains("image/")) {
+                        Toast.makeText(this, getResources().getString(R.string.not_supported), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+
                 cursor.moveToFirst();
                 String fileName = "order_" + myUser.getId().toString() + "_" + myOrder.getMyObject().getId().toString() + "_" + cursor.getString(nameIndex);
 
+                String mimeType = getContentResolver().getType(uri);
+                String filePath = "";
+                if(!mimeType.contains("image/")){
+                    String filename = "";
+                    if (mimeType == null) {
+                        String path = getPath(this, uri);
+                        if (path == null) {
+                            //filename = FilenameUtils.getName(uri.toString());
+                        } else {
+                            File file = new File(path);
+                            filename = file.getName();
+                        }
+                    } else {
+                        Uri returnUri = data.getData();
+                        Cursor returnCursor = getContentResolver().query(returnUri, null, null, null, null);
+                        int nameIndexx = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                        int sizeIndexx = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                        returnCursor.moveToFirst();
+                        filename = returnCursor.getString(nameIndexx);
+                        String size = Long.toString(returnCursor.getLong(sizeIndexx));
+                    }
+                    File fileSave = getExternalFilesDir(null);
+                    String sourcePath = getExternalFilesDir(null).toString();
+
+                    //File file1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/download/"+ cursor.getString(nameIndex));
+                    try {
+                        File file = new File(sourcePath +"/"+ filename);
+                        filePath = sourcePath +"/"+ filename;
+                        copyFileStream(file, uri,this);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
                 ObjectObjPic newPic = new ObjectObjPic();
+                newPic.setMimeType(mimeType);
                 newPic.setPosNr(myOrder.getMyPictureList().size());
                 newPic.setUserId(myUser.getId());
                 newPic.setFirstName(myUser.getFirst_name());
-                newPic.setPicUri(filePath.toString());
+                newPic.setPicUri(uri.toString());
                 newPic.setObjectId(myOrder.getMyObject().getId());
                 newPic.setPicName(fileName);
+                newPic.setFilePath(filePath);
+
                 myOrder.getMyPictureList().add(newPic);
             }
             myAdapterOrderPicture.notifyDataSetChanged();
         }
 
         fragmentOrderPart2.checkAbleToProceed();
+    }
+
+    private void copyFileStream(File dest, Uri uri, Context context)throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = context.getContentResolver().openInputStream(uri);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            is.close();
+            os.close();
+        }
+    }
+
+    public static String getPath(Context context, Uri uri) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // DocumentProvider
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                // ExternalStorageProvider
+                if (isExternalStorageDocument(uri)) {
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+
+                    if ("primary".equalsIgnoreCase(type)) {
+                        return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    }
+                    // TODO handle non-primary volumes
+                }
+                // DownloadsProvider
+                else if (isDownloadsDocument(uri)) {
+                    final String id = DocumentsContract.getDocumentId(uri);
+                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                    return getDataColumn(context, contentUri, null, null);
+                }
+                // MediaProvider
+                else if (isMediaDocument(uri)) {
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+                    Uri contentUri = null;
+                    if ("image".equals(type)) {
+                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("video".equals(type)) {
+                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("audio".equals(type)) {
+                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                    }
+                    final String selection = "_id=?";
+                    final String[] selectionArgs = new String[]{split[1]};
+                    return getDataColumn(context, contentUri, selection, selectionArgs);
+                }
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
+    }
+
+    public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {column};
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    public static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
     @Override
@@ -710,6 +950,7 @@ public class ActivityOrder1 extends AppCompatActivity {
                 connector.decodeResponse();
                 JSONObject responseObject = (JSONObject) connector.getResultJsonArray().get(0);
                 String saveStatus = MCrypt.decryptSingle(responseObject.getString("status"));
+                //String cntrl_msg  = MCrypt.decryptSingle(responseObject.getString("cntrl_msg"));
                 String msg        = MCrypt.decryptSingle(responseObject.getString("msg"));
                 if (saveStatus.equals("1")) {
                     objectObjPic.setPicUrl(msg);

@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -589,25 +590,80 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
 
     }
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data, MyViewHolder holder, int resultOk, String actionTp){
+        String[] mimetypes = {"image/*",
+                "application/pdf",
+                "application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .doc & .docx
+                "application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation", // .ppt & .pptx
+                "application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xls & .xlsx
+                "text/plain"
+        };
+
         //-----add picture/add pictures
         if(resultCode == resultOk && (requestCode == IMAGE_PICK_CODE || requestCode == PICK_IMAGE_MULTIPLE)){
             try {
+                ContentResolver cr = context.getContentResolver();
                 for (int i = 0; i < data.getClipData().getItemCount(); i++) {
-                    Uri filePath = data.getClipData().getItemAt(i).getUri();
-                    Cursor cursor = context.getContentResolver().query(filePath, null, null, null, null);
+                    Uri uri = data.getClipData().getItemAt(i).getUri();
+
+                    String mime = cr.getType(uri);
+                    if(!Arrays.asList(mimetypes).contains(mime)){
+                        if(!mime.contains("image/")) {
+                            Toast.makeText(context, context.getResources().getString(R.string.not_supported), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
                     int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
 
                     cursor.moveToFirst();
                     String fileName = myUser.getId().toString() + "_" + myObjectList.get(holder.getAdapterPosition()).getObjectId().toString() + "_" + cursor.getString(nameIndex);
 
+                    String mimeType = context.getContentResolver().getType(uri);
+                    String filePath = "";
+                    if(!mimeType.contains("image/")){
+                        String filename = "";
+                        if (mimeType == null) {
+                            String path = ((ActivityObjectEdit)context).getPath(context, uri);
+                            if (path == null) {
+                                //filename = FilenameUtils.getName(uri.toString());
+                            } else {
+                                File file = new File(path);
+                                filename = file.getName();
+                            }
+                        } else {
+                            Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
+                            int nameIndexx = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                            int sizeIndexx = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                            returnCursor.moveToFirst();
+                            filename = returnCursor.getString(nameIndexx);
+                            String size = Long.toString(returnCursor.getLong(sizeIndexx));
+                        }
+                        File fileSave = ((ActivityObjectEdit)context).getExternalFilesDir(null);
+                        String sourcePath = ((ActivityObjectEdit)context).getExternalFilesDir(null).toString();
+
+                        //File file1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/download/"+ cursor.getString(nameIndex));
+                        try {
+                            File file = new File(sourcePath +"/"+ filename);
+                            filePath = sourcePath +"/"+ filename;
+                            ((ActivityObjectEdit)context).copyFileStream(file, uri,context);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
+
                     ObjectObjPic newPic = new ObjectObjPic();
+                    newPic.setMimeType(mimeType);
+                    newPic.setPosNr(holder.getAdapterPosition());
                     newPic.setUserId(myUser.getId());
                     newPic.setFirstName(myUser.getFirst_name());
-                    newPic.setPicUri(filePath.toString());
+                    newPic.setPicUri(uri.toString());
                     newPic.setObjectId(((ActivityObjectEdit) context).objectObject.getId());
-                    newPic.setPosNr(holder.getAdapterPosition());
                     newPic.setPicName(fileName);
+                    newPic.setFilePath(filePath);
+
                     myObjectListPic.add(newPic);
                     holder.filteredPics.add(newPic);
 
@@ -622,20 +678,69 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
                 }
             }catch (Exception e){
                 //set image to image view
-                Uri filePath = data.getData();
-                Cursor cursor = context.getContentResolver().query(filePath, null,null,null,null);
+                Uri uri = data.getData();
+                Cursor cursor = context.getContentResolver().query(uri, null,null,null,null);
+
+                ContentResolver cr = context.getContentResolver();
+                String mime = cr.getType(uri);
+
+                if(!Arrays.asList(mimetypes).contains(mime)){
+                    if(!mime.contains("image/")) {
+                        Toast.makeText(context, context.getResources().getString(R.string.not_supported), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+
                 cursor.moveToFirst();
                 String fileName = myUser.getId().toString() + "_" + myObjectList.get(holder.getAdapterPosition()).getObjectId().toString() + "_" + cursor.getString(nameIndex);
 
+                String mimeType = context.getContentResolver().getType(uri);
+                String filePath = "";
+                if(!mimeType.contains("image/")){
+                    String filename = "";
+                    if (mimeType == null) {
+                        String path = ((ActivityObjectEdit)context).getPath(context, uri);
+                        if (path == null) {
+                            //filename = FilenameUtils.getName(uri.toString());
+                        } else {
+                            File file = new File(path);
+                            filename = file.getName();
+                        }
+                    } else {
+                        Uri returnUri = data.getData();
+                        Cursor returnCursor = context.getContentResolver().query(returnUri, null, null, null, null);
+                        int nameIndexx = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                        int sizeIndexx = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                        returnCursor.moveToFirst();
+                        filename = returnCursor.getString(nameIndexx);
+                        String size = Long.toString(returnCursor.getLong(sizeIndexx));
+                    }
+                    File fileSave = ((ActivityObjectEdit)context).getExternalFilesDir(null);
+                    String sourcePath = ((ActivityObjectEdit)context).getExternalFilesDir(null).toString();
+
+                    //File file1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/download/"+ cursor.getString(nameIndex));
+                    try {
+                        File file = new File(sourcePath +"/"+ filename);
+                        filePath = sourcePath +"/"+ filename;
+                        ((ActivityObjectEdit)context).copyFileStream(file, uri,context);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
                 ObjectObjPic newPic = new ObjectObjPic();
+                newPic.setMimeType(mimeType);
+                newPic.setPosNr(holder.getAdapterPosition());
                 newPic.setUserId(myUser.getId());
                 newPic.setFirstName(myUser.getFirst_name());
-                newPic.setPicUri(filePath.toString());
+                newPic.setPicUri(uri.toString());
                 newPic.setObjectId(((ActivityObjectEdit)context).objectObject.getId());
-                newPic.setPosNr(holder.getAdapterPosition());
                 newPic.setPicName(fileName);
+                newPic.setFilePath(filePath);
+
                 myObjectListPic.add(newPic);
                 holder.filteredPics.add(newPic);
 
@@ -751,8 +856,18 @@ public class MyAdapterObjectEdit extends RecyclerView.Adapter<MyAdapterObjectEdi
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             try {
                 Intent intent = new Intent();
-                intent.setType("image/*");
+                //intent.setType("image/*");
+                intent.setType("*/*");
+                String[] mimetypes = {"image/*",
+                        "application/pdf",
+                        "application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .doc & .docx
+                        "application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation", // .ppt & .pptx
+                        "application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xls & .xlsx
+                        "text/plain"
+                };
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 ((ActivityObjectEdit)context).startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_MULTIPLE);
             }catch(Exception e){

@@ -9,9 +9,11 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -29,6 +31,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.jerrysprendimai.interfaces.PicRecyclerViewClickListener;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
@@ -60,7 +63,7 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
         ImageView myExpandedImage;
         ImageView myImage, myImageUpl, myImageUplFailed, myImageUplLock;
         ProgressBar myProgressBar, myProgressBarUpl;
-        TextView myPictureUname;
+        TextView myPictureUname, myAttachmentName;
         LinearLayout myContainer;
         boolean bacgroundMarked;
 
@@ -78,6 +81,7 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
             myProgressBarUpl = itemView.findViewById(R.id.objectDetailsPicture_progressBar_upl);
             myImageUplLock   = itemView.findViewById(R.id.objectDetailsPicture_upl_lock);
             myPictureUname   = itemView.findViewById(R.id.objectDetailsPicture_uname);
+            myAttachmentName = itemView.findViewById(R.id.objectDetailsPicture_name);
         }
         public boolean isMyHoldIndicator() {return myHoldIndicator;}
         public void setMyHoldIndicator(boolean myHoldIndicator) {this.myHoldIndicator = myHoldIndicator;}
@@ -125,7 +129,9 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
 
         holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_picture_placeholder_white));
         holder.myProgressBar.setVisibility(View.VISIBLE);
-        if(objectObjPic.getPicUri().length() > 0){
+
+        if(objectObjPic.getMimeType().contains("image/")){
+            if(objectObjPic.getPicUri().length() > 0){
 
             holder.myImageUpl.setVisibility(View.VISIBLE);
             holder.myImageUpl.setColorFilter(context.getResources().getColor(R.color.jerry_blue), PorterDuff.Mode.SRC_ATOP);
@@ -144,7 +150,6 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
                             holder.myImage.setImageBitmap(resource);
                             //objectObjPic.setImageResource(resource);
                         }
-
                         @Override
                         public void onLoadCleared(@Nullable Drawable placeholder) {
                         }
@@ -171,6 +176,22 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
                         }
                     });
         }
+        }else{
+            holder.myAttachmentName.setVisibility(View.VISIBLE);
+            holder.myAttachmentName.setText(objectObjPic.getPicName());
+            holder.myProgressBar.setVisibility(View.GONE);
+            if(objectObjPic.getMimeType().contains("pdf")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_pdf));
+            }else if(objectObjPic.getMimeType().contains("doc")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_doc));
+            }else if(objectObjPic.getMimeType().contains("ppt")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_ppt));
+            }else if(objectObjPic.getMimeType().contains("xls")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_xls));
+            }else if(objectObjPic.getMimeType().contains("txt")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_txt));
+            }
+        }
 
         holder.myPictureUname.setVisibility(View.GONE);
         holder.myImageUpl.setVisibility(View.GONE);
@@ -179,40 +200,24 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
         holder.myImage.setOnClickListener(v -> {
             //((ActivityObjectEdit)context).setBackButtonCount(0);
             if(!((ActivityOrder1)context).isDeletionMode()){
-                /*if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
-                    if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
-                        for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
-                            parentAdapterObjectEdit.toBeDeletedList.get(i).getHolder().myContainer.setBackgroundColor(Color.TRANSPARENT);
-                        }
-                        parentAdapterObjectEdit.toBeDeletedList.removeAll(parentAdapterObjectEdit.toBeDeletedList);
-                        ((ActivityObjectEdit)context).getDeletePictureViewHolder().setDeletionModeButtons(false);
-                        ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
-                        //parentAdapterObjectEdit.setDeletionModeViewHolder(parentAdapterObjectEdit);
-                    }
-                }*/
                 if(!holder.isMyHoldIndicator()){
-                    Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
-                    intent.putParcelableArrayListExtra("myPictureList", myPictureList);
-                    intent.putExtra("myUser", myUser);
-                    intent.putExtra("myPosition", holder.getAdapterPosition());
-                    context.startActivity(intent);
+                    if(objectObjPic.getMimeType().contains("image/")){
+                        Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
+                        intent.putParcelableArrayListExtra("myPictureList", myPictureList);
+                        intent.putExtra("myUser", myUser);
+                        intent.putExtra("myPosition", holder.getAdapterPosition());
+                        context.startActivity(intent);
+                    }else{
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.fromFile(new File(objectObjPic.getFilePath())), objectObjPic.getMimeType());
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
                 }else{
                     holder.setMyHoldIndicator(false);
                 }
             }else{
-                /*if( ((ActivityObjectEdit)context).getDeletePictureViewHolder() != null){
-                    if(!((ActivityObjectEdit)context).getDeletePictureViewHolder().equals(parentHolder)){
-                        for(int i = 0; i < parentAdapterObjectEdit.toBeDeletedList.size(); i++){
-                            parentAdapterObjectEdit.toBeDeletedList.get(i).getHolder().myContainer.setBackgroundColor(Color.TRANSPARENT);
-                        }
-                        parentAdapterObjectEdit.toBeDeletedList.removeAll(parentAdapterObjectEdit.toBeDeletedList);
-                        ((ActivityObjectEdit)context).getDeletePictureViewHolder().setDeletionModeButtons(false);
-                        ((ActivityObjectEdit)context).setDeletePictureViewHolder(parentHolder);
-                        parentAdapterObjectEdit.setDeletionMode(false);
-                        return;
-                        //parentAdapterObjectEdit.setDeletionModeViewHolder(parentAdapterObjectEdit);
-                    }
-                }*/
                 if(!holder.isMyHoldIndicator()) {
                     if (holder.isBacgroundMarked()) {
                         holder.setBacgroundMarked(false);
@@ -235,10 +240,6 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
             }
         });
 
-        //holder.myPictureUname.setHint(objectObjPic.getFirstName());
-        //holder.myPictureUname.setHintTextColor(context.getResources().getColor(R.color.teal_700));
-
-
             if(!type.equals(objectShowP3)){
                 holder.myImage.setOnLongClickListener(v -> {
                     holder.myImage.setSoundEffectsEnabled(false);
@@ -258,6 +259,15 @@ public class MyAdapterOrderPicture extends RecyclerView.Adapter<MyAdapterOrderPi
                 });
             }
 
+    }
+    public String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = ((ActivityOrder1)context).managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String path = cursor.getString(column_index);
+        cursor.close();
+        return path;
     }
     @Override
     public int getItemCount() {

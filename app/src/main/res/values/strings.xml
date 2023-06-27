@@ -101,4 +101,5 @@
     <string name="replying">Atrašyti</string>
     <string name="dealer_name">Tiekėjo Vardas/Pavadinimas</string>
     <string name="error_email">klaida</string>
+    <string name="not_supported">Blogas failo formatas</string>
 </resources>

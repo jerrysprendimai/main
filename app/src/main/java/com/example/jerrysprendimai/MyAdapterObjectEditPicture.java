@@ -68,7 +68,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
         ImageView myExpandedImage;
         ImageView myImage, myImageUpl, myImageUplFailed, myImageUplLock;
         ProgressBar myProgressBar, myProgressBarUpl;
-        TextView myPictureUname;
+        TextView myPictureUname, myAttachmentName;
         LinearLayout myContainer;
         boolean bacgroundMarked;
 
@@ -86,6 +86,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
             myProgressBarUpl = itemView.findViewById(R.id.objectDetailsPicture_progressBar_upl);
             myImageUplLock   = itemView.findViewById(R.id.objectDetailsPicture_upl_lock);
             myPictureUname   = itemView.findViewById(R.id.objectDetailsPicture_uname);
+            myAttachmentName = itemView.findViewById(R.id.objectDetailsPicture_name);
         }
         public boolean isMyHoldIndicator() {return myHoldIndicator;}
         public void setMyHoldIndicator(boolean myHoldIndicator) {this.myHoldIndicator = myHoldIndicator;}
@@ -172,51 +173,68 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
 
         holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_picture_placeholder_white));
         holder.myProgressBar.setVisibility(View.VISIBLE);
-        if(objectObjPic.getPicUri().length() > 0){
 
-            holder.myImageUpl.setVisibility(View.VISIBLE);
-            holder.myImageUpl.setColorFilter(context.getResources().getColor(R.color.jerry_blue), PorterDuff.Mode.SRC_ATOP);
+        if(objectObjPic.getMimeType().contains("image/")){
+            if(objectObjPic.getPicUri().length() > 0){
 
-            Glide.with(context)
-                    .asBitmap()
-                    .load(Uri.parse(objectObjPic.picUri))
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                    .apply(new RequestOptions().override(500,500).centerInside())
-                    .into(new CustomTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            holder.myProgressBar.setVisibility(View.GONE);
-                            holder.myImage.setImageBitmap(resource);
-                            //objectObjPic.setImageResource(resource);
-                        }
+                holder.myImageUpl.setVisibility(View.VISIBLE);
+                holder.myImageUpl.setColorFilter(context.getResources().getColor(R.color.jerry_blue), PorterDuff.Mode.SRC_ATOP);
 
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                        }
-                    });
+                Glide.with(context)
+                        .asBitmap()
+                        .load(Uri.parse(objectObjPic.picUri))
+                        .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                        .apply(new RequestOptions().override(500,500).centerInside())
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                holder.myProgressBar.setVisibility(View.GONE);
+                                holder.myImage.setImageBitmap(resource);
+                                //objectObjPic.setImageResource(resource);
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                            }
+                        });
+            }else{
+                Glide.with(context)
+                        .asBitmap()
+                        .load(url + "/" + objectObjPic.getPicUrl())
+                        .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                        //.apply(new RequestOptions().override(500,500).centerInside())
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                holder.myProgressBar.setVisibility(View.GONE);
+                                holder.myImage.setImageBitmap(resource);
+                                //objectObjPic.setImageResource(resource);
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                            }
+                        });
+            }
         }else{
-            Glide.with(context)
-                    .asBitmap()
-                    .load(url + "/" + objectObjPic.getPicUrl())
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-
-                    //.apply(new RequestOptions().override(500,500).centerInside())
-                    .into(new CustomTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            holder.myProgressBar.setVisibility(View.GONE);
-                            holder.myImage.setImageBitmap(resource);
-                            //objectObjPic.setImageResource(resource);
-                        }
-
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                        }
-                    });
+            holder.myAttachmentName.setVisibility(View.VISIBLE);
+            holder.myAttachmentName.setText(objectObjPic.getPicName());
+            holder.myProgressBar.setVisibility(View.GONE);
+            if(objectObjPic.getMimeType().contains("pdf")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_pdf));
+            }else if(objectObjPic.getMimeType().contains("doc")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_doc));
+            }else if(objectObjPic.getMimeType().contains("ppt")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_ppt));
+            }else if(objectObjPic.getMimeType().contains("xls")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_xls));
+            }else if(objectObjPic.getMimeType().contains("txt")){
+                holder.myImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_svg_txt));
+            }
         }
 
         //-----image click handling
