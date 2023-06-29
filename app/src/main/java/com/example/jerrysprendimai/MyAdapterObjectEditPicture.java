@@ -50,6 +50,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
     PicRecyclerViewClickListener picClickListener;
     MyAdapterObjectEdit parentAdapterObjectEdit;
     MyAdapterObjectEdit.MyViewHolder parentHolder;
+    String url = "";
 
     public MyAdapterObjectEditPicture(Context context, MyAdapterObjectEdit myAdapterObjectEdit, MyAdapterObjectEdit.MyViewHolder myHolder, ViewGroup parentView, ArrayList<ObjectObjPic> pictureList, ObjectUser user){
         this.context             = context;
@@ -149,7 +150,7 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
     }
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        String url = "";
+
 
         ObjectObjPic objectObjPic = myPictureList.get(holder.getAdapterPosition());
         objectObjPic.setHolder(holder);
@@ -253,11 +254,28 @@ public class MyAdapterObjectEditPicture extends RecyclerView.Adapter<MyAdapterOb
                     }
                 }
                 if(!holder.isMyHoldIndicator()){
-                    Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
-                    intent.putParcelableArrayListExtra("myPictureList", myPictureList);
-                    intent.putExtra("myUser", myUser);
-                    intent.putExtra("myPosition", holder.getAdapterPosition());
-                    context.startActivity(intent);
+                    if(objectObjPic.getMimeType().contains("image/")){
+                        Intent intent = new Intent(context, ActivityPictureFullSizeView.class);
+                        intent.putParcelableArrayListExtra("myPictureList", myPictureList);
+                        intent.putExtra("myUser", myUser);
+                        intent.putExtra("myPosition", holder.getAdapterPosition());
+                        context.startActivity(intent);
+                    }else{
+
+                        if (objectObjPic.getPicUri().length() > 0){
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setDataAndType(Uri.fromFile(new File(objectObjPic.getFilePath())), objectObjPic.getMimeType());
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent);
+                        }else{
+                            String pdfUrl = url + "/" + objectObjPic.getPicUrl();
+                            Intent intent = new Intent(context, ActivityPdfShow.class);
+                            intent.putExtra("pdfUrl", pdfUrl);
+                            context.startActivity(intent);
+                        }
+
+                    }
                 }else{
                     holder.setMyHoldIndicator(false);
                 }
